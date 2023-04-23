@@ -15,18 +15,32 @@ export default class ArcanaPlugin extends Plugin {
 	async onload() {
 		// Set up the settings
 		await this.loadSettings();
-		new Notice("Arcana plugin loaded");
-		new Notice("API key: " + this.settings.OPEN_AI_API_KEY);
+
 		this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
 		// Check if the API key is correct with OpenAI by issuing a request
 		this.agent = new ArcanaAgent(this.app, this.settings.OPEN_AI_API_KEY);
-		await this.agent.testAPIKey();
+		await this.agent.init();
+
+		// Set up the commands
+		this.addCommand({
+			id: "arcana-request-embedding-for-current-file",
+			name: "Request embedding for current file",
+			callback: () => {
+				const currentFile = app.workspace.getActiveFile();
+				if (!currentFile) {
+					new Notice("No file is currently open");
+					return;
+				} else {
+					this.agent.requestNewEmbedding(currentFile);
+				}
+			},
+		});
 	}
 
 	onunload() {
 		console.log("Unloading plugin");
-		this.agent.saveVectorStore();
+		//this.agent.saveVectorStore();
 	}
 
 	async loadSettings() {
