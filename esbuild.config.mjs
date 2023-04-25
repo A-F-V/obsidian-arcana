@@ -96,7 +96,7 @@ const context = await esbuild.context({
 	],
 	platform: "node",
 	format: "cjs",
-	target: "es2018",
+	target: "es2020",
 	logLevel: "info",
 	outfile: "main.js",
 	sourcemap: "linked", //prod ? false : "inline",

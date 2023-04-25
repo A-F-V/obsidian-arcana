@@ -1,57 +1,71 @@
-import { Notice, Plugin } from "obsidian";
+import { Notice, Plugin } from 'obsidian';
 
-import ArcanaSettings from "./include/ArcanaSettings";
-import ArcanaSettingsTab from "./components/ArcanaSettingsTab";
-import ArcanaAgent from "./include/AIAgent";
+import ArcanaSettings from './include/ArcanaSettings';
+import ArcanaSettingsTab from './components/ArcanaSettingsTab';
+import ArcanaAgent from './include/AIAgent';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
-	OPEN_AI_API_KEY: "",
+  OPEN_AI_API_KEY: '',
 };
 
 export default class ArcanaPlugin extends Plugin {
-	settings: ArcanaSettings;
-	agent: ArcanaAgent;
+  settings: ArcanaSettings;
+  agent: ArcanaAgent;
 
-	async onload() {
-		// Set up the settings
-		await this.loadSettings();
+  async onload() {
+    // Set up the settings
+    await this.loadSettings();
 
-		this.addSettingTab(new ArcanaSettingsTab(this.app, this));
+    this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
-		// Check if the API key is correct with OpenAI by issuing a request
-		this.agent = new ArcanaAgent(this.app, this.settings.OPEN_AI_API_KEY);
-		await this.agent.init();
+    // Check if the API key is correct with OpenAI by issuing a request
+    this.agent = new ArcanaAgent(this.app, this.settings.OPEN_AI_API_KEY);
+    await this.agent.init();
 
-		// Set up the commands
-		this.addCommand({
-			id: "arcana-request-embedding-for-current-file",
-			name: "Request embedding for current file",
-			callback: () => {
-				const currentFile = app.workspace.getActiveFile();
-				if (!currentFile) {
-					new Notice("No file is currently open");
-					return;
-				} else {
-					this.agent.requestNewEmbedding(currentFile);
-				}
-			},
-		});
-	}
+    // Set up the commands
+    this.addCommand({
+      id: 'arcana-request-embedding-for-current-file',
+      name: 'Request embedding for current file',
+      callback: () => {
+        const currentFile = app.workspace.getActiveFile();
+        if (!currentFile) {
+          new Notice('No file is currently open');
+          return;
+        } else {
+          this.agent.requestNewEmbedding(currentFile);
+        }
+      },
+    });
 
-	onunload() {
-		console.log("Unloading plugin");
-		//this.agent.saveVectorStore();
-	}
+    this.addCommand({
+      id: 'arcana-request-embedding-for-all-files',
+      name: 'Request embedding for all files',
+      callback: () => {
+        this.app.vault.getMarkdownFiles().forEach(async file => {
+          await this.agent.requestNewEmbedding(file);
+        });
+      },
+    });
 
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
-	}
+    this.addCommand({
+      id: 'arcana-force-save',
+      name: 'Force save',
+      callback: async () => {
+        await this.agent.save();
+      },
+    });
+  }
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+  async onunload() {
+    console.log('Unloading plugin');
+    await this.agent.save();
+  }
+
+  async loadSettings() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
 }
