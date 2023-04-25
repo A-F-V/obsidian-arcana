@@ -93,24 +93,17 @@ export default class ArcanaAgent {
     // TODO: Dirty flag
     // Get the embedding for the file
     const text = await this.app.vault.read(file);
-    const embedding = new OpenAIEmbeddings({ openAIApiKey: this.apiKey });
-    const res = (await embedding.embedDocuments([text]))[0];
-
-    // Save it in the vector store
-
-    /*
-		await this.app.fileManager.processFrontMatter(file, (frontMatter) => {
-			const encoded = EmbeddingEncoder.encode(res);
-			frontMatter.arcana = {
-				embedding: encoded,
-			};
-			assert(EmbeddingEncoder.decode(encoded) === res);
-			return frontMatter;
-		});
-    */
     const id = await this.noteIDer.idNote(file);
+    const isDifferent = await this.vectorStore.hasChanged(id, text);
+    if (isDifferent) {
+      console.log(file.path + ' has changed - fetching new embedding');
+      // Get the embedding
+      const embedding = new OpenAIEmbeddings({ openAIApiKey: this.apiKey });
+      const res = (await embedding.embedDocuments([text]))[0];
 
-    await this.vectorStore.setVector(id, res);
+      // Save the embedding
+      await this.vectorStore.setVector(id, res, text);
+    }
   }
 
   public async destruct() {

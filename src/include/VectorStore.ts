@@ -1,46 +1,44 @@
 import { Low, TextFile } from 'lowdb';
 import EmbeddingEncoder from './EmbeddingEncoder';
 import { TFile } from 'obsidian';
+import { hashDocument } from './DocumentHasher';
 // Import JSONFile class
 /*
 TODO: More consistency checks
 */
 class VectorStoreData {
-  //pathToIds: Map<string, number>;
-  //idsToPaths: Map<number, string>;
+  // TODO: Versioning Info
+
   idsToVectors: Map<number, number[]>;
+  idsToDocumentHash: Map<number, string>;
 
   constructor() {
-    // this.pathToIds = new Map();
-    //this.idsToPaths = new Map();
     this.idsToVectors = new Map();
+    this.idsToDocumentHash = new Map();
   }
 
   toJSON() {
     return {
-      // pathToIds: Object.fromEntries(this.pathToIds),
-      // idsToPaths: Object.fromEntries(this.idsToPaths),
       idsToVectors: Object.fromEntries(
         Array.from(this.idsToVectors.entries()).map(([k, v]) => [
           k,
           EmbeddingEncoder.encode(v),
         ])
       ),
+      idsToLastModified: Object.fromEntries(this.idsToDocumentHash),
     };
   }
   fromJSON(json: any) {
-    /*
-    this.pathToIds = new Map(
-      Object.entries(json.pathToIds).map(([k, v]) => [k, Number(v)])
-    );
-    this.idsToPaths = new Map(
-      Object.entries(json.idsToPaths).map(([k, v]) => [Number(k), String(v)])
-    );
-    */
     this.idsToVectors = new Map(
       Object.entries(json.idsToVectors).map(([k, v]) => [
         Number(k),
         EmbeddingEncoder.decode(String(v)),
+      ])
+    );
+    this.idsToDocumentHash = new Map(
+      Object.entries(json.idsToLastModified).map(([k, v]) => [
+        Number(k),
+        String(v),
       ])
     );
   }
@@ -99,19 +97,24 @@ export default class VectorStore {
     return this.store.data;
   }
 
-
   async removeID(id: number) {
     console.log('Removing id ' + id);
     const store = await this.getStore();
     store.idsToVectors.delete(id);
   }
 
-  updateDocument(file: string) {
-    console.log('updating document ' + file);
+  async hasChanged(id: number, document: string): Promise<boolean> {
+    const store = await this.getStore();
+    const hash = hashDocument(document);
+    const lastHash = store.idsToDocumentHash.get(id);
+    if (lastHash === undefined) {
+      return true;
+    }
+    return lastHash != hash;
   }
-
-  async setVector(id: number, vector: number[]) {
+  async setVector(id: number, vector: number[], document: string) {
     const store = await this.getStore();
     store.idsToVectors.set(id, vector);
+    store.idsToDocumentHash.set(id, hashDocument(document));
   }
 }
