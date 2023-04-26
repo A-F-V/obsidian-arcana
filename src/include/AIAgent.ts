@@ -46,6 +46,8 @@ export default class ArcanaAgent {
   async init() {
     await this.setupStorage();
 
+    // TODO: Prune tree of deleted files
+
     app.vault.on('create', async (file: TAbstractFile) => {
       if (file instanceof TFile) {
         const id = await this.noteIDer.idNote(file);
@@ -53,7 +55,10 @@ export default class ArcanaAgent {
       }
     });
     app.vault.on('delete', async (file: TAbstractFile) => {
-      //
+      if (file instanceof TFile) {
+        const id = await this.noteIDer.idNote(file);
+        this.idToPath.delete(id);
+      }
     });
     app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {
       // TODO: Rename an entire file
@@ -62,9 +67,6 @@ export default class ArcanaAgent {
         this.idToPath.set(id, file.path);
       }
     });
-    app.vault.on('modify', async (file: TFile) => {
-      //await this.vectorStore.updateDocument(file.path);
-    });
   }
 
   async save() {
@@ -72,25 +74,22 @@ export default class ArcanaAgent {
   }
 
   private async setupStorage() {
-    // Setup the storage folder
-
-    // Create storage folder if it doesn't exist
-    await app.vault.adapter.exists(this.storagePath).then(exists => {
+    // Create the storage path if it does not exist
+    await app.vault.adapter.exists(this.storagePath).then((exists: boolean) => {
       if (!exists) {
-        app.vault.adapter.mkdir(this.storagePath);
+        (app.vault.adapter as FileSystemAdapter).mkdir(this.storagePath);
       }
     });
 
+    // Create the vector store
     const path =
       (app.vault.adapter as FileSystemAdapter).getBasePath() +
       '/' +
       this.vectorStorePath;
     this.vectorStore = new VectorStore(path);
-    console.log('Creating vector store at ' + path);
   }
 
   public async requestNewEmbedding(file: TFile) {
-    // TODO: Dirty flag
     // Get the embedding for the file
     const text = await this.app.vault.read(file);
     const id = await this.noteIDer.idNote(file);
