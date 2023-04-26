@@ -15,8 +15,7 @@ import EmbeddingEncoder from './EmbeddingEncoder';
 import { assert } from 'console';
 import NoteIDer from './NoteIDer';
 /*
-  TODO: Since cannot remove a vector from store, need to manage custom store:
-
+  TODO: Rename File to Arcanagent
   - Each file needs to have an id
   - Each id is associated with a vector
 
@@ -31,9 +30,11 @@ export default class ArcanaAgent {
   private vectorStorePath = normalizePath('.arcana/vectorstore.json');
   private storageFolder: TFolder;
 
-  private vectorStore: VectorStore;
-  private idToPath: Map<number, string>;
-  private noteIDer: NoteIDer;
+  private idToPath: Map<number, string>; // Useless
+
+  //TODO: Create access methods for these instead
+  vectorStore: VectorStore;
+  noteIDer: NoteIDer;
 
   constructor(app: App, apiKey: string) {
     this.app = app;
@@ -86,7 +87,7 @@ export default class ArcanaAgent {
       (app.vault.adapter as FileSystemAdapter).getBasePath() +
       '/' +
       this.vectorStorePath;
-    this.vectorStore = new VectorStore(path);
+    this.vectorStore = new VectorStore(path, this.apiKey);
   }
 
   public async requestNewEmbedding(file: TFile) {
@@ -103,6 +104,22 @@ export default class ArcanaAgent {
       // Save the embedding
       await this.vectorStore.setVector(id, res, text);
     }
+  }
+
+  public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {
+    // Get embedding
+    const embedding = new OpenAIEmbeddings({ openAIApiKey: this.apiKey });
+    const res = (await embedding.embedDocuments([text]))[0];
+    // Get closest documents
+    const closestIds = await this.vectorStore.searchForClosestVectors(res, k);
+    // Get the files
+    const closestFiles = closestIds.map(async id => {
+      return await this.noteIDer.getDocumentWithID(id);
+    });
+
+    return (await Promise.all(closestFiles)).filter(
+      file => file != null
+    ) as TFile[];
   }
 
   public async destruct() {

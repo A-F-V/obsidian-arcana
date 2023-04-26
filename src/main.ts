@@ -3,6 +3,7 @@ import { Notice, Plugin } from 'obsidian';
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import ArcanaAgent from './include/AIAgent';
+import Polaris from './plugins/Polaris/Polaris';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -11,6 +12,7 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
 export default class ArcanaPlugin extends Plugin {
   settings: ArcanaSettings;
   agent: ArcanaAgent;
+  plugins: any[];
 
   async onload() {
     // Set up the settings
@@ -54,6 +56,9 @@ export default class ArcanaPlugin extends Plugin {
         await this.agent.save();
       },
     });
+
+    // Add plugins
+    this.plugins = [new Polaris(this)];
   }
 
   async onunload() {

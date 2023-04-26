@@ -2,6 +2,10 @@ import { Low, TextFile } from 'lowdb';
 import EmbeddingEncoder from './EmbeddingEncoder';
 import { TFile } from 'obsidian';
 import { hashDocument } from './DocumentHasher';
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { Document } from 'langchain/document';
+import { HNSWLib } from 'langchain/vectorstores/hnswlib';
 // Import JSONFile class
 /*
 TODO: More consistency checks
@@ -67,22 +71,40 @@ class CompressedVectorStoreAdapter {
 }
 export default class VectorStore {
   private store: Low<VectorStoreData>;
+  private searchIndex: HNSWLib;
+  private loaded = false;
 
-  constructor(pathToDB: string) {
+  constructor(pathToDB: string, key: string) {
     // Configure lowdb to write data to JSON file
     const adapter = new CompressedVectorStoreAdapter(pathToDB);
 
     this.store = new Low<VectorStoreData>(adapter);
+    this.searchIndex = new HNSWLib(
+      new OpenAIEmbeddings({ openAIApiKey: key }),
+      { space: 'cosine' }
+    );
   }
 
   private async loadStore(): Promise<VectorStoreData> {
-    await this.store.read();
-    this.store.data ||= new VectorStoreData();
-    console.log(this.store.data);
+    if (!this.loaded) {
+      await this.store.read();
+      this.store.data ||= new VectorStoreData();
 
-    return this.store.data;
+      // Add all vectors to the search index
+      for (const [id, vector] of this.store.data.idsToVectors.entries()) {
+        this.addVectorToIndex(id, vector);
+      }
+      this.loaded = true;
+    }
+    return this.store.data!;
   }
 
+  private addVectorToIndex(id: number, vector: number[]) {
+    this.searchIndex.addVectors(
+      [vector],
+      [new Document({ pageContent: String(id) })]
+    );
+  }
   async saveStore() {
     console.log('Saving store');
     console.log('Store data: ', this.store.data);
@@ -90,7 +112,7 @@ export default class VectorStore {
     await this.store.write();
   }
 
-  async getStore(): Promise<VectorStoreData> {
+  private async getStore(): Promise<VectorStoreData> {
     if (this.store.data === null) {
       return await this.loadStore();
     }
@@ -116,5 +138,24 @@ export default class VectorStore {
     const store = await this.getStore();
     store.idsToVectors.set(id, vector);
     store.idsToDocumentHash.set(id, hashDocument(document));
+  }
+
+  async searchForClosestVectors(query: number[], k: number): Promise<number[]> {
+    // Ensure everything is loaded
+    await this.loadStore();
+
+    console.log(this.searchIndex);
+
+    const topResults = await this.searchIndex.similaritySearchVectorWithScore(
+      query,
+      k
+    );
+
+    const topIds = topResults.map(result => {
+      // unpack document and score
+      const [document] = result;
+      return Number(document.pageContent);
+    });
+    return topIds;
   }
 }

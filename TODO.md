@@ -1,0 +1,8 @@
+- [x] Use a Langchain Vector Store
+- [x] Create the Polaris Plugin
+  - [x] Create a command to search and get n closest neighbours
+  - [x] Create modal for this
+  - [ ] Get menu to display results
+  - [ ] Ribbon action to initiate
+- Better state machine for when there is or is not an apikey , store etc.
+  - Really broken when the store has not been created yet.

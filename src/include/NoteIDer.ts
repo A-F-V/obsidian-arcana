@@ -28,4 +28,16 @@ export default class NoteIDer {
     });
     return id;
   }
+
+  async getDocumentWithID(id: number): Promise<TFile | null> {
+    // TODO: cache this
+    const files = this.app.vault.getMarkdownFiles();
+    for (const file of files) {
+      const fileID = await this.idNote(file);
+      if (fileID === id) {
+        return file;
+      }
+    }
+    return null;
+  }
 }
