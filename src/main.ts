@@ -1,8 +1,8 @@
-import { Notice, Plugin } from 'obsidian';
+import { Notice, Plugin, TFile } from 'obsidian';
 
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
-import ArcanaAgent from './include/AIAgent';
+import ArcanaAgent from './include/ArcanaAgent';
 import Polaris from './plugins/Polaris/Polaris';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
@@ -10,8 +10,9 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
 };
 
 export default class ArcanaPlugin extends Plugin {
+  private agent: ArcanaAgent;
+
   settings: ArcanaSettings;
-  agent: ArcanaAgent;
   plugins: any[];
 
   async onload() {
@@ -21,7 +22,7 @@ export default class ArcanaPlugin extends Plugin {
     this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
     // Check if the API key is correct with OpenAI by issuing a request
-    this.agent = new ArcanaAgent(this.app, this.settings.OPEN_AI_API_KEY);
+    this.agent = new ArcanaAgent(this);
     await this.agent.init();
 
     // Set up the commands
@@ -71,6 +72,15 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async saveSettings() {
+    // Currently only settings are saved.
     await this.saveData(this.settings);
+  }
+
+  async search(query: string, k: number): Promise<TFile[]> {
+    return [];
+  }
+
+  async complete(query: string): Promise<string> {
+    return '';
   }
 }

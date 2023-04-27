@@ -57,10 +57,8 @@ export default class Polaris {
 
   private requestSearchTerm() {
     new PolarisModal(this.arcana.app, async result => {
-      const closestFiles = await this.arcana.agent.getKClosestDocuments(
-        result,
-        10
-      );
+      const closestFiles = await this.arcana.search(result, 5);
+
       console.log(closestFiles);
       // TODO: Test (currently returning nothing)
     }).open();
