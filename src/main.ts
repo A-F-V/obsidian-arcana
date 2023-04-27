@@ -29,31 +29,6 @@ export default class ArcanaPlugin extends Plugin {
 
     this.agent = new ArcanaAgent(this);
 
-    // Set up the commands
-    this.addCommand({
-      id: 'arcana-request-embedding-for-current-file',
-      name: 'Request embedding for current file',
-      callback: () => {
-        const currentFile = app.workspace.getActiveFile();
-        if (!currentFile) {
-          new Notice('No file is currently open');
-          return;
-        } else {
-          this.agent.requestNewEmbedding(currentFile);
-        }
-      },
-    });
-
-    this.addCommand({
-      id: 'arcana-request-embedding-for-all-files',
-      name: 'Request embedding for all files',
-      callback: () => {
-        this.app.vault.getMarkdownFiles().forEach(async file => {
-          await this.agent.requestNewEmbedding(file);
-        });
-      },
-    });
-
     this.addCommand({
       id: 'arcana-force-save',
       name: 'Force save',
@@ -81,13 +56,11 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async search(query: string, k: number): Promise<TFile[]> {
-    // TODO:
-    return [];
+    return await this.agent.getKClosestDocuments(query, k);
   }
 
   async complete(query: string): Promise<string> {
-    // TODO:
-    return '';
+    return await this.agent.queryAndComplete(query);
   }
 
   getAPIKey(): string {

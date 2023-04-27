@@ -7,6 +7,7 @@ import {
   normalizePath,
   FileSystemAdapter,
   TAbstractFile,
+  Notice,
 } from 'obsidian';
 
 import VectorStore from './VectorStore';
@@ -39,13 +40,45 @@ export default class ArcanaAgent {
     app.vault.on('create', async (file: TAbstractFile) => {});
     app.vault.on('delete', async (file: TAbstractFile) => {});
     app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {});
+
+    this.setupEmbeddingPolicy();
+  }
+
+  private setupEmbeddingPolicy() {
+    // Request Embeddings periodically
+    // TODO:
+
+    // Set up the commands to force trigger
+    this.arcana.addCommand({
+      id: 'arcana-request-embedding-for-current-file',
+      name: 'Request embedding for current file',
+      callback: () => {
+        const currentFile = app.workspace.getActiveFile();
+        if (!currentFile) {
+          new Notice('No file is currently open');
+          return;
+        } else {
+          this.requestNewEmbedding(currentFile);
+        }
+      },
+    });
+
+    this.arcana.addCommand({
+      id: 'arcana-request-embedding-for-all-files',
+      name: 'Request embedding for all files',
+      callback: () => {
+        this.arcana.app.vault.getMarkdownFiles().forEach(async file => {
+          await this.requestNewEmbedding(file);
+        });
+      },
+    });
   }
 
   async save() {
     await this.vectorStore.saveStore();
   }
 
-  public async requestNewEmbedding(file: TFile) {
+  private async requestNewEmbedding(file: TFile) {
     // Get the embedding for the file
     const text = await this.arcana.app.vault.read(file);
     const id = await this.noteIDer.getNoteID(file);
@@ -61,6 +94,10 @@ export default class ArcanaAgent {
       // Save the embedding
       await this.vectorStore.setVector(id, res, text);
     }
+  }
+
+  public queryAndComplete(query: string): Promise<string> {
+    return this.openAI.call(query);
   }
 
   public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {
