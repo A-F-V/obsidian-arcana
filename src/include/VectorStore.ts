@@ -73,6 +73,7 @@ class CompressedVectorStoreAdapter {
     return this.adapter.write(JSON.stringify(obj));
   }
 }
+// Confusing naming of store
 export default class VectorStore {
   private store: Low<VectorStoreData>;
   private searchIndex: HNSWLib;
@@ -145,8 +146,10 @@ export default class VectorStore {
   }
   async setVector(id: number, vector: number[], document: string) {
     const store = await this.getStore();
+
     store.idsToVectors.set(id, vector);
     store.idsToDocumentHash.set(id, hashDocument(document));
+    this.addVectorToIndex(id, vector);
   }
 
   async searchForClosestVectors(query: number[], k: number): Promise<number[]> {
