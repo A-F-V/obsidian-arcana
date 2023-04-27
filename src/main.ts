@@ -4,6 +4,7 @@ import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import ArcanaAgent from './include/ArcanaAgent';
 import Polaris from './plugins/Polaris/Polaris';
+import StorageManager from './include/StorageManager';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -12,6 +13,7 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
 
+  fs: StorageManager;
   settings: ArcanaSettings;
   plugins: any[];
 
@@ -21,9 +23,11 @@ export default class ArcanaPlugin extends Plugin {
 
     this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
-    // Check if the API key is correct with OpenAI by issuing a request
+    // Setup the storage first
+    this.fs = new StorageManager(this);
+    await this.fs.setupStorage();
+
     this.agent = new ArcanaAgent(this);
-    await this.agent.init();
 
     // Set up the commands
     this.addCommand({
@@ -77,10 +81,16 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async search(query: string, k: number): Promise<TFile[]> {
+    // TODO:
     return [];
   }
 
   async complete(query: string): Promise<string> {
+    // TODO:
     return '';
+  }
+
+  getAPIKey(): string {
+    return this.settings.OPEN_AI_API_KEY;
   }
 }

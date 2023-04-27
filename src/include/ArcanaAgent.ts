@@ -23,48 +23,26 @@ import ArcanaPlugin from 'src/main';
 export default class ArcanaAgent {
   private arcana: ArcanaPlugin;
   private openAI: OpenAI;
-  private apiKey: string;
-  private readonly storagePath = normalizePath('.arcana');
-  private vectorStorePath = normalizePath('.arcana/vectorstore.json');
-  private storageFolder: TFolder;
 
   private vectorStore: VectorStore;
   private noteIDer: NoteIDer;
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
-    this.apiKey = arcana.settings.OPEN_AI_API_KEY;
 
-    this.openAI = new OpenAI({ openAIApiKey: this.apiKey });
+    this.openAI = new OpenAI({ openAIApiKey: this.arcana.getAPIKey() });
     this.noteIDer = new NoteIDer(arcana);
-  }
 
-  async init() {
-    await this.setupStorage();
+    this.vectorStore = new VectorStore(arcana);
 
+    // Setup file system callbacks
     app.vault.on('create', async (file: TAbstractFile) => {});
     app.vault.on('delete', async (file: TAbstractFile) => {});
     app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {});
   }
 
   async save() {
-    if (this.vectorStore) await this.vectorStore.saveStore();
-  }
-
-  private async setupStorage() {
-    // Create the storage path if it does not exist
-    await app.vault.adapter.exists(this.storagePath).then((exists: boolean) => {
-      if (!exists) {
-        (app.vault.adapter as FileSystemAdapter).mkdir(this.storagePath);
-      }
-    });
-
-    // Create the vector store
-    const path =
-      (app.vault.adapter as FileSystemAdapter).getBasePath() +
-      '/' +
-      this.vectorStorePath;
-    this.vectorStore = new VectorStore(path, this.apiKey);
+    await this.vectorStore.saveStore();
   }
 
   public async requestNewEmbedding(file: TFile) {
@@ -75,7 +53,9 @@ export default class ArcanaAgent {
     if (isDifferent) {
       console.log(file.path + ' has changed - fetching new embedding');
       // Get the embedding
-      const embedding = new OpenAIEmbeddings({ openAIApiKey: this.apiKey });
+      const embedding = new OpenAIEmbeddings({
+        openAIApiKey: this.arcana.getAPIKey(),
+      });
       const res = (await embedding.embedDocuments([text]))[0];
 
       // Save the embedding
@@ -85,7 +65,9 @@ export default class ArcanaAgent {
 
   public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {
     // Get embedding
-    const embedding = new OpenAIEmbeddings({ openAIApiKey: this.apiKey });
+    const embedding = new OpenAIEmbeddings({
+      openAIApiKey: this.arcana.getAPIKey(),
+    });
     const res = (await embedding.embedDocuments([text]))[0];
     // Get closest documents
     const closestIds = await this.vectorStore.searchForClosestVectors(res, k);

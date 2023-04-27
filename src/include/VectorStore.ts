@@ -2,17 +2,16 @@ import { Low, TextFile } from 'lowdb';
 import EmbeddingEncoder from './EmbeddingEncoder';
 import { TFile } from 'obsidian';
 import { hashDocument } from './DocumentHasher';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { Document } from 'langchain/document';
 import { HNSWLib } from 'langchain/vectorstores/hnswlib';
+import ArcanaPlugin from 'src/main';
 // Import JSONFile class
 /*
 TODO: More consistency checks
 */
 class VectorStoreData {
-  // TODO: Versioning Info
-
+  version = 1;
   idsToVectors: Map<number, number[]>;
   idsToDocumentHash: Map<number, string>;
 
@@ -23,6 +22,7 @@ class VectorStoreData {
 
   toJSON() {
     return {
+      version: this.version,
       idsToVectors: Object.fromEntries(
         Array.from(this.idsToVectors.entries()).map(([k, v]) => [
           k,
@@ -33,18 +33,22 @@ class VectorStoreData {
     };
   }
   fromJSON(json: any) {
-    this.idsToVectors = new Map(
-      Object.entries(json.idsToVectors).map(([k, v]) => [
-        Number(k),
-        EmbeddingEncoder.decode(String(v)),
-      ])
-    );
-    this.idsToDocumentHash = new Map(
-      Object.entries(json.idsToLastModified).map(([k, v]) => [
-        Number(k),
-        String(v),
-      ])
-    );
+    // The version of the new file is always upgraded to the most recent
+    // Versioned files
+    if (json.version >= 1) {
+      this.idsToVectors = new Map(
+        Object.entries(json.idsToVectors).map(([k, v]) => [
+          Number(k),
+          EmbeddingEncoder.decode(String(v)),
+        ])
+      );
+      this.idsToDocumentHash = new Map(
+        Object.entries(json.idsToLastModified).map(([k, v]) => [
+          Number(k),
+          String(v),
+        ])
+      );
+    }
   }
 }
 
@@ -72,15 +76,20 @@ class CompressedVectorStoreAdapter {
 export default class VectorStore {
   private store: Low<VectorStoreData>;
   private searchIndex: HNSWLib;
+  private arcana: ArcanaPlugin;
   private loaded = false;
 
-  constructor(pathToDB: string, key: string) {
+  constructor(arcana: ArcanaPlugin) {
+    this.arcana = arcana;
     // Configure lowdb to write data to JSON file
-    const adapter = new CompressedVectorStoreAdapter(pathToDB);
+    const adapter = new CompressedVectorStoreAdapter(
+      arcana.fs.getPath('embeddingStorage.json')
+    );
 
     this.store = new Low<VectorStoreData>(adapter);
+    // Set up the similiarty index
     this.searchIndex = new HNSWLib(
-      new OpenAIEmbeddings({ openAIApiKey: key }),
+      new OpenAIEmbeddings({ openAIApiKey: arcana.getAPIKey() }),
       { space: 'cosine' }
     );
   }

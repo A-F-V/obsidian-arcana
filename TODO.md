@@ -5,7 +5,10 @@
   - [ ] Get menu to display results
   - [ ] Ribbon action to initiate
 - [ ] Better state machine for when there is or is not an apikey , store etc.
-  - [ ] Really broken when the store has not been created yet.
+  - [ ] Store
+  - [x] API
+  - [ ] Test
+- [ ] A way to avoid passing plugin all the way through class hierarchy
 
 # State machine ideas:
 
