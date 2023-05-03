@@ -21,6 +21,7 @@
         "jsx": "react"
     },
     "include": [
-        "**/*.ts"
+        "**/*.ts",
+        "src/plugins/Polaris/PolarisObsidianView.tsx"
     ]
 }

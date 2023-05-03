@@ -2,6 +2,7 @@
 
 import ArcanaPlugin from 'src/main';
 import { Modal, Setting, App } from 'obsidian';
+import { PolarisObsidianView, POLARIS_VIEW_TYPE } from './PolarisObsidianView';
 
 class PolarisModal extends Modal {
   result: string;
@@ -32,6 +33,14 @@ class PolarisModal extends Modal {
           this.onSubmit(this.result);
         })
     );
+
+    // When you press enter, submit
+    contentEl.addEventListener('keyup', event => {
+      if (event.key === 'Enter') {
+        this.close();
+        this.onSubmit(this.result);
+      }
+    });
   }
 
   onClose() {
@@ -45,14 +54,23 @@ export default class Polaris {
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
+  }
+  async onload() {
+    // Register the Polaris View on load
+    this.arcana.registerView(
+      POLARIS_VIEW_TYPE,
+      leaf => new PolarisObsidianView(leaf, this.arcana)
+    );
 
-    this.arcana.addCommand({
-      id: 'arcana-polaris-get-k-most-similar',
-      name: 'Polaris Search',
-      callback: async () => {
-        this.requestSearchTerm();
-      },
+    // Render when the layout is ready
+    this.arcana.app.workspace.onLayoutReady(() => {
+      this.openPolarisView();
     });
+  }
+
+  async onunload() {
+    // Close the view
+    this.closePolarisView();
   }
 
   private requestSearchTerm() {
@@ -62,5 +80,32 @@ export default class Polaris {
       console.log(closestFiles);
       // TODO: Test (currently returning nothing)
     }).open();
+  }
+
+  private async openPolarisView() {
+    // Check if it is already open
+    console.log(this);
+
+    const polarisViews =
+      this.arcana.app.workspace.getLeavesOfType(POLARIS_VIEW_TYPE);
+    if (polarisViews.length == 0) {
+      // Need to first mount
+      const leaf = this.arcana.app.workspace.getLeftLeaf(false);
+      await leaf.setViewState({
+        type: POLARIS_VIEW_TYPE,
+      });
+      this.arcana.app.workspace.revealLeaf(leaf);
+    } else {
+      // Already mounted
+      // Just set as active
+      this.arcana.app.workspace.revealLeaf(polarisViews[0]);
+    }
+  }
+  private async closePolarisView() {
+    const polarisViews =
+      this.arcana.app.workspace.getLeavesOfType(POLARIS_VIEW_TYPE);
+    for (const view of polarisViews) {
+      await view.detach();
+    }
   }
 }

@@ -12,6 +12,9 @@
   - [ ] Test
 - [ ] Good error handing and reporting when api key is invalid or no internet etc
 - [ ] A way to avoid passing plugin all the way through class hierarchy
+- [x] Remove the frontmatter from the embedding text
+- [ ] Still requesting all embeddings on load for some reason?
+- [ ]
 
 # State machine ideas:
 

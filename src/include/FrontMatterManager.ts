@@ -13,7 +13,7 @@ export default class FrontMatterManager {
       // Get the current front matter, defaulting to empty if it doesn't exist
       let arcanaFrontMatter = new Map();
       if (frontMatter.arcana !== undefined) {
-        arcanaFrontMatter = new Map(frontMatter.arcana.entries());
+        arcanaFrontMatter = new Map(Object.entries(frontMatter.arcana));
       }
       // Apply the transformation
       transformation(arcanaFrontMatter);
@@ -33,6 +33,7 @@ export default class FrontMatterManager {
   async set(file: TFile, key: string, value: any): Promise<void> {
     await this.processFrontMatter(file, (arcanaData: any) => {
       arcanaData.set(key, value);
+      console.log(arcanaData); 
     });
   }
 }

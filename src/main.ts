@@ -15,7 +15,7 @@ export default class ArcanaPlugin extends Plugin {
 
   fs: StorageManager;
   settings: ArcanaSettings;
-  plugins: any[];
+  plugins = [new Polaris(this)];
 
   async onload() {
     // Set up the settings
@@ -38,11 +38,18 @@ export default class ArcanaPlugin extends Plugin {
     });
 
     // Add plugins
-    this.plugins = [new Polaris(this)];
+    for (const plugin of this.plugins) {
+      await plugin.onload();
+    }
   }
 
   async onunload() {
     console.log('Unloading plugin');
+    // Unload plugins
+    for (const plugin of this.plugins) {
+      await plugin.onunload();
+    }
+
     await this.agent.save();
   }
 

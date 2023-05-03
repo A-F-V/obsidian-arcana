@@ -37,9 +37,17 @@ export default class ArcanaAgent {
     this.vectorStore = new VectorStore(arcana);
 
     // Setup file system callbacks
-    app.vault.on('create', async (file: TAbstractFile) => {});
+    app.vault.on('create', async (file: TAbstractFile) => {
+      if (file instanceof TFile) {
+        await this.requestNewEmbedding(file);
+      }
+    });
     app.vault.on('delete', async (file: TAbstractFile) => {});
-    app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {});
+    app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {
+      if (file instanceof TFile) {
+        await this.requestNewEmbedding(file);
+      }
+    });
 
     this.setupEmbeddingPolicy();
   }
@@ -78,22 +86,37 @@ export default class ArcanaAgent {
     await this.vectorStore.saveStore();
   }
 
+  // TODO: Move the file hashes into another file so that they are not managed by the vector stores
   private async requestNewEmbedding(file: TFile) {
     // Get the embedding for the file
-    const text = await this.arcana.app.vault.read(file);
+    let text = await this.arcana.app.vault.read(file);
+    text = ArcanaAgent.removeFrontMatter(text);
     const id = await this.noteIDer.getNoteID(file);
     const isDifferent = await this.vectorStore.hasChanged(id, text);
-    if (isDifferent) {
+    if (isDifferent && text !== '' && file.extension === 'md') {
       console.log(file.path + ' has changed - fetching new embedding');
+      console.log(`Text: ${text}`);
       // Get the embedding
       const embedding = new OpenAIEmbeddings({
         openAIApiKey: this.arcana.getAPIKey(),
       });
-      const res = (await embedding.embedDocuments([text]))[0];
+      const res = (
+        await embedding.embedDocuments([text]).catch(err => {
+          console.log(err);
+          return [];
+        })
+      )[0];
 
       // Save the embedding
       await this.vectorStore.setVector(id, res, text);
     }
+  }
+
+  private static removeFrontMatter(text: string): string {
+    //Remove the front matter if it exists
+    const frontMatterRegex = /^---\n[\s\S]*\n---\n/;
+    text = text.replace(frontMatterRegex, '');
+    return text;
   }
 
   public queryAndComplete(query: string): Promise<string> {

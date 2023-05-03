@@ -33,6 +33,6 @@ export default class StorageManager {
       this.setup,
       'It is illegal to get file paths when the storage folder has not been setup'
     );
-    return this.fs.getBasePath() + '/' + this.storagePath + path;
+    return this.fs.getBasePath() + '/' + this.storagePath + '/' + path;
   }
 }

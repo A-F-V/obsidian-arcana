@@ -2,6 +2,7 @@ import { TFile } from 'obsidian';
 import FrontMatterManager from './FrontMatterManager';
 import ArcanaPlugin from 'src/main';
 import { assert } from 'console';
+import { Mutex } from 'async-mutex';
 
 // fetches and sets ids for notes
 // All gets must go through the noteIDer.
@@ -9,6 +10,7 @@ export default class NoteIDer {
   private arcana: ArcanaPlugin;
   private frontMatterManager: FrontMatterManager;
   private nextID = -1;
+  private mutex = new Mutex();
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
@@ -17,18 +19,25 @@ export default class NoteIDer {
 
   // Will get (and potentially set) a new unique id
   async getNoteID(note: TFile): Promise<number> {
-    let fetchedID = await this.tryFetchingNoteID(note);
+    const fetchedID = await this.tryFetchingNoteID(note);
     // If the note has not been IDed
-    if (fetchedID != null) {
+    if (fetchedID == null) {
       // Give it an id
+      const release = await this.mutex.acquire();
+      // Mutex it so that we don't have multiple threads trying to dedude the next ID
       await this.setNoteIDToNextAvailable(note);
-      fetchedID = await this.tryFetchingNoteID(note);
+      release();
+      return await this.frontMatterManager.get(note, 'id');
     }
     return fetchedID;
   }
 
-  private async tryFetchingNoteID(note: TFile): Promise<number> {
-    return await this.frontMatterManager.get(note, 'id');
+  private async tryFetchingNoteID(note: TFile): Promise<number | null> {
+    const id = await this.frontMatterManager.get(note, 'id');
+    if (id == null || Number.isNaN(id)) {
+      return null;
+    }
+    return id;
   }
 
   private async setNoteIDToNextAvailable(note: TFile) {
@@ -49,10 +58,12 @@ export default class NoteIDer {
       this.arcana.app.vault
         .getMarkdownFiles()
         .map(async note => await this.tryFetchingNoteID(note))
-        .filter(async id => (await id) != null)
+        .filter(async id => (await id) != null || Number.isNaN(await id))
     )) as number[];
 
-    return Math.max(...ids);
+    const nextLargest = Math.max(...ids, 0);
+    console.log(`Next largest id is ${nextLargest}`);
+    return nextLargest;
   }
 
   async getDocumentWithID(id: number): Promise<TFile | null> {

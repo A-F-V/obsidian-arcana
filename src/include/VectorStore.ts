@@ -4,8 +4,9 @@ import { TFile } from 'obsidian';
 import { hashDocument } from './DocumentHasher';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { Document } from 'langchain/document';
-import { HNSWLib } from 'langchain/vectorstores/hnswlib';
 import ArcanaPlugin from 'src/main';
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { Mutex } from 'async-mutex';
 // Import JSONFile class
 /*
 TODO: More consistency checks
@@ -76,40 +77,50 @@ class CompressedVectorStoreAdapter {
 // Confusing naming of store
 export default class VectorStore {
   private store: Low<VectorStoreData>;
-  private searchIndex: HNSWLib;
+  private searchIndex: MemoryVectorStore;
   private arcana: ArcanaPlugin;
   private loaded = false;
+  private loadMutex = new Mutex();
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
     // Configure lowdb to write data to JSON file
-    const adapter = new CompressedVectorStoreAdapter(
-      arcana.fs.getPath('embeddingStorage.json')
-    );
+    const path = arcana.fs.getPath('embeddingStorage.json');
+    console.log('Path: ', path);
+    const adapter = new CompressedVectorStoreAdapter(path);
 
     this.store = new Low<VectorStoreData>(adapter);
+    this.store.data = new VectorStoreData();
     // Set up the similiarty index
-    this.searchIndex = new HNSWLib(
-      new OpenAIEmbeddings({ openAIApiKey: arcana.getAPIKey() }),
-      { space: 'cosine' }
-    );
   }
 
   private async loadStore(): Promise<VectorStoreData> {
+    console.log('Loading store');
+    const release = await this.loadMutex.acquire();
     if (!this.loaded) {
+      console.log('Loading store from disk');
       await this.store.read();
+
       this.store.data ||= new VectorStoreData();
 
       // Add all vectors to the search index
+      this.searchIndex = new MemoryVectorStore(
+        new OpenAIEmbeddings({ openAIApiKey: this.arcana.getAPIKey() })
+      );
       for (const [id, vector] of this.store.data.idsToVectors.entries()) {
         this.addVectorToIndex(id, vector);
       }
       this.loaded = true;
     }
+    release();
     return this.store.data!;
   }
 
   private addVectorToIndex(id: number, vector: number[]) {
+    if (id == 418) {
+      console.log('Adding vector to index: ', id, vector);
+    }
+
     this.searchIndex.addVectors(
       [vector],
       [new Document({ pageContent: String(id) })]
@@ -122,21 +133,8 @@ export default class VectorStore {
     await this.store.write();
   }
 
-  private async getStore(): Promise<VectorStoreData> {
-    if (this.store.data === null) {
-      return await this.loadStore();
-    }
-    return this.store.data;
-  }
-
-  async removeID(id: number) {
-    console.log('Removing id ' + id);
-    const store = await this.getStore();
-    store.idsToVectors.delete(id);
-  }
-
   async hasChanged(id: number, document: string): Promise<boolean> {
-    const store = await this.getStore();
+    const store = await this.loadStore();
     const hash = hashDocument(document);
     const lastHash = store.idsToDocumentHash.get(id);
     if (lastHash === undefined) {
@@ -145,11 +143,22 @@ export default class VectorStore {
     return lastHash != hash;
   }
   async setVector(id: number, vector: number[], document: string) {
-    const store = await this.getStore();
+    const store = await this.loadStore();
+    const newID = !store.idsToVectors.has(id);
 
     store.idsToVectors.set(id, vector);
     store.idsToDocumentHash.set(id, hashDocument(document));
-    this.addVectorToIndex(id, vector);
+    if (newID) {
+      this.addVectorToIndex(id, vector);
+    } else {
+      // Clear the index and re-add all vectors
+      this.searchIndex = new MemoryVectorStore(
+        new OpenAIEmbeddings({ openAIApiKey: this.arcana.getAPIKey() })
+      );
+      for (const [id, vector] of store.idsToVectors.entries()) {
+        this.addVectorToIndex(id, vector);
+      }
+    }
   }
 
   async searchForClosestVectors(query: number[], k: number): Promise<number[]> {
@@ -165,7 +174,9 @@ export default class VectorStore {
 
     const topIds = topResults.map(result => {
       // unpack document and score
-      const [document] = result;
+      const [document, score] = result;
+      console.log('Document: ', document);
+      console.log('Score: ', score);
       return Number(document.pageContent);
     });
     return topIds;
