@@ -116,18 +116,16 @@ export default class VectorStore {
   }
 
   private addVectorToIndex(id: number, vector: number[]) {
-    if (id == 418) {
-      console.log('Adding vector to index: ', id, vector);
-    }
-
     this.searchIndex.addVectors(
       [vector],
       [new Document({ pageContent: String(id) })]
     );
   }
   async saveStore() {
-    console.log('Saving store');
-    console.log('Store data: ', this.store.data);
+    // If we have not loaded anything, then we have nothing to store.
+    if (!this.loaded) {
+      return;
+    }
 
     await this.store.write();
   }

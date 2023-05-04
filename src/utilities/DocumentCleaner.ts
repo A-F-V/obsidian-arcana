@@ -4,3 +4,7 @@ export function removeFrontMatter(text: string): string {
   text = text.replace(frontMatterRegex, '');
   return text;
 }
+
+export function surroundWithMarkdown(text: string): string {
+  return `\`\`\`md\n${text}\`\`\``;
+}

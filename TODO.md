@@ -25,7 +25,8 @@
 ## Tasks and their API usage:
 
 - [x] Smart search - search
-- [ ] Name Suggester
+- [x] Name Suggester - complete
+- [ ] Section Completer - complete
 - Auto Tag - complete or maybe search
 - Auto Link - search
 - Flash card generator - complete

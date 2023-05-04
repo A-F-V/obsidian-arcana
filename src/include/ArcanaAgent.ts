@@ -13,7 +13,10 @@ import {
 import VectorStore from './VectorStore';
 import NoteIDer from './NoteIDer';
 import ArcanaPlugin from 'src/main';
-import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
+import {
+  removeFrontMatter,
+  surroundWithMarkdown,
+} from 'src/utilities/DocumentCleaner';
 /*
   TODO: Rename File to Arcanagent
   - Each file needs to have an id
@@ -32,7 +35,10 @@ export default class ArcanaAgent {
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
 
-    this.openAI = new OpenAI({ openAIApiKey: this.arcana.getAPIKey() });
+    this.openAI = new OpenAI({
+      openAIApiKey: this.arcana.getAPIKey(),
+      modelName: 'gpt-3.5-turbo',
+    });
     this.noteIDer = new NoteIDer(arcana);
 
     this.vectorStore = new VectorStore(arcana);
@@ -92,12 +98,12 @@ export default class ArcanaAgent {
     // Get the embedding for the file
     let text = await this.arcana.app.vault.read(file);
     text = removeFrontMatter(text);
+    text = surroundWithMarkdown(text);
     const id = await this.noteIDer.getNoteID(file);
     const isDifferent = await this.vectorStore.hasChanged(id, text);
+    console.log('Requesting embedding for ' + file.path + ' - ' + isDifferent);
     if (isDifferent && text !== '' && file.extension === 'md') {
-      console.log(file.path + ' has changed - fetching new embedding');
-      console.log(`Text: ${text}`);
-      // Get the embedding
+      console.log(file.path + ' has changed - fetching new embedding'); // Get the embedding
       const embedding = new OpenAIEmbeddings({
         openAIApiKey: this.arcana.getAPIKey(),
       });

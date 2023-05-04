@@ -23,5 +23,5 @@
     "include": [
         "**/*.ts",
         "src/plugins/Polaris/PolarisObsidianView.tsx"
-    ]
+, "src/components/QuestionModal.tsx"    ]
 }

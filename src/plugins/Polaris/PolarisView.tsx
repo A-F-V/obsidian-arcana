@@ -1,6 +1,7 @@
 import ArcanaPlugin from 'src/main';
 import * as React from 'react';
 import { TFile } from 'obsidian';
+import { surroundWithMarkdown } from 'src/utilities/DocumentCleaner';
 
 export const POLARIS_VIEW_TYPE = 'polaris-view';
 
