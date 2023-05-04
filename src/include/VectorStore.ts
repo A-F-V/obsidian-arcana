@@ -95,7 +95,6 @@ export default class VectorStore {
   }
 
   private async loadStore(): Promise<VectorStoreData> {
-    console.log('Loading store');
     const release = await this.loadMutex.acquire();
     if (!this.loaded) {
       console.log('Loading store from disk');

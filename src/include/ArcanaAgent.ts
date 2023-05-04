@@ -13,6 +13,7 @@ import {
 import VectorStore from './VectorStore';
 import NoteIDer from './NoteIDer';
 import ArcanaPlugin from 'src/main';
+import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 /*
   TODO: Rename File to Arcanagent
   - Each file needs to have an id
@@ -90,7 +91,7 @@ export default class ArcanaAgent {
   private async requestNewEmbedding(file: TFile) {
     // Get the embedding for the file
     let text = await this.arcana.app.vault.read(file);
-    text = ArcanaAgent.removeFrontMatter(text);
+    text = removeFrontMatter(text);
     const id = await this.noteIDer.getNoteID(file);
     const isDifferent = await this.vectorStore.hasChanged(id, text);
     if (isDifferent && text !== '' && file.extension === 'md') {
@@ -110,13 +111,6 @@ export default class ArcanaAgent {
       // Save the embedding
       await this.vectorStore.setVector(id, res, text);
     }
-  }
-
-  private static removeFrontMatter(text: string): string {
-    //Remove the front matter if it exists
-    const frontMatterRegex = /^---\n[\s\S]*\n---\n/;
-    text = text.replace(frontMatterRegex, '');
-    return text;
   }
 
   public queryAndComplete(query: string): Promise<string> {

@@ -13,8 +13,7 @@
 - [ ] Good error handing and reporting when api key is invalid or no internet etc
 - [ ] A way to avoid passing plugin all the way through class hierarchy
 - [x] Remove the frontmatter from the embedding text
-- [ ] Still requesting all embeddings on load for some reason?
-- [ ]
+- [ ] Still requesting all embeddings on load for some reason? (says loading store a tonne before2)
 
 # State machine ideas:
 
@@ -25,7 +24,8 @@
 
 ## Tasks and their API usage:
 
-- Smart search - search
+- [x] Smart search - search
+- [ ] Name Suggester
 - Auto Tag - complete or maybe search
 - Auto Link - search
 - Flash card generator - complete

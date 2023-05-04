@@ -5,6 +5,7 @@ import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import ArcanaAgent from './include/ArcanaAgent';
 import Polaris from './plugins/Polaris/Polaris';
 import StorageManager from './include/StorageManager';
+import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -15,7 +16,7 @@ export default class ArcanaPlugin extends Plugin {
 
   fs: StorageManager;
   settings: ArcanaSettings;
-  plugins = [new Polaris(this)];
+  plugins = [new Polaris(this), new NostradamusPlugin(this)];
 
   async onload() {
     // Set up the settings

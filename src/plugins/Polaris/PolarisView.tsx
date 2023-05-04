@@ -1,5 +1,6 @@
 import ArcanaPlugin from 'src/main';
 import * as React from 'react';
+import { TFile } from 'obsidian';
 
 export const POLARIS_VIEW_TYPE = 'polaris-view';
 
@@ -7,15 +8,13 @@ export const POLARIS_VIEW_TYPE = 'polaris-view';
 export const PolarisView = ({ arcana }: { arcana: ArcanaPlugin }) => {
   // The search query and the serach results states
   const [query, setQuery] = React.useState('');
-  const [results, setResults] = React.useState([] as string[]);
+  const [results, setResults] = React.useState([] as TFile[]);
 
   // When the query changes, update the results
   React.useEffect(() => {
     // Find the closest matches
     if (query != '') {
-      arcana.search(query, 10).then(results => {
-        setResults(results.map(result => result.name));
-      });
+      arcana.search(query, 10).then(setResults);
     }
   }, [query]);
 
@@ -29,11 +28,19 @@ export const PolarisView = ({ arcana }: { arcana: ArcanaPlugin }) => {
           }
         }}
       />
-      <ul>
+      <div>
         {results.map(result => (
-          <li>{result}</li>
+          <button
+            onClick={() => {
+              // Open the file
+              arcana.app.workspace.openLinkText(result.basename, '', true);
+            }}
+            style={{ display: 'block', width: '100%' }}
+          >
+            {result.basename}
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
