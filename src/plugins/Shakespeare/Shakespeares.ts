@@ -28,11 +28,12 @@ export default class ShakespearePlugin {
             // Get the current file
             const file = view.file;
             // Decode the next section
-            const body = await this.decodeNextSection(header, file);
             console.log(`Inserting header: ${header}`);
-            console.log(`Inserting body: ${body}`);
-            // Insert the header and body
-            editor.replaceSelection(`${header}\n${body}`);
+            editor.replaceSelection(`${header}\n`);
+
+            await this.decodeNextSection(header, file, (token: string) => {
+              editor.replaceSelection(token);
+            });
           }
         ).open();
       },
@@ -41,7 +42,11 @@ export default class ShakespearePlugin {
 
   public async onunload() {}
 
-  private async decodeNextSection(header: string, file: TFile) {
+  private async decodeNextSection(
+    header: string,
+    file: TFile,
+    tokenHandler: (token: string) => void
+  ) {
     const title = file.basename;
     // Get the document text from the file
     const documentText = await this.arcana.app.vault.read(file);
@@ -50,18 +55,13 @@ export default class ShakespearePlugin {
     // Surround the text with markdown
     const markdownText = surroundWithMarkdown(cleanedText);
 
-    // Create the prompt
-    const prompt = new PromptTemplate({
-      template:
-        'Answer the users question as best as possible, being intelligent, concise, complete and creative.\n{question}',
-      inputVariables: ['question'],
-    });
-
+    // Create the context
+    const context =
+      'You are an AI that is an excellent teacher. You give great clarity and insights, but are concise and terse when necessary. Do NOT surround your answer in a markdown block. Avoid repiting what has already been written.';
     // Create the question
-    const question = `Read the following text:\nTitle - ${title}\n${markdownText}\n\nNow write the body of the following section in a markdown friendly format, using latex equations and code where suitable:\n${header}\n`;
-    // Create the query
-    const query = await prompt.format({ question: question });
+    const query = `Title - ${title}\nText - \n${markdownText}\nHeader - ${header}\n Now write ONLY the section body:`;
     // Create the query request
-    return await this.arcana.complete(query);
+
+    await this.arcana.complete(query, context, tokenHandler);
   }
 }

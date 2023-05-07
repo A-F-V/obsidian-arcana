@@ -1,4 +1,3 @@
-import { OpenAI } from 'langchain';
 //import { HNSWLib, HNSWLibArgs } from "langchain/vectorstores/hnswlib";
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import {
@@ -17,6 +16,8 @@ import {
   removeFrontMatter,
   surroundWithMarkdown,
 } from 'src/utilities/DocumentCleaner';
+import Conversation from 'src/Conversation';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 /*
   TODO: Rename File to Arcanagent
   - Each file needs to have an id
@@ -27,7 +28,6 @@ import {
 */
 export default class ArcanaAgent {
   private arcana: ArcanaPlugin;
-  private openAI: OpenAI;
 
   private vectorStore: VectorStore;
   private noteIDer: NoteIDer;
@@ -35,10 +35,6 @@ export default class ArcanaAgent {
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
 
-    this.openAI = new OpenAI({
-      openAIApiKey: this.arcana.getAPIKey(),
-      modelName: 'gpt-3.5-turbo',
-    });
     this.noteIDer = new NoteIDer(arcana);
 
     this.vectorStore = new VectorStore(arcana);
@@ -118,9 +114,15 @@ export default class ArcanaAgent {
       await this.vectorStore.setVector(id, res, text);
     }
   }
-
-  public queryAndComplete(query: string): Promise<string> {
-    return this.openAI.call(query);
+  private getAI() {
+    return new ChatOpenAI({
+      openAIApiKey: this.arcana.getAPIKey(),
+      modelName: this.arcana.getAIModel(),
+      streaming: true,
+    });
+  }
+  public startConversation(conversationContext: string) {
+    return new Conversation(this.getAI(), conversationContext);
   }
 
   public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {
@@ -139,5 +141,9 @@ export default class ArcanaAgent {
     return (await Promise.all(closestFiles)).filter(
       file => file != null
     ) as TFile[];
+  }
+
+  public async getFileID(file: TFile): Promise<number> {
+    return await this.noteIDer.getNoteID(file);
   }
 }

@@ -7,6 +7,8 @@ import Polaris from './plugins/Polaris/Polaris';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ShakespearePlugin from './plugins/Shakespeare/Shakespeares';
+import SocratesPlugin from './plugins/Socrates/Socrates';
+import FeynmanPlugin from './plugins/Feynman/Feynman';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -21,6 +23,8 @@ export default class ArcanaPlugin extends Plugin {
     new Polaris(this),
     new NostradamusPlugin(this),
     new ShakespearePlugin(this),
+    new SocratesPlugin(this),
+    new FeynmanPlugin(this),
   ];
 
   async onload() {
@@ -72,11 +76,28 @@ export default class ArcanaPlugin extends Plugin {
     return await this.agent.getKClosestDocuments(query, k);
   }
 
-  async complete(query: string): Promise<string> {
-    return await this.agent.queryAndComplete(query);
+  startConversation(sysMessage: string) {
+    return this.agent.startConversation(sysMessage);
+  }
+
+  async getFileID(file: TFile): Promise<number> {
+    return await this.agent.getFileID(file);
+  }
+
+  async complete(
+    query: string,
+    ctx = 'A conversation with an AI for use in Obsidian.',
+    handleTokens: (tokens: string) => void = () => {}
+  ): Promise<string> {
+    const conversation = this.startConversation(ctx);
+    return await conversation.askQuestion(query, handleTokens);
   }
 
   getAPIKey(): string {
     return this.settings.OPEN_AI_API_KEY;
+  }
+
+  getAIModel(): string {
+    return this.settings.MODEL_TYPE;
   }
 }

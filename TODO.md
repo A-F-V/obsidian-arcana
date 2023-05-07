@@ -14,6 +14,9 @@
 - [ ] A way to avoid passing plugin all the way through class hierarchy
 - [x] Remove the frontmatter from the embedding text
 - [ ] Still requesting all embeddings on load for some reason? (says loading store a tonne before2)
+- [ ] Complete experiment Socrates
+- [ ] There is a bug that spams the id.
+  - [ ] Flashcard not quite working either - spams + deletes some stuff.
 
 # State machine ideas:
 
@@ -26,7 +29,8 @@
 
 - [x] Smart search - search
 - [x] Name Suggester - complete
-- [ ] Section Completer - complete
+- [x] Section Completer - complete
+- [ ] Conversation and explore - complete (socrates)
 - Auto Tag - complete or maybe search
 - Auto Link - search
 - Flash card generator - complete
