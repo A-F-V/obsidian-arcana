@@ -28,7 +28,6 @@ export default class ShakespearePlugin {
             // Get the current file
             const file = view.file;
             // Decode the next section
-            console.log(`Inserting header: ${header}`);
             editor.replaceSelection(`${header}\n`);
 
             await this.decodeNextSection(header, file, (token: string) => {

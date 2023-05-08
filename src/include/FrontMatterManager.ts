@@ -33,7 +33,6 @@ export default class FrontMatterManager {
   async set(file: TFile, key: string, value: any): Promise<void> {
     await this.processFrontMatter(file, (arcanaData: any) => {
       arcanaData.set(key, value);
-      console.log(arcanaData); 
     });
   }
 }

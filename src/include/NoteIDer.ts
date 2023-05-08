@@ -83,7 +83,6 @@ export default class NoteIDer {
     )) as number[];
 
     const nextLargest = Math.max(...ids, 0);
-    console.log(`Next largest id is ${nextLargest}`, new Error().stack);
     return nextLargest;
   }
 

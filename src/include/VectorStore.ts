@@ -86,7 +86,6 @@ export default class VectorStore {
     this.arcana = arcana;
     // Configure lowdb to write data to JSON file
     const path = arcana.fs.getPath('embeddingStorage.json');
-    console.log('Path: ', path);
     const adapter = new CompressedVectorStoreAdapter(path);
 
     this.store = new Low<VectorStoreData>(adapter);
@@ -99,7 +98,6 @@ export default class VectorStore {
     if (!this.loaded) {
       console.log('Loading store from disk');
       // Log the stack trace
-      console.log(new Error().stack);
       await this.store.read();
 
       this.store.data ||= new VectorStoreData();
@@ -164,7 +162,6 @@ export default class VectorStore {
     // Ensure everything is loaded
     await this.loadStore();
 
-    console.log(this.searchIndex);
 
     const topResults = await this.searchIndex.similaritySearchVectorWithScore(
       query,
@@ -174,8 +171,6 @@ export default class VectorStore {
     const topIds = topResults.map(result => {
       // unpack document and score
       const [document, score] = result;
-      console.log('Document: ', document);
-      console.log('Score: ', score);
       return Number(document.pageContent);
     });
     return topIds;

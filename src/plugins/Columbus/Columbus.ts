@@ -77,18 +77,8 @@ export default class ColumbusPlugin {
   }
   public addSettings(containerEl: HTMLElement) {}
 
-  private requestSearchTerm() {
-    new ColumbusModal(this.arcana.app, async result => {
-      const closestFiles = await this.arcana.search(result, 5);
-
-      console.log(closestFiles);
-      // TODO: Test (currently returning nothing)
-    }).open();
-  }
-
   private async openColumbusView() {
     // Check if it is already open
-    console.log(this);
 
     const ColumbusViews =
       this.arcana.app.workspace.getLeavesOfType(Columbus_VIEW_TYPE);

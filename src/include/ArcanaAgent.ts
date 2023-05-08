@@ -130,7 +130,6 @@ export default class ArcanaAgent {
     // When the esc key is pressed, abort the request
     const aborter = (e: any) => {
       if (e.key === 'Escape') {
-        console.log('Abort');
         aborted = true;
       }
     };

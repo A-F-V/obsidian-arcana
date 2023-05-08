@@ -34,7 +34,6 @@ export default class NostradamusPlugin {
         const newPath = normalizePath(`${parentName}/${betterName}`);
 
         // Rename the file
-        console.log(`Renaming ${file.path} to ${newPath}`);
         await this.arcana.app.fileManager
           .renameFile(file, newPath)
           .catch(error => {

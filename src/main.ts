@@ -56,7 +56,6 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async onunload() {
-    console.log('Unloading plugin');
     // Unload plugins
     for (const plugin of this.plugins) {
       await plugin.onunload();

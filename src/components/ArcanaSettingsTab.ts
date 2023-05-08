@@ -7,7 +7,6 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
   constructor(app: App, plugin: ArcanaPlugin) {
     super(app, plugin);
     this.plugin = plugin;
-    console.log('ArcanaSettingsTab constructor called');
   }
 
   display(): void {

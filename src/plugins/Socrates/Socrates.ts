@@ -30,7 +30,6 @@ export default class SocratesPlugin {
             // Get the current selected text
             const selectedText = editor.getSelection();
             // Decode the next section
-            console.log(`Inserting question: ${question}`);
             if (selectedText.length > 0) {
               // Move the cursor to the end of the file
               editor.setCursor(editor.lastLine(), 0);
