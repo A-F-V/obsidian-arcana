@@ -42,6 +42,7 @@ export default class NostradamusPlugin {
     });
   }
 
+  public addSettings(containerEl: HTMLElement) {}
   public async onunload() {}
 
   private async getBetterName(file: TFile): Promise<string> {

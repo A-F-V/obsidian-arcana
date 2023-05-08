@@ -39,7 +39,7 @@ export default class Conversation {
     };
     window.addEventListener('keydown', aborter);
     // Stream the tokens when calling
-
+    console.log('Asking question: ', question);
     const response = await this.chain.call(
       {
         input: question,

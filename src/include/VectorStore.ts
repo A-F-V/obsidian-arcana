@@ -98,6 +98,8 @@ export default class VectorStore {
     const release = await this.loadMutex.acquire();
     if (!this.loaded) {
       console.log('Loading store from disk');
+      // Log the stack trace
+      console.log(new Error().stack);
       await this.store.read();
 
       this.store.data ||= new VectorStoreData();

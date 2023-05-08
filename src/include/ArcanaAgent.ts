@@ -18,6 +18,7 @@ import {
 } from 'src/utilities/DocumentCleaner';
 import Conversation from 'src/Conversation';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
 /*
   TODO: Rename File to Arcanagent
   - Each file needs to have an id
@@ -39,25 +40,19 @@ export default class ArcanaAgent {
 
     this.vectorStore = new VectorStore(arcana);
 
-    // Setup file system callbacks
-    app.vault.on('create', async (file: TAbstractFile) => {
-      if (file instanceof TFile) {
-        await this.requestNewEmbedding(file);
-      }
-    });
-    app.vault.on('delete', async (file: TAbstractFile) => {});
-    app.vault.on('rename', async (file: TAbstractFile, oldPath: string) => {
-      if (file instanceof TFile) {
-        await this.requestNewEmbedding(file);
-      }
-    });
-
     this.setupEmbeddingPolicy();
   }
 
   private setupEmbeddingPolicy() {
     // Request Embeddings periodically
-    // TODO:
+    // Every 2 minutes
+    setInterval(async () => {
+      const files = this.arcana.app.vault.getMarkdownFiles();
+      for (const file of files) {
+        await this.requestNewEmbedding(file);
+      }
+      await this.save();
+    }, 120000);
 
     // Set up the commands to force trigger
     this.arcana.addCommand({
@@ -77,10 +72,11 @@ export default class ArcanaAgent {
     this.arcana.addCommand({
       id: 'arcana-request-embedding-for-all-files',
       name: 'Request embedding for all files',
-      callback: () => {
+      callback: async () => {
         this.arcana.app.vault.getMarkdownFiles().forEach(async file => {
           await this.requestNewEmbedding(file);
         });
+        await this.save();
       },
     });
   }
@@ -97,7 +93,6 @@ export default class ArcanaAgent {
     text = surroundWithMarkdown(text);
     const id = await this.noteIDer.getNoteID(file);
     const isDifferent = await this.vectorStore.hasChanged(id, text);
-    console.log('Requesting embedding for ' + file.path + ' - ' + isDifferent);
     if (isDifferent && text !== '' && file.extension === 'md') {
       console.log(file.path + ' has changed - fetching new embedding'); // Get the embedding
       const embedding = new OpenAIEmbeddings({
@@ -125,6 +120,37 @@ export default class ArcanaAgent {
     return new Conversation(this.getAI(), conversationContext);
   }
 
+  public async complete(
+    question: string,
+    context: string,
+    tokenHandler: (token: string) => void
+  ) {
+    // Set up aborter
+    let aborted = false;
+    // When the esc key is pressed, abort the request
+    const aborter = (e: any) => {
+      if (e.key === 'Escape') {
+        console.log('Abort');
+        aborted = true;
+      }
+    };
+    window.addEventListener('keydown', aborter);
+    const response = await this.getAI().call(
+      [new SystemChatMessage(context), new HumanChatMessage(question)],
+      undefined,
+      [
+        {
+          handleLLMNewToken(token: string) {
+            if (!aborted) {
+              tokenHandler(token);
+            }
+          },
+        },
+      ]
+    );
+    window.removeEventListener('keydown', aborter);
+    return response.text;
+  }
   public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {
     // Get embedding
     const embedding = new OpenAIEmbeddings({

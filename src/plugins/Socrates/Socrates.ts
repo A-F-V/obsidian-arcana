@@ -35,7 +35,6 @@ export default class SocratesPlugin {
               // Move the cursor to the end of the file
               editor.setCursor(editor.lastLine(), 0);
             }
-            editor.replaceSelection(`> ${question}\n\n`);
 
             await this.askSocrates(
               question,
@@ -52,6 +51,8 @@ export default class SocratesPlugin {
   }
 
   public async onunload() {}
+
+  public addSettings(containerEl: HTMLElement) {}
 
   private async askSocrates(
     question: string,
@@ -73,9 +74,8 @@ export default class SocratesPlugin {
       context += `The document is:\n${markdownText}\n`;
     }
     if (selectedText.length > 0) {
-      context += `The selected text is:\n${selectedText}\n`;
+      question += `\n*Note, the user has selected the following passage*:\n${selectedText}\n`;
     }
-
     await this.arcana.complete(question, context, tokenHandler);
   }
 }

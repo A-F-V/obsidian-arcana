@@ -22,6 +22,7 @@
     },
     "include": [
         "**/*.ts",
-        "src/plugins/Polaris/PolarisObsidianView.tsx"
-, "src/components/QuestionModal.tsx"    ]
+        "src/plugins/Columbus/ColumbusObsidianView.tsx",
+        "src/components/QuestionModal.tsx"
+    ]
 }

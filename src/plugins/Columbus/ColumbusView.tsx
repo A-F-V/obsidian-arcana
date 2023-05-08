@@ -3,10 +3,10 @@ import * as React from 'react';
 import { TFile } from 'obsidian';
 import { surroundWithMarkdown } from 'src/utilities/DocumentCleaner';
 
-export const POLARIS_VIEW_TYPE = 'polaris-view';
+export const Columbus_VIEW_TYPE = 'Columbus-view';
 
 // A react component for the view
-export const PolarisView = ({ arcana }: { arcana: ArcanaPlugin }) => {
+export const ColumbusView = ({ arcana }: { arcana: ArcanaPlugin }) => {
   // The search query and the serach results states
   const [query, setQuery] = React.useState('');
   const [results, setResults] = React.useState([] as TFile[]);

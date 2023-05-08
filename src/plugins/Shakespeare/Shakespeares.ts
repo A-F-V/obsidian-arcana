@@ -40,6 +40,7 @@ export default class ShakespearePlugin {
     });
   }
 
+  public addSettings(containerEl: HTMLElement) {}
   public async onunload() {}
 
   private async decodeNextSection(

@@ -3,7 +3,7 @@ import { Notice, Plugin, TFile } from 'obsidian';
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import ArcanaAgent from './include/ArcanaAgent';
-import Polaris from './plugins/Polaris/Polaris';
+import ColumbusPlugin from './plugins/Columbus/Columbus';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ShakespearePlugin from './plugins/Shakespeare/Shakespeares';
@@ -12,6 +12,8 @@ import FeynmanPlugin from './plugins/Feynman/Feynman';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
+  MODEL_TYPE: 'gpt-3.5-turbo',
+  PluginSettings: {},
 };
 
 export default class ArcanaPlugin extends Plugin {
@@ -20,7 +22,7 @@ export default class ArcanaPlugin extends Plugin {
   fs: StorageManager;
   settings: ArcanaSettings;
   plugins = [
-    new Polaris(this),
+    new ColumbusPlugin(this),
     new NostradamusPlugin(this),
     new ShakespearePlugin(this),
     new SocratesPlugin(this),
@@ -89,8 +91,7 @@ export default class ArcanaPlugin extends Plugin {
     ctx = 'A conversation with an AI for use in Obsidian.',
     handleTokens: (tokens: string) => void = () => {}
   ): Promise<string> {
-    const conversation = this.startConversation(ctx);
-    return await conversation.askQuestion(query, handleTokens);
+    return await this.agent.complete(query, ctx, handleTokens);
   }
 
   getAPIKey(): string {

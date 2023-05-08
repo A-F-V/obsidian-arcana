@@ -1,7 +1,7 @@
 - [x] Use a Langchain Vector Store
-- [ ] Policy for constantly managing embeddings
-  - [ ] Periodically fetch
-- [x] Create the Polaris Plugin
+- [x] Policy for constantly managing embeddings
+  - [x] Periodically fetch
+- [x] Create the Columbus Plugin
   - [x] Create a command to search and get n closest neighbours
   - [x] Create modal for this
   - [ ] Get menu to display results
@@ -13,10 +13,14 @@
 - [ ] Good error handing and reporting when api key is invalid or no internet etc
 - [ ] A way to avoid passing plugin all the way through class hierarchy
 - [x] Remove the frontmatter from the embedding text
-- [ ] Still requesting all embeddings on load for some reason? (says loading store a tonne before2)
+- [x] Still requesting all embeddings on load for some reason? (says loading store a tonne before2)
 - [ ] Complete experiment Socrates
-- [ ] There is a bug that spams the id.
-  - [ ] Flashcard not quite working either - spams + deletes some stuff.
+- [x] There is a bug that spams the id.
+  - [x] Flashcard not quite working either - spams + deletes some stuff.
+- [x] Add category for flashcard
+- [x] Make socrates more succinct
+- [x] Make Feynman location configurable
+- [ ] When creating the tag plugin, you can refactor part of the feynman plugin.
 
 # State machine ideas:
 
@@ -33,7 +37,7 @@
 - [ ] Conversation and explore - complete (socrates)
 - Auto Tag - complete or maybe search
 - Auto Link - search
-- Flash card generator - complete
+- [x] Flash card generator - complete
   - Maybe a more active tool for testing knowledge?
 - Quiz and Evaluate - complete
 - Inspired exploration - complete

@@ -1,4 +1,4 @@
-import { TFile } from 'obsidian';
+import { Notice, TFile } from 'obsidian';
 import FrontMatterManager from './FrontMatterManager';
 import ArcanaPlugin from 'src/main';
 import { assert } from 'console';
@@ -15,8 +15,29 @@ export default class NoteIDer {
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
     this.frontMatterManager = new FrontMatterManager(arcana);
+
+    // Periodically check integrrity of IDS
+    setInterval(async () => {
+      this.checkIntegrity();
+    }, 100000);
   }
 
+  private async checkIntegrity() {
+    const files = this.arcana.app.vault.getMarkdownFiles();
+    const ids = new Set<number>();
+    files.map(async file => {
+      const id = await this.getNoteID(file);
+      if (ids.has(id)) {
+        new Notice(`Duplicate id ${id} found in ${file.path}. Resetting id.`);
+        await this.clearID(file);
+        await this.getNoteID(file);
+      }
+      ids.add(id);
+    });
+  }
+  async clearID(note: TFile) {
+    await this.frontMatterManager.set(note, 'id', null);
+  }
   // Will get (and potentially set) a new unique id
   async getNoteID(note: TFile): Promise<number> {
     const fetchedID = await this.tryFetchingNoteID(note);
@@ -62,7 +83,7 @@ export default class NoteIDer {
     )) as number[];
 
     const nextLargest = Math.max(...ids, 0);
-    console.log(`Next largest id is ${nextLargest}`);
+    console.log(`Next largest id is ${nextLargest}`, new Error().stack);
     return nextLargest;
   }
 

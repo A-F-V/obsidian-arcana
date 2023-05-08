@@ -2,9 +2,12 @@
 
 import ArcanaPlugin from 'src/main';
 import { Modal, Setting, App } from 'obsidian';
-import { PolarisObsidianView, POLARIS_VIEW_TYPE } from './PolarisObsidianView';
+import {
+  ColumbusObsidianView,
+  Columbus_VIEW_TYPE,
+} from './ColumbusObsidianView';
 
-class PolarisModal extends Modal {
+class ColumbusModal extends Modal {
   result: string;
   onSubmit: (result: string) => void;
 
@@ -16,7 +19,7 @@ class PolarisModal extends Modal {
   onOpen() {
     const { contentEl } = this;
 
-    contentEl.createEl('h1', { text: 'Polaris Search' });
+    contentEl.createEl('h1', { text: 'Columbus Search' });
 
     new Setting(contentEl).setName('Query').addText(text =>
       text.onChange(value => {
@@ -49,32 +52,33 @@ class PolarisModal extends Modal {
   }
 }
 
-export default class Polaris {
+export default class ColumbusPlugin {
   private arcana: ArcanaPlugin;
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
   }
   async onload() {
-    // Register the Polaris View on load
+    // Register the Columbus View on load
     this.arcana.registerView(
-      POLARIS_VIEW_TYPE,
-      leaf => new PolarisObsidianView(leaf, this.arcana)
+      Columbus_VIEW_TYPE,
+      leaf => new ColumbusObsidianView(leaf, this.arcana)
     );
 
     // Render when the layout is ready
     this.arcana.app.workspace.onLayoutReady(() => {
-      this.openPolarisView();
+      this.openColumbusView();
     });
   }
 
   async onunload() {
     // Close the view
-    this.closePolarisView();
+    this.closeColumbusView();
   }
+  public addSettings(containerEl: HTMLElement) {}
 
   private requestSearchTerm() {
-    new PolarisModal(this.arcana.app, async result => {
+    new ColumbusModal(this.arcana.app, async result => {
       const closestFiles = await this.arcana.search(result, 5);
 
       console.log(closestFiles);
@@ -82,29 +86,29 @@ export default class Polaris {
     }).open();
   }
 
-  private async openPolarisView() {
+  private async openColumbusView() {
     // Check if it is already open
     console.log(this);
 
-    const polarisViews =
-      this.arcana.app.workspace.getLeavesOfType(POLARIS_VIEW_TYPE);
-    if (polarisViews.length == 0) {
+    const ColumbusViews =
+      this.arcana.app.workspace.getLeavesOfType(Columbus_VIEW_TYPE);
+    if (ColumbusViews.length == 0) {
       // Need to first mount
       const leaf = this.arcana.app.workspace.getLeftLeaf(false);
       await leaf.setViewState({
-        type: POLARIS_VIEW_TYPE,
+        type: Columbus_VIEW_TYPE,
       });
       this.arcana.app.workspace.revealLeaf(leaf);
     } else {
       // Already mounted
       // Just set as active
-      this.arcana.app.workspace.revealLeaf(polarisViews[0]);
+      this.arcana.app.workspace.revealLeaf(ColumbusViews[0]);
     }
   }
-  private async closePolarisView() {
-    const polarisViews =
-      this.arcana.app.workspace.getLeavesOfType(POLARIS_VIEW_TYPE);
-    for (const view of polarisViews) {
+  private async closeColumbusView() {
+    const ColumbusViews =
+      this.arcana.app.workspace.getLeavesOfType(Columbus_VIEW_TYPE);
+    for (const view of ColumbusViews) {
       await view.detach();
     }
   }
