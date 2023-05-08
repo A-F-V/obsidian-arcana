@@ -35,9 +35,11 @@ export default class NostradamusPlugin {
 
         // Rename the file
         console.log(`Renaming ${file.path} to ${newPath}`);
-        await this.arcana.app.vault.rename(file, newPath).catch(error => {
-          new Notice(`Failed to rename file: ${error}`);
-        });
+        await this.arcana.app.fileManager
+          .renameFile(file, newPath)
+          .catch(error => {
+            new Notice(`Failed to rename file: ${error}`);
+          });
       },
     });
   }
