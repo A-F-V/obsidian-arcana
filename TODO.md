@@ -1,3 +1,5 @@
+- [ ] Submit to Obsidian Community Plugin Store
+  - [ ] Complete recommendations
 - [x] Use a Langchain Vector Store
 - [x] Policy for constantly managing embeddings
   - [x] Periodically fetch

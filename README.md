@@ -11,14 +11,8 @@
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
 
-<img src='imgs/PeopleRow1.png' height=500>
+<img src='imgs/PeopleRow1.png' height=500 >
 <img src='imgs/Columbus.png' height=500/>
-
-<!-->
-<img src='imgs/Socrates.png' width=300 style=" margin-right:0px; float:left"/>
-<img src='imgs/Feynman' width=300  style=" margin-right:0px; float:left "/>
-<img src='imgs/Nostradamus' width=300  style="margin-right:0px; float:left"/>
--->
 
 _In order: Socrates, Feynman, Nostradamus, Columbus_
 
@@ -53,6 +47,8 @@ _In order: Socrates, Feynman, Nostradamus, Columbus_
 - Will take a note and produce 5 flashcards for you to use.
 - Flashcards are capatible with [Obsidian-Spaced-Repitition](https://github.com/st3v3nmw/obsidian-spaced-repetition) plugin.
 - Category is also generated.
+
+![](gifs/Feynman.gif)
 
 ## Nostradamus
 

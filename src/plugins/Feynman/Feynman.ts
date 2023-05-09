@@ -111,8 +111,8 @@ export default class FeynmanPlugin {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Part 1) Get the category
-    const context = `You are an AI that is helping write flashcards for the purpose of space repitition. You will need to figure out what the category of the flashcard is. The format is as follows: "#flashcards/<category>". The category may be hierarchical. For example, if the document was about pythagerous' theorem, then you would write '#flashcards/mathematics/geometry'. The depth of the category should be no more than 2 levels deep. Keep it very general. Also, use Kebeb Case for the category names.`;
-    const question = `What is the category of this document, titled '${title}'?\n${markdownText}\n`;
+    const context = `You are an AI that is helping write flashcards for the purpose of space repitition. You will need to figure out what the category of the flashcard is. The format is as follows: "#flashcards/<category>". The category may be hierarchical. For example, if the document was about pythagerous' theorem, then you would write '#flashcards/mathematics/geometry'. The depth of the category should be no more than 2 levels deep, and should be hierarchical. Keep it very general. Also, use lower case kebeb case for the category names.`;
+    const question = `What is the flashcard category of this document, titled '${title}'?\n${markdownText}\n`;
     await this.arcana.complete(question, context, tokenHandler);
     tokenHandler(`\n\n`);
     // Part 2) Ask the questions
