@@ -27,8 +27,8 @@ jobs:
     - name: Build
       id: build
       run: |
-        npm install
-        npm run build
+        yarn
+        yarn run build
 
     # Package the required files into a zip
     - name: Package
