@@ -25,5 +25,3 @@ try {
 }
 execSync(`git add . && git commit -m "Bump version to ${targetVersion}"`);
 execSync(`git tag -a ${targetVersion} -m "v${targetVersion}"`);
-// Push the new tag
-execSync(`git push origin ${targetVersion}`);
