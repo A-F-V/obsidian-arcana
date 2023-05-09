@@ -11,12 +11,15 @@
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
 
-<img src='imgs/Socrates.png' width=300 style=" margin-right:0px"/>
-<img src='imgs/Feynman' width=300  style=" margin-right:0px"/>
-<img src='imgs/Nostradamus' width=300  style="margin-right:0px"/>
-<img src='imgs/Columbus.png' width=300  style="margin-right:0px"/>
-*In order: Socrates, Feynman, Nostradamus, Columbus*
+<img src='imgs/Socrates.png' width=300 style=" margin-right:0px; float:left"/>
+<img src='imgs/Feynman' width=300  style=" margin-right:0px; float:left "/>
+<img src='imgs/Nostradamus' width=300  style="margin-right:0px; float:left"/>
+<img src='imgs/Columbus.png' width=300  style="margin-right:0px; "/>
+
+_In order: Socrates, Feynman, Nostradamus, Columbus_
+
 ## Usage:
+
 - **OpenAI API key required** - set in settings.
 - Most tools are invoked using the command palette and searching either `Arcana` or the person's name.
 - Some tools add a view in the sidebar to interact with.
