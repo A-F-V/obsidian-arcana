@@ -24,13 +24,7 @@
 - [x] Make Feynman location configurable
 - [ ] When creating the tag plugin, you can refactor part of the feynman plugin.
 - [ ] Socrates - If using a highlight - go to end of paragraph instead
-
-# State machine ideas:
-
-# API Ideas:
-
-- `complete`: query: string -> completion: string
-- `search`: query: string, k: number -> documents: string[]
+- [ ] Make mobile friendly
 
 ## Tasks and their API usage:
 
@@ -38,9 +32,9 @@
 - [x] Name Suggester - complete
 - [x] Section Completer - complete
 - [ ] Conversation and explore - complete (socrates)
-- Auto Tag - complete or maybe search
-- Auto Link - search
+- [ ] **Darwin** - Auto Tag - complete or maybe search
+- [ ] Auto Link - search
 - [x] Flash card generator - complete
   - Maybe a more active tool for testing knowledge?
-- Quiz and Evaluate - complete
-- Inspired exploration - complete
+- [ ]Quiz and Evaluate - complete
+- [ ] Inspired exploration - complete

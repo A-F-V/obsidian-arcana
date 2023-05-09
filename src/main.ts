@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
 
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
+  private openResource: (() => void)[] = [];
 
   fs: StorageManager;
   settings: ArcanaSettings;
@@ -60,12 +61,20 @@ export default class ArcanaPlugin extends Plugin {
     for (const plugin of this.plugins) {
       await plugin.onunload();
     }
+    // Release resources
+    for (const release of this.openResource) {
+      release();
+    }
 
     await this.agent.save();
   }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  registerResource(releaseMethod: () => void) {
+    this.openResource.push(releaseMethod);
   }
 
   async saveSettings() {

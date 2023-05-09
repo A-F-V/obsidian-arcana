@@ -19,6 +19,7 @@ import {
 import Conversation from 'src/Conversation';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
+import { release } from 'os';
 /*
   TODO: Rename File to Arcanagent
   - Each file needs to have an id
@@ -134,6 +135,10 @@ export default class ArcanaAgent {
       }
     };
     window.addEventListener('keydown', aborter);
+    // Register resource with Arcana
+    const releaser = () => window.removeEventListener('keydown', aborter);
+
+    this.arcana.registerResource(releaser);
     const response = await this.getAI().call(
       [new SystemChatMessage(context), new HumanChatMessage(question)],
       undefined,
@@ -147,7 +152,7 @@ export default class ArcanaAgent {
         },
       ]
     );
-    window.removeEventListener('keydown', aborter);
+    releaser();
     return response.text;
   }
   public async getKClosestDocuments(text: string, k: number): Promise<TFile[]> {

@@ -11,7 +11,7 @@
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
 
-<img src='imgs/PeopleRow1.png' height=500 >
+<img src='imgs/Row1People.png' height=500 >
 <img src='imgs/Columbus.png' height=500/>
 
 _In order: Socrates, Feynman, Nostradamus, Columbus_
