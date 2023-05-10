@@ -1,7 +1,7 @@
 import ArcanaPlugin from 'src/main';
 import * as React from 'react';
 import Conversation from 'src/Conversation';
-import { TFile } from 'obsidian';
+import { TFile, WorkspaceLeaf } from 'obsidian';
 
 export const SOCRATES_VIEW_TYPE = 'socrates-view';
 
@@ -108,7 +108,8 @@ export const SocratesView = ({ arcana }: { arcana: ArcanaPlugin }) => {
   const [currentID, setCurrentID] = React.useState<number | null>(null);
 
   // when the current file changes, change conversation
-  arcana.app.workspace.on('active-leaf-change', async leaf => {
+
+  const setCurrentFile = async (leaf: WorkspaceLeaf) => {
     // Get the file from leaf
     const file = arcana.app.workspace.getActiveFile();
     if (file) {
@@ -116,8 +117,13 @@ export const SocratesView = ({ arcana }: { arcana: ArcanaPlugin }) => {
 
       setCurrentID(fileID);
     }
-  });
-
+  };
+  // Activate
+  arcana.app.workspace.on('active-leaf-change', setCurrentFile);
+  // Deactivate
+  arcana.registerResource(() =>
+    arcana.app.workspace.off('active-leaf-change', setCurrentFile)
+  );
   return (
     <div>
       <h1>Socrates</h1>
