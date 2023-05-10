@@ -11,11 +11,6 @@
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
 
-<img src='imgs/Row1People.png' height=500 >
-<img src='imgs/Columbus.png' height=500/>
-
-_In order: Socrates, Feynman, Nostradamus, Columbus_
-
 ## Usage:
 
 - **OpenAI API key required** - set in settings.
@@ -30,6 +25,10 @@ _In order: Socrates, Feynman, Nostradamus, Columbus_
 
 ## Socrates
 
+<p align="center">
+<img src='imgs/Socrates.png' height=500/>
+</p>
+
 **The Socratic Method with Socrates**
 
 - Anywhere in a note, you can ask a question to Socrates. He will answer, writing where your cursor was.
@@ -42,6 +41,10 @@ _In order: Socrates, Feynman, Nostradamus, Columbus_
 
 ## Richard Feynman
 
+<p align="center">
+<img src='imgs/Feynman' height=500/>
+</p>
+
 **Write Flashcards with Feynman**
 
 - Will take a note and produce 5 flashcards for you to use.
@@ -52,9 +55,17 @@ _In order: Socrates, Feynman, Nostradamus, Columbus_
 
 ## Nostradamus
 
+<p align="center">
+<img src='imgs/Nostradamus' height=500/>
+</p>
+
 **Gives a better name for the note**
 
 ## Christopher Columbus
+
+<p align="center">
+<img src='imgs/Columbus.png' height=500/>
+</p>
 
 **Smart Search** (WIP)
 
