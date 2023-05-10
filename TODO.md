@@ -3,19 +3,16 @@
 - [x] Use a Langchain Vector Store
 - [x] Policy for constantly managing embeddings
   - [x] Periodically fetch
-- [x] Create the Columbus Plugin
+- [x] Create the Carter Plugin
   - [x] Create a command to search and get n closest neighbours
   - [x] Create modal for this
   - [ ] Get menu to display results
   - [ ] Ribbon action to initiate
-- [ ] Better state machine for when there is or is not an apikey , store etc.
-  - [x] Store
-  - [x] API
-  - [ ] Test
+  - [ ] Polish Carter 
 - [ ] Good error handing and reporting when api key is invalid or no internet etc
 - [ ] A way to avoid passing plugin all the way through class hierarchy
 - [x] Remove the frontmatter from the embedding text
-- [x] Still requesting all embeddings on load for some reason? (says loading store a tonne before2)
+- [x] Still requesting all embeddings on load for some reason? (says loading store a tonne before)
 - [ ] Complete experiment Socrates
 - [x] There is a bug that spams the id.
   - [x] Flashcard not quite working either - spams + deletes some stuff.
@@ -37,5 +34,5 @@
 - [ ] Auto Link - search
 - [x] Flash card generator - complete
   - Maybe a more active tool for testing knowledge?
-- [ ]Quiz and Evaluate - complete
+- [ ] Quiz and Evaluate - complete
 - [ ] Inspired exploration - complete

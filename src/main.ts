@@ -3,7 +3,7 @@ import { Notice, Plugin, TFile } from 'obsidian';
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import ArcanaAgent from './include/ArcanaAgent';
-import ColumbusPlugin from './plugins/Columbus/Columbus';
+import CarterPlugin from './plugins/Carter/Carter';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
@@ -23,7 +23,7 @@ export default class ArcanaPlugin extends Plugin {
   fs: StorageManager;
   settings: ArcanaSettings;
   plugins = [
-    new ColumbusPlugin(this),
+    new CarterPlugin(this),
     new NostradamusPlugin(this),
     new ChristiePlugin(this),
     new SocratesPlugin(this),

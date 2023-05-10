@@ -22,7 +22,7 @@
     },
     "include": [
         "**/*.ts",
-        "src/plugins/Columbus/ColumbusObsidianView.tsx",
+        "src/plugins/Carter/CarterObsidianView.tsx",
         "src/components/QuestionModal.tsx"
     ]
 }

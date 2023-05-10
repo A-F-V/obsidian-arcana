@@ -16,7 +16,7 @@ export default class ViewPluginBase {
     this.viewFactory = viewFactory;
   }
   async onload() {
-    // Register the Columbus View on load
+    // Register the Carter View on load
     this.arcana.registerView(this.viewType, leaf =>
       this.viewFactory(leaf, this.arcana)
     );
@@ -49,10 +49,10 @@ export default class ViewPluginBase {
     }
   }
   private async closeView() {
-    const ColumbusViews = this.arcana.app.workspace.getLeavesOfType(
+    const CarterViews = this.arcana.app.workspace.getLeavesOfType(
       this.viewType
     );
-    for (const view of ColumbusViews) {
+    for (const view of CarterViews) {
       await view.detach();
     }
   }

@@ -2,12 +2,9 @@
 
 import ArcanaPlugin from 'src/main';
 import { Modal, Setting, App } from 'obsidian';
-import {
-  ColumbusObsidianView,
-  Columbus_VIEW_TYPE,
-} from './ColumbusObsidianView';
+import { CarterObsidianView, Carter_VIEW_TYPE } from './CarterObsidianView';
 
-class ColumbusModal extends Modal {
+class CarterModal extends Modal {
   result: string;
   onSubmit: (result: string) => void;
 
@@ -19,7 +16,7 @@ class ColumbusModal extends Modal {
   onOpen() {
     const { contentEl } = this;
 
-    contentEl.createEl('h1', { text: 'Columbus Search' });
+    contentEl.createEl('h1', { text: 'Carter Discover' });
 
     new Setting(contentEl).setName('Query').addText(text =>
       text.onChange(value => {
@@ -52,53 +49,53 @@ class ColumbusModal extends Modal {
   }
 }
 
-export default class ColumbusPlugin {
+export default class CarterPlugin {
   private arcana: ArcanaPlugin;
 
   constructor(arcana: ArcanaPlugin) {
     this.arcana = arcana;
   }
   async onload() {
-    // Register the Columbus View on load
+    // Register the Carter View on load
     this.arcana.registerView(
-      Columbus_VIEW_TYPE,
-      leaf => new ColumbusObsidianView(leaf, this.arcana)
+      Carter_VIEW_TYPE,
+      leaf => new CarterObsidianView(leaf, this.arcana)
     );
 
     // Render when the layout is ready
     this.arcana.app.workspace.onLayoutReady(() => {
-      this.openColumbusView();
+      this.openCarterView();
     });
   }
 
   async onunload() {
     // Close the view
-    this.closeColumbusView();
+    this.closeCarterView();
   }
   public addSettings(containerEl: HTMLElement) {}
 
-  private async openColumbusView() {
+  private async openCarterView() {
     // Check if it is already open
 
-    const ColumbusViews =
-      this.arcana.app.workspace.getLeavesOfType(Columbus_VIEW_TYPE);
-    if (ColumbusViews.length == 0) {
+    const CarterViews =
+      this.arcana.app.workspace.getLeavesOfType(Carter_VIEW_TYPE);
+    if (CarterViews.length == 0) {
       // Need to first mount
       const leaf = this.arcana.app.workspace.getLeftLeaf(false);
       await leaf.setViewState({
-        type: Columbus_VIEW_TYPE,
+        type: Carter_VIEW_TYPE,
       });
       this.arcana.app.workspace.revealLeaf(leaf);
     } else {
       // Already mounted
       // Just set as active
-      this.arcana.app.workspace.revealLeaf(ColumbusViews[0]);
+      this.arcana.app.workspace.revealLeaf(CarterViews[0]);
     }
   }
-  private async closeColumbusView() {
-    const ColumbusViews =
-      this.arcana.app.workspace.getLeavesOfType(Columbus_VIEW_TYPE);
-    for (const view of ColumbusViews) {
+  private async closeCarterView() {
+    const CarterViews =
+      this.arcana.app.workspace.getLeavesOfType(Carter_VIEW_TYPE);
+    for (const view of CarterViews) {
       await view.detach();
     }
   }

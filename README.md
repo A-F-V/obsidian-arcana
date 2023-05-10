@@ -9,7 +9,7 @@
 - [Socrates](#socrates) - **Question Answering**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Nostradamus](#nostradamus) - **Note Naming**
-- [Christopher Columbus](#christopher-columbus) - **Smart Search**
+- [Howard Carter](#howard-carter) - **Smart Search**
 - [Agatha Christie](#agatha-christie) - **Section Completion**
 
 ## Usage:
@@ -60,15 +60,19 @@
 <img src='imgs/Nostradamus' height=500/>
 </p>
 
-**Gives a better name for the note**
+**Can predict the title of notes**
 
-## Christopher Columbus
+- Takes the content of the note and uses it to give the file a better title.
+
+![](gifs/Nostradamus.gif)
+
+## Howard Carter
 
 <p align="center">
-<img src='imgs/Columbus.png' height=500/>
+<img src='imgs/Carter.png' height=500/>
 </p>
 
-**Smart Search** (WIP)
+---
 
 ## Agatha Christie
 
@@ -80,10 +84,9 @@
 
 - Give Christie the section header and she will write the text for you.
 - She will try not to repeat what has already been said.
-- Using smaller headers (`#` vs `##` etc) will write less and be more succinct.  
+- Using smaller headers (`#` vs `##` etc) will write less and be more succinct.
 
-![](gifs/Christie.gif)
----
+## ![](gifs/Christie.gif)
 
 ### Contributing:
 

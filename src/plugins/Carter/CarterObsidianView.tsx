@@ -3,12 +3,12 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { ColumbusView } from './ColumbusView';
+import { CarterView } from './CarterView';
 
-export const Columbus_VIEW_TYPE = 'Columbus-view';
+export const Carter_VIEW_TYPE = 'Carter-view';
 
 // The general boiler plate for creating an obsidian view
-export class ColumbusObsidianView extends ItemView {
+export class CarterObsidianView extends ItemView {
   private arcana: ArcanaPlugin;
 
   constructor(leaf: any, arcana: ArcanaPlugin) {
@@ -17,7 +17,7 @@ export class ColumbusObsidianView extends ItemView {
   }
 
   getDisplayText(): string {
-    return 'Columbus';
+    return 'Carter';
   }
 
   getIcon(): string {
@@ -25,7 +25,7 @@ export class ColumbusObsidianView extends ItemView {
   }
 
   getViewType(): string {
-    return Columbus_VIEW_TYPE;
+    return Carter_VIEW_TYPE;
   }
 
   async onOpen(): Promise<void> {
@@ -33,7 +33,7 @@ export class ColumbusObsidianView extends ItemView {
 
     root.render(
       <React.StrictMode>
-        <ColumbusView arcana={this.arcana} />
+        <CarterView arcana={this.arcana} />
       </React.StrictMode>
     );
   }
