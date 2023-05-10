@@ -10,6 +10,7 @@
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
+- [Agatha Christie](#agatha-christie) - **Section Completion**
 
 ## Usage:
 
@@ -68,6 +69,19 @@
 </p>
 
 **Smart Search** (WIP)
+
+## Agatha Christie
+
+<p align="center">
+<img src='imgs/Agatha.png' height=500/>
+</p>
+
+**Writes sections**
+
+- Give Christie the section header and she will write the text for you.
+- She will try not to repeat what has already been said.
+- Using smaller headers (`#` vs `##` etc) will write less and be more succinct.  
+
 
 ---
 

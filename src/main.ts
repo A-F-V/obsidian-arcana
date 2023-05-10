@@ -6,7 +6,7 @@ import ArcanaAgent from './include/ArcanaAgent';
 import ColumbusPlugin from './plugins/Columbus/Columbus';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
-import ShakespearePlugin from './plugins/Shakespeare/Shakespeares';
+import ChristiePlugin from './plugins/Christie/Christie';
 import SocratesPlugin from './plugins/Socrates/Socrates';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
 
@@ -25,7 +25,7 @@ export default class ArcanaPlugin extends Plugin {
   plugins = [
     new ColumbusPlugin(this),
     new NostradamusPlugin(this),
-    new ShakespearePlugin(this),
+    new ChristiePlugin(this),
     new SocratesPlugin(this),
     new FeynmanPlugin(this),
   ];
