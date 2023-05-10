@@ -82,7 +82,7 @@
 - She will try not to repeat what has already been said.
 - Using smaller headers (`#` vs `##` etc) will write less and be more succinct.  
 
-
+![](gifs/Christie.gif)
 ---
 
 ### Contributing:
