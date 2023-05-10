@@ -6,7 +6,7 @@
 
 **Arcana** is a collection of AI powered tools designed to help you be more creative and productive with your Obsidian vault. Each tool is inspired by a famous historical figure:
 
-- [Socrates](#socrates) - **Question Completion**
+- [Socrates](#socrates) - **Question Answering**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Christopher Columbus](#christopher-columbus) - **Smart Search**
