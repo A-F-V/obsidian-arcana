@@ -57,7 +57,7 @@ export default class ArcanaAgent {
 
     // Set up the commands to force trigger
     this.arcana.addCommand({
-      id: 'arcana-request-embedding-for-current-file',
+      id: 'request-embedding-for-current-file',
       name: 'Request embedding for current file',
       callback: () => {
         const currentFile = app.workspace.getActiveFile();
@@ -71,7 +71,7 @@ export default class ArcanaAgent {
     });
 
     this.arcana.addCommand({
-      id: 'arcana-request-embedding-for-all-files',
+      id: 'request-embedding-for-all-files',
       name: 'Request embedding for all files',
       callback: async () => {
         this.arcana.app.vault.getMarkdownFiles().forEach(async file => {

@@ -43,7 +43,7 @@ export default class ArcanaPlugin extends Plugin {
     this.agent = new ArcanaAgent(this);
 
     this.addCommand({
-      id: 'arcana-force-save',
+      id: 'force-save',
       name: 'Force save',
       callback: async () => {
         await this.agent.save();
