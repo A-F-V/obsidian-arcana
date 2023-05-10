@@ -1,11 +1,11 @@
 {
-	"id": "arcana",
-	"name": "Arcana",
-	"version": "1.0.7",
-	"minAppVersion": "0.15.0",
-	"description": "A Plugin Manager for AI Enriched Notes",
-	"author": "A-F-V",
-	"authorUrl": "https://github.com/A-F-V",
-	"fundingUrl": "https://www.buymeacoffee.com/AFV7",
-	"isDesktopOnly": true
+  "id": "arcana",
+  "name": "Arcana",
+  "version": "1.0.7",
+  "minAppVersion": "0.15.0",
+  "description": "A collection of AI powered tools",
+  "author": "A-F-V",
+  "authorUrl": "https://github.com/A-F-V",
+  "fundingUrl": "https://www.buymeacoffee.com/AFV7",
+  "isDesktopOnly": true
 }
