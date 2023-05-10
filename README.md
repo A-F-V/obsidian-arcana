@@ -1,6 +1,6 @@
 **Note the project is still a WIP and we take no responsibility for any problems you may face. The frontmatter of markdown files will be changed for virtually all notes.**
 
-# Enter the Arcana
+# 🔮 Enter the Arcana
 
 > A plugin for [Obsidian](https://obsidian.md/)
 
