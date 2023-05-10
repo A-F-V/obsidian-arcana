@@ -72,6 +72,12 @@
 <img src='imgs/Carter.png' height=500/>
 </p>
 
+**Rediscovering the Past**
+
+- **Smart Search** of your vault that goes beyond token matching and instead searches based on meaning.
+- Each note has an embedding (periodically cached)
+- The search finds the notes whose embeddings are closest to the search query.
+
 ---
 
 ## Agatha Christie
