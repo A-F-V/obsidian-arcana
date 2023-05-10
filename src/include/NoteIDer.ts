@@ -17,9 +17,11 @@ export default class NoteIDer {
     this.frontMatterManager = new FrontMatterManager(arcana);
 
     // Periodically check integrrity of IDS
-    setInterval(async () => {
-      this.checkIntegrity();
-    }, 100000);
+    this.arcana.registerInterval(
+      window.setInterval(async () => {
+        this.checkIntegrity();
+      }, 100000)
+    );
   }
 
   private async checkIntegrity() {

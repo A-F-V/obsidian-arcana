@@ -47,13 +47,16 @@ export default class ArcanaAgent {
   private setupEmbeddingPolicy() {
     // Request Embeddings periodically
     // Every 2 minutes
-    setInterval(async () => {
-      const files = this.arcana.app.vault.getMarkdownFiles();
-      for (const file of files) {
-        await this.requestNewEmbedding(file);
-      }
-      await this.save();
-    }, 120000);
+    // Create Resource
+    this.arcana.registerInterval(
+      window.setInterval(async () => {
+        const files = this.arcana.app.vault.getMarkdownFiles();
+        for (const file of files) {
+          await this.requestNewEmbedding(file);
+        }
+        await this.save();
+      }, 120000)
+    );
 
     // Set up the commands to force trigger
     this.arcana.addCommand({
