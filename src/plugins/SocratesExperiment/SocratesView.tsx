@@ -2,6 +2,8 @@ import ArcanaPlugin from 'src/main';
 import * as React from 'react';
 import Conversation from 'src/Conversation';
 import { TFile, WorkspaceLeaf } from 'obsidian';
+import { ArcanaContext } from 'src/hooks/context';
+import { useArcana } from 'src/hooks/hooks';
 
 export const SOCRATES_VIEW_TYPE = 'socrates-view';
 
@@ -34,12 +36,11 @@ class Dialogue {
 }
 
 function ConversationDialogue({
-  arcana,
   conversationID,
 }: {
-  arcana: ArcanaPlugin;
   conversationID: number | null;
 }) {
+  const arcana = useArcana();
   const [dialogues, setDialogues] = React.useState<Map<number, Dialogue>>(
     new Map()
   );
@@ -104,7 +105,8 @@ function ConversationDialogue({
 }
 
 // A react component for the view
-export const SocratesView = ({ arcana }: { arcana: ArcanaPlugin }) => {
+export const SocratesView = () => {
+  const arcana = useArcana();
   const [currentID, setCurrentID] = React.useState<number | null>(null);
 
   // when the current file changes, change conversation
@@ -113,7 +115,7 @@ export const SocratesView = ({ arcana }: { arcana: ArcanaPlugin }) => {
     // Get the file from leaf
     const file = arcana.app.workspace.getActiveFile();
     if (file) {
-      const fileID = await arcana.getFileID(file);
+      const fileID = await arcana!.getFileID(file);
 
       setCurrentID(fileID);
     }
@@ -127,7 +129,7 @@ export const SocratesView = ({ arcana }: { arcana: ArcanaPlugin }) => {
   return (
     <div>
       <h1>Socrates</h1>
-      <ConversationDialogue arcana={arcana} conversationID={currentID} />
+      <ConversationDialogue conversationID={currentID} />
     </div>
   );
 };

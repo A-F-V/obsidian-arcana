@@ -1,25 +1,30 @@
 import { View, WorkspaceLeaf } from 'obsidian';
 import ArcanaPlugin from 'src/main';
+import { ObsidianView } from './ObsidianView';
+import ArcanaPluginBase from './ArcanaPluginBase';
 
-export default class ViewPluginBase {
+export default abstract class ViewPluginBase extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
   private viewType: string;
-  private viewFactory: (leaf: WorkspaceLeaf, arcana: ArcanaPlugin) => View;
+  private leaf: WorkspaceLeaf;
+
+  private viewFactory: (leaf: WorkspaceLeaf) => View;
 
   constructor(
     arcana: ArcanaPlugin,
     viewType: string,
-    viewFactory: (leaf: WorkspaceLeaf, arcana: ArcanaPlugin) => View
+    icon: string,
+    displayText: string,
+    view: () => JSX.Element
   ) {
+    super();
     this.arcana = arcana;
-    this.viewType = viewType;
-    this.viewFactory = viewFactory;
+    this.viewFactory = (leaf: WorkspaceLeaf) =>
+      new ObsidianView(leaf, arcana, viewType, icon, displayText, view);
   }
   async onload() {
     // Register the Carter View on load
-    this.arcana.registerView(this.viewType, leaf =>
-      this.viewFactory(leaf, this.arcana)
-    );
+    this.arcana.registerView(this.viewType, leaf => this.viewFactory(leaf));
 
     // Render when the layout is ready
     this.arcana.app.workspace.onLayoutReady(() => {
@@ -37,11 +42,11 @@ export default class ViewPluginBase {
     const views = this.arcana.app.workspace.getLeavesOfType(this.viewType);
     if (views.length == 0) {
       // Need to first mount
-      const leaf = this.arcana.app.workspace.getLeftLeaf(false); // TODO: Abstract this
-      await leaf.setViewState({
+      this.leaf = this.arcana.app.workspace.getLeftLeaf(false); // TODO: Abstract this
+      await this.leaf.setViewState({
         type: this.viewType,
       });
-      this.arcana.app.workspace.revealLeaf(leaf);
+      this.arcana.app.workspace.revealLeaf(this.leaf);
     } else {
       // Already mounted
       // Just set as active
@@ -49,11 +54,6 @@ export default class ViewPluginBase {
     }
   }
   private async closeView() {
-    const CarterViews = this.arcana.app.workspace.getLeavesOfType(
-      this.viewType
-    );
-    for (const view of CarterViews) {
-      await view.detach();
-    }
+    this.leaf.detach();
   }
 }

@@ -14,6 +14,7 @@
 
 ## Usage:
 
+- (This plugin is not yet available on the obisidan plugin marketplace.)
 - **OpenAI API key required** - set in settings.
 - Most tools are invoked using the command palette and searching either `Arcana` or the person's name.
 - Some tools add a view in the sidebar to interact with.
@@ -74,9 +75,11 @@
 
 **Rediscovering the Past**
 
-- **Smart Search** of your vault that goes beyond token matching and instead searches based on meaning.
+- **Smart Search** your vault that goes beyond token matching and instead searches based on meaning.
 - Each note has an embedding (periodically cached)
 - The search finds the notes whose embeddings are closest to the search query.
+
+![](gifs/Carter.gif)
 
 ---
 

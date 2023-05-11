@@ -1,7 +1,12 @@
-import { AppContext } from "./context";
-import { App } from "obsidian";
-import React from "react";
+import { ArcanaContext } from './context';
+import React from 'react';
+import ArcanaPlugin from 'src/main';
 
-export const useApp = (): App | undefined => {
-	return React.useContext(AppContext);
+export const useArcana = (): ArcanaPlugin => {
+  // Use ArcanaContext but throw an error if it's null
+  const arcana = React.useContext(ArcanaContext);
+  if (arcana == null) {
+    throw new Error('ArcanaContext is null');
+  }
+  return arcana;
 };

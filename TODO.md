@@ -3,12 +3,11 @@
 - [x] Use a Langchain Vector Store
 - [x] Policy for constantly managing embeddings
   - [x] Periodically fetch
-- [x] Create the Carter Plugin
-  - [x] Create a command to search and get n closest neighbours
-  - [x] Create modal for this
-  - [ ] Get menu to display results
-  - [ ] Ribbon action to initiate
-  - [ ] Polish Carter 
+- [x] Polish Carter
+  - [x] Header
+  - [ ] Better formatting of search results
+  - [x] Have search score
+  - [x] Display 20 closest
 - [ ] Good error handing and reporting when api key is invalid or no internet etc
 - [ ] A way to avoid passing plugin all the way through class hierarchy
 - [x] Remove the frontmatter from the embedding text
@@ -23,6 +22,7 @@
 - [ ] Socrates - If using a highlight - go to end of paragraph instead
 - [ ] Make mobile friendly
 - [x] Rename Shakespeare to Another Historical Figure (Virginia Wolff?)
+- [ ] 
 
 ## Tasks and their API usage:
 

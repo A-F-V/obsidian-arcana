@@ -1,16 +1,16 @@
-import { Editor, MarkdownView, Modal, TFile } from 'obsidian';
+import { Editor, MarkdownView, TFile } from 'obsidian';
 import ArcanaPlugin from 'src/main';
 import {
   removeFrontMatter,
   surroundWithMarkdown,
 } from 'src/utilities/DocumentCleaner';
-import { PromptTemplate } from 'langchain/prompts';
-import { StructuredOutputParser } from 'langchain/output_parsers';
 import QuestionModal from 'src/components/QuestionModal';
+import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 
-export default class ChristiePlugin {
+export default class ChristiePlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
   public constructor(arcana: ArcanaPlugin) {
+    super();
     this.arcana = arcana;
   }
 
@@ -39,7 +39,6 @@ export default class ChristiePlugin {
     });
   }
 
-  public addSettings(containerEl: HTMLElement) {}
   public async onunload() {}
 
   private getQuantityContext(message: string): string {

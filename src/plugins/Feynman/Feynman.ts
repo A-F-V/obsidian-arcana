@@ -1,7 +1,6 @@
 import {
   Editor,
   MarkdownView,
-  Modal,
   Notice,
   Setting,
   TFile,
@@ -12,17 +11,16 @@ import {
   removeFrontMatter,
   surroundWithMarkdown,
 } from 'src/utilities/DocumentCleaner';
-import { PromptTemplate } from 'langchain/prompts';
-import { StructuredOutputParser } from 'langchain/output_parsers';
-import QuestionModal from 'src/components/QuestionModal';
-import StorageManager from 'src/include/StorageManager';
-import { assert } from 'console';
 
-export default class FeynmanPlugin {
+import { assert } from 'console';
+import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
+
+export default class FeynmanPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
   private setting: { folder: string };
 
   public constructor(arcana: ArcanaPlugin) {
+    super();
     this.arcana = arcana;
   }
 
