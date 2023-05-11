@@ -5,10 +5,7 @@ import { TFile, Notice } from 'obsidian';
 import { VectorSearchResult, VectorStore } from './VectorStore';
 import NoteIDer from './NoteIDer';
 import ArcanaPlugin from 'src/main';
-import {
-  removeFrontMatter,
-  surroundWithMarkdown,
-} from 'src/utilities/DocumentCleaner';
+import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import Conversation from 'src/Conversation';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
@@ -22,6 +19,7 @@ import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
 */
 export type ArcanaSearchResult = {
   file: TFile;
+  id: number;
   score: number;
 };
 export class ArcanaAgent {
@@ -47,9 +45,7 @@ export class ArcanaAgent {
     this.arcana.registerInterval(
       window.setInterval(async () => {
         const files = this.arcana.app.vault.getMarkdownFiles();
-        for (const file of files) {
-          await this.requestNewEmbedding(file);
-        }
+        await this.requestNewEmbeddings(files);
         await this.save();
       }, 120000)
     );
@@ -64,7 +60,7 @@ export class ArcanaAgent {
           new Notice('No file is currently open');
           return;
         } else {
-          this.requestNewEmbedding(currentFile);
+          this.requestNewEmbeddings([currentFile]);
         }
       },
     });
@@ -73,9 +69,8 @@ export class ArcanaAgent {
       id: 'request-embedding-for-all-files',
       name: 'Request embedding for all files',
       callback: async () => {
-        this.arcana.app.vault.getMarkdownFiles().forEach(async file => {
-          await this.requestNewEmbedding(file);
-        });
+        const files = this.arcana.app.vault.getMarkdownFiles();
+        await this.requestNewEmbeddings(files);
         await this.save();
       },
     });
@@ -86,27 +81,45 @@ export class ArcanaAgent {
   }
 
   // TODO: Move the file hashes into another file so that they are not managed by the vector stores
-  private async requestNewEmbedding(file: TFile) {
-    // Get the embedding for the file
-    let text = await this.arcana.app.vault.read(file);
-    text = removeFrontMatter(text);
-    text = surroundWithMarkdown(text);
-    const id = await this.noteIDer.getNoteID(file);
-    const isDifferent = await this.vectorStore.hasChanged(id, text);
-    if (isDifferent && text !== '' && file.extension === 'md') {
-      console.log(file.path + ' has changed - fetching new embedding'); // Get the embedding
+  private async requestNewEmbeddings(files: TFile[]) {
+    // Construct the text used to embed
+    const getIDText = async (file: TFile) => {
+      // Get the embedding for the file
+      let text = await this.arcana.app.vault.read(file);
+      text = removeFrontMatter(text);
+      //text = surroundWithMarkdown(text);
+      text = `# ${file.basename}\n\n${text}`;
+      const id = await this.noteIDer.getNoteID(file);
+      const isDifferent = await this.vectorStore.hasChanged(id, text);
+      if (isDifferent && text !== '' && file.extension === 'md') {
+        return { id, text };
+      } else {
+        return null;
+      }
+    };
+    // Create the batch
+    const batch = (await Promise.all(files.map(getIDText)))
+      // Filter out nulls
+      .filter(x => x !== null) as { id: number; text: string }[];
+
+    if (batch.length != 0) {
       const embedding = new OpenAIEmbeddings({
         openAIApiKey: this.arcana.getAPIKey(),
       });
-      const res = (
-        await embedding.embedDocuments([text]).catch(err => {
+      // Get the embeddings
+      const embeddings = await embedding
+        .embedDocuments(batch.map(res => res.text))
+        .catch(err => {
           console.log(err);
           return [];
-        })
-      )[0];
-
-      // Save the embedding
-      await this.vectorStore.setVector(id, res, text);
+        });
+      // Save the embeddings
+      for (let i = 0; i < batch.length; i++) {
+        const id = batch[i].id;
+        const text = batch[i].text;
+        const embedding = embeddings[i];
+        await this.vectorStore.setVector(id, embedding, text);
+      }
     }
   }
   private getAI() {
@@ -171,6 +184,7 @@ export class ArcanaAgent {
       vectorResults.map(async result => {
         return {
           file: await this.noteIDer.getDocumentWithID(result.id),
+          id: result.id,
           score: result.score,
         };
       })

@@ -1,9 +1,7 @@
-import ArcanaPlugin from 'src/main';
 import * as React from 'react';
-import { TFile } from 'obsidian';
 import { ArcanaSearchResult } from 'src/include/ArcanaAgent';
-import { ArcanaContext } from 'src/hooks/context';
 import { useArcana } from 'src/hooks/hooks';
+import { GridLoader } from 'react-spinners';
 
 const SearchResult = ({ result }: { result: ArcanaSearchResult }) => {
   const arcana = useArcana();
@@ -14,9 +12,17 @@ const SearchResult = ({ result }: { result: ArcanaSearchResult }) => {
           // Open the file
           arcana.app.workspace.openLinkText(result.file.basename, '', true);
         }}
-        style={{ display: 'block', width: '100%' }}
+        style={{
+          display: 'block',
+          width: '100%',
+          justifyContent: 'left',
+          textAlign: 'left',
+          marginBlock: 10,
+          height: 'fit-content',
+        }}
       >
-        {result.file.basename} - {result.score * 100}
+        <em>{(result.score * 100).toPrecision(3)}%</em> |{' '}
+        <b>{result.file.basename}</b>
       </button>
     </div>
   );
@@ -28,29 +34,44 @@ export const CarterView = () => {
   const arcana = useArcana();
   const [query, setQuery] = React.useState('');
   const [results, setResults] = React.useState([] as ArcanaSearchResult[]);
+  const [loading, setLoading] = React.useState(false);
 
   // When the query changes, update the results
   React.useEffect(() => {
     // Find the closest matches
     if (query != '') {
-      arcana.search(query, 20).then(setResults);
+      setLoading(true);
+      arcana.search(query, 20).then(results => {
+        setResults(results);
+        setLoading(false);
+      });
     }
   }, [query]);
-
   return (
     <div>
-      <h1>Carter Rediscover</h1>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <h1>🧭 Carter</h1>
+        <GridLoader size={10} loading={loading} color={'#70163C'} />
+      </div>
       <input
         type="text"
+        className="beautiful-input"
+        style={{ width: '100%' }}
         onKeyUp={e => {
           if (e.key == 'Enter') {
             setQuery(e.currentTarget.value);
           }
         }}
       />
-      <div>
+      <div style={{ padding: 10 }}>
         {results.map(result => (
-          <SearchResult result={result} />
+          <SearchResult key={result.id} result={result} />
         ))}
       </div>
     </div>
