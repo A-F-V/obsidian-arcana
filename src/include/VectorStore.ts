@@ -75,7 +75,11 @@ class CompressedVectorStoreAdapter {
   }
 }
 // Confusing naming of store
-export default class VectorStore {
+export type VectorSearchResult = {
+  id: number;
+  score: number;
+};
+export class VectorStore {
   private store: Low<VectorStoreData>;
   private searchIndex: MemoryVectorStore;
   private arcana: ArcanaPlugin;
@@ -158,21 +162,22 @@ export default class VectorStore {
     }
   }
 
-  async searchForClosestVectors(query: number[], k: number): Promise<number[]> {
+  async searchForClosestVectors(
+    query: number[],
+    k: number
+  ): Promise<VectorSearchResult[]> {
     // Ensure everything is loaded
     await this.loadStore();
-
 
     const topResults = await this.searchIndex.similaritySearchVectorWithScore(
       query,
       k
     );
 
-    const topIds = topResults.map(result => {
+    return topResults.map(result => {
       // unpack document and score
       const [document, score] = result;
-      return Number(document.pageContent);
+      return { id: Number(document.pageContent), score };
     });
-    return topIds;
   }
 }

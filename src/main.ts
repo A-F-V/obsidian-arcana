@@ -2,13 +2,14 @@ import { Notice, Plugin, TFile } from 'obsidian';
 
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
-import ArcanaAgent from './include/ArcanaAgent';
+import { ArcanaAgent, ArcanaSearchResult } from './include/ArcanaAgent';
 import CarterPlugin from './plugins/Carter/Carter';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
 import SocratesPlugin from './plugins/Socrates/Socrates';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
+import ArcanaPluginBase from './components/ArcanaPluginBase';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -22,7 +23,7 @@ export default class ArcanaPlugin extends Plugin {
 
   fs: StorageManager;
   settings: ArcanaSettings;
-  plugins = [
+  plugins: ArcanaPluginBase[] = [
     new CarterPlugin(this),
     new NostradamusPlugin(this),
     new ChristiePlugin(this),
@@ -82,7 +83,7 @@ export default class ArcanaPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  async search(query: string, k: number): Promise<TFile[]> {
+  async search(query: string, k: number): Promise<ArcanaSearchResult[]> {
     return await this.agent.getKClosestDocuments(query, k);
   }
 

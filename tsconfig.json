@@ -24,5 +24,5 @@
         "**/*.ts",
         "src/plugins/Carter/CarterObsidianView.tsx",
         "src/components/QuestionModal.tsx"
-    ]
+, "src/components/ObsidianViewBase.tsx", "src/components/ObsidianView.tsx"    ]
 }
