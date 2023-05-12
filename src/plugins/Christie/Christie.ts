@@ -17,22 +17,32 @@ export default class ChristiePlugin extends ArcanaPluginBase {
   public async onload() {
     // Register the nostradamus command
     this.arcana.addCommand({
-      id: 'shakespeare',
+      id: 'christie',
       name: 'Christie Write',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         // Create a modal
         new QuestionModal(
           this.arcana.app,
-          'Write the section header',
-          async (header: string) => {
+          'Ask a question or give an instruction',
+          async (question: string) => {
             // Get the current file
             const file = view.file;
+            // Get the current selected text
+            const selectedText = editor.getSelection();
             // Decode the next section
-            editor.replaceSelection(`${header}\n`);
+            if (selectedText.length > 0) {
+              // Move the cursor to the end of the file
+              editor.setCursor(editor.lastLine(), 0);
+            }
 
-            await this.decodeNextSection(header, file, (token: string) => {
-              editor.replaceSelection(token);
-            });
+            await this.askChristie(
+              question,
+              file,
+              selectedText,
+              (token: string) => {
+                editor.replaceSelection(token);
+              }
+            );
           }
         ).open();
       },
@@ -41,20 +51,10 @@ export default class ChristiePlugin extends ArcanaPluginBase {
 
   public async onunload() {}
 
-  private getQuantityContext(message: string): string {
-    // Count the number of '#' in the message
-    const count = (message.match(/#/g) || []).length;
-    console.log(count);
-    const m1 = 'You are required to give a lengthy and in-depth answer.';
-    const m2 =
-      'You are required to give a decent sized answer. Do NOT an introduction or a conclusion, answer the question directly.';
-    const m3 =
-      'You are required to give a brief but complete answer. Do NOT an introduction or a conclusion, answer the question directly.';
-    return count == 1 ? m1 : count == 2 ? m2 : m3;
-  }
-  private async decodeNextSection(
-    header: string,
+  private async askChristie(
+    question: string,
     file: TFile,
+    selectedText: string,
     tokenHandler: (token: string) => void
   ) {
     const title = file.basename;
@@ -66,14 +66,13 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Create the context
-    const context =
-      'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point.\n You are asked to complete the following section of notes for of a graduate level university course. You are provided with the title of the note, the previous body of the notes, and the section header. You do not repeat what has already been said. ' +
-      this.getQuantityContext(header);
-
-    // Create the question
-    const query = `Title - ${title}\nRest of Note - \n${markdownText}\nHeader - ${header}\n Now write ONLY the section body:`;
-    // Create the query request
-
-    await this.arcana.complete(query, context, tokenHandler);
+    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. Do NOT surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question or given an instruction regarding '${title}.\n'`;
+    if (documentText.length > 0) {
+      context += `The document is:\n${markdownText}\n`;
+    }
+    if (selectedText.length > 0) {
+      question += `\n*Note, the user has selected the following passage*:\n${selectedText}\n`;
+    }
+    await this.arcana.complete(question, context, tokenHandler);
   }
 }
