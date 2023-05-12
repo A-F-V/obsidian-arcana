@@ -8,7 +8,7 @@ import {
 } from 'langchain/prompts';
 import { BufferMemory } from 'langchain/memory';
 
-export default class Conversation {
+export default class AIConversation {
   private model: ChatOpenAI;
   private chain: ConversationChain;
 
@@ -29,14 +29,14 @@ export default class Conversation {
   }
 
   async askQuestion(question: string, handleToken: any): Promise<string> {
-    let aborted = false;
+    //let aborted = false;
     // When the esc key is pressed, abort the request
-    const aborter = (e: any) => {
-      if (e.key === 'Escape') {
-        aborted = true;
-      }
-    };
-    window.addEventListener('keydown', aborter);
+    //const aborter = (e: any) => {
+    //  if (e.key === 'Escape') {
+    //    aborted = true;
+    //  }
+    //};
+    //window.addEventListener('keydown', aborter);
     // Stream the tokens when calling
     const response = await this.chain.call(
       {
@@ -45,14 +45,14 @@ export default class Conversation {
       [
         {
           handleLLMNewToken(token: string) {
-            if (!aborted) {
-              handleToken(token);
-            }
+            //if (!aborted) {
+            handleToken(token);
+            //}
           },
         },
       ]
     );
-    window.removeEventListener('keydown', aborter);
+    // window.removeEventListener('keydown', aborter);
 
     return response.response;
   }

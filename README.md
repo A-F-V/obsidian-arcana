@@ -6,11 +6,11 @@
 
 **Arcana** is a collection of AI powered tools designed to help you be more creative and productive with your Obsidian vault. Each tool is inspired by a famous historical figure:
 
-- [Socrates](#socrates) - **Question Answering**
+- [Socrates](#socrates) - **Conversation**
+- [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Nostradamus](#nostradamus) - **Note Naming**
-- [Howard Carter](#howard-carter) - **Smart Search**
-- [Agatha Christie](#agatha-christie) - **Section Completion**
+- [Howard Carter](#howard-carter) - **Smart Search** (_not available_)
 
 ## Usage:
 
@@ -33,13 +33,16 @@
 
 **The Socratic Method with Socrates**
 
-- Anywhere in a note, you can ask a question to Socrates. He will answer, writing where your cursor was.
-- He will use your note as a guide for answering your question.
-- You can also highlight text and Socrates will also take that into consideration. (He will write instead at the **bottom of the file**)
-- You can even give him instructions.
-- To cancel your question, press `Esc`.
-  ![](gifs/SocratesSimple.gif)
-  ![](gifs/SocratesHighlight.gif)
+## Agatha Christie
+
+<p align="center">
+<img src='imgs/Agatha.png' height=500/>
+</p>
+
+- Anywhere in a note, you can ask Agatha to write for you (either by asking a question or giving an instruction)
+- She will use your note as a guide.
+- You can also highlight text and Agatha will also take that into consideration. (She will write instead at the **bottom of the file**)
+- To cancel your request, press `Esc`.
 
 ## Richard Feynman
 
@@ -82,20 +85,6 @@
 ![](gifs/Carter.gif)
 
 ---
-
-## Agatha Christie
-
-<p align="center">
-<img src='imgs/Agatha.png' height=500/>
-</p>
-
-**Writes sections**
-
-- Give Christie the section header and she will write the text for you.
-- She will try not to repeat what has already been said.
-- Using smaller headers (`#` vs `##` etc) will write less and be more succinct.
-
-## ![](gifs/Christie.gif)
 
 ### Contributing:
 

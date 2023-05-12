@@ -21,8 +21,7 @@
 - [ ] When creating the tag plugin, you can refactor part of the feynman plugin.
 - [ ] Socrates - If using a highlight - go to end of paragraph instead
 - [ ] Make mobile friendly
-- [x] Rename Shakespeare to Another Historical Figure (Virginia Wolff?)
-- [ ] 
+- [ ] Button to clear conversation
 
 ## Tasks and their API usage:
 

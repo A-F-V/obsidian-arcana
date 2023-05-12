@@ -3,13 +3,13 @@ import { Plugin, TFile } from 'obsidian';
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import { ArcanaAgent, ArcanaSearchResult } from './include/ArcanaAgent';
-import CarterPlugin from './plugins/Carter/Carter';
+//import CarterPlugin from './plugins/Carter/Carter';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
-import SocratesPlugin from './plugins/Socrates/Socrates';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
 import ArcanaPluginBase from './components/ArcanaPluginBase';
+import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -28,9 +28,9 @@ export default class ArcanaPlugin extends Plugin {
   settings: ArcanaSettings;
   plugins: ArcanaPluginBase[] = [
     //new CarterPlugin(this),
+    new SocratesPlugin(this),
     new NostradamusPlugin(this),
     new ChristiePlugin(this),
-    new SocratesPlugin(this),
     new FeynmanPlugin(this),
   ];
 
@@ -41,9 +41,10 @@ export default class ArcanaPlugin extends Plugin {
     this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
     // Setup the storage first
-    this.fs = new StorageManager(this);
-    await this.fs.setupStorage();
-
+    if (!disableEmbedding) {
+      this.fs = new StorageManager(this);
+      await this.fs.setupStorage();
+    }
     this.agent = new ArcanaAgent(this, disableEmbedding);
 
     if (!disableEmbedding) {
