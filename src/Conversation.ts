@@ -10,13 +10,18 @@ import { BufferMemory } from 'langchain/memory';
 
 export default class AIConversation {
   private model: ChatOpenAI;
+  private conversationContext: string;
   private chain: ConversationChain;
 
   constructor(model: ChatOpenAI, conversationContext: string) {
     this.model = model;
+    this.conversationContext = conversationContext;
 
+    this.init();
+  }
+  public init() {
     const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-      SystemMessagePromptTemplate.fromTemplate(conversationContext),
+      SystemMessagePromptTemplate.fromTemplate(this.conversationContext),
       new MessagesPlaceholder('history'),
       HumanMessagePromptTemplate.fromTemplate('{input}'),
     ]);
@@ -27,7 +32,6 @@ export default class AIConversation {
       llm: this.model,
     });
   }
-
   async askQuestion(question: string, handleToken: any): Promise<string> {
     //let aborted = false;
     // When the esc key is pressed, abort the request

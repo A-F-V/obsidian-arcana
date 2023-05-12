@@ -33,6 +33,7 @@
     "openai": "^3.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^8.0.7",
     "react-spinners": "^0.13.8"
   }
 }

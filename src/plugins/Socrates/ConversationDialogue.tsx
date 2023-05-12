@@ -3,17 +3,21 @@ import { Conversation, useConversations } from './Conversation';
 import Message from './Message';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 
 function MessageView({ message }: { message: Message }) {
   return message.author == 'user' ? (
-    <div className="message" style={{ border: '3px solid #f00' }}>
-      <h5>User</h5>
-      <p>{message.text}</p>
+    <div className="chat-message" style={{ border: '2px solid ' }}>
+      <h5 style={{ margin: 0 }}>You</h5>
+      <ReactMarkdown>{message.text}</ReactMarkdown>
     </div>
   ) : (
-    <div className="message" style={{ border: '3px solid #00f' }}>
-      <h5>AI</h5>
-      <p>{message.text}</p>
+    <div
+      className="chat-message"
+      style={{ border: '2px solid rgba(0, 123, 255, 0.25)' }}
+    >
+      <h5 style={{ margin: 0 }}>Socrates</h5>
+      <ReactMarkdown>{message.text}</ReactMarkdown>
     </div>
   );
 }
@@ -23,11 +27,13 @@ function ConversationDialogue({
   conversation,
   createMessage,
   addToMessage,
+  resetConversation,
 }: {
   file: TFile;
   conversation: Conversation;
   createMessage: (conversation: Conversation, author: string) => number;
   addToMessage: (conversation: Conversation, id: number, text: string) => void;
+  resetConversation: (conversation: Conversation) => void;
 }) {
   const [questionInFlight, setQuestionInFlight] = React.useState(false);
 
@@ -39,7 +45,6 @@ function ConversationDialogue({
   const askQuestion = async (question: string) => {
     setQuestionInFlight(true);
     const id = createMessage(conversation, 'ai');
-
     await conversation.aiConv.askQuestion(question, (token: string) => {
       addToMessage(conversation, id, token);
     });
@@ -58,21 +63,31 @@ function ConversationDialogue({
     }
   };
 
-  // Reload when the conversation changes
-  React.useEffect(() => {
-    console.log('Conversation changed');
-  }, [conversation]);
   return (
     <div>
-      <h1>{file.basename}</h1>
-      <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <h2>{file.basename}</h2>
+        <button onClick={() => resetConversation(conversation)}>Reset</button>
+      </div>
+      <input
+        type="text"
+        placeholder="Ask me something"
+        onKeyUp={onSubmitMessage}
+        className="beautiful-input"
+      />
+      <div className="dialogue">
         {Array.from(conversation.messages).map(([i, message]) => (
           <div key={i}>
             <MessageView message={message} />
           </div>
         ))}
       </div>
-      <input type="text" onKeyUp={onSubmitMessage} />
     </div>
   );
 }
@@ -85,15 +100,20 @@ export default function ConversationManager({
   systemMessage: string | null;
 }) {
   const arcana = useArcana();
-  const { conversations, addConversation, createMessage, addToMessage } =
-    useConversations();
+  const {
+    conversations,
+    addConversation,
+    createMessage,
+    addToMessage,
+    resetConversation,
+  } = useConversations();
 
   const [currentConversation, setCurrentConversation] =
     React.useState<Conversation | null>(null);
 
   React.useEffect(() => {
-    if (file && systemMessage) {
-      if (!conversations.has(file)) {
+    if (file) {
+      if (!conversations.has(file) && systemMessage) {
         const aiConv = arcana.startConversation(systemMessage);
         addConversation(file, aiConv);
       }
@@ -101,17 +121,28 @@ export default function ConversationManager({
     } else {
       setCurrentConversation(null);
     }
-  }, [file, conversations]);
+  }, [file, conversations, systemMessage]);
 
   return (
     <div>
-      {file && currentConversation && systemMessage && (
+      {file && currentConversation && (
         <ConversationDialogue
           file={file}
           conversation={currentConversation}
           createMessage={createMessage}
           addToMessage={addToMessage}
+          resetConversation={resetConversation}
         />
+      )}
+      {!file && (
+        <div>
+          <h2>Open a file to begin 😊</h2>
+        </div>
+      )}
+      {file && !currentConversation && (
+        <div>
+          <h2>Starting conversation...</h2>
+        </div>
       )}
     </div>
   );

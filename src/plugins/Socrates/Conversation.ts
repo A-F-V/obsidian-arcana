@@ -27,14 +27,28 @@ export function useConversations() {
 
   const addToMessage = React.useCallback(
     (conversation: Conversation, id: number, addition: string) => {
-      console.log(`Adding ${addition} to message ${id}`); // TODO: Remove this line
       conversation?.addToMessage(id, addition);
       setConversations(new Map(conversations));
     },
     [conversations]
   );
 
-  return { conversations, addConversation, createMessage, addToMessage };
+  const resetConversation = React.useCallback(
+    (conversation: Conversation) => {
+      conversation.messages.clear();
+      conversation.aiConv.init();
+      setConversations(new Map(conversations));
+    },
+    [conversations]
+  );
+
+  return {
+    conversations,
+    addConversation,
+    createMessage,
+    addToMessage,
+    resetConversation,
+  };
 }
 
 export class Conversation {
