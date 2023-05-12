@@ -24,18 +24,20 @@ export type ArcanaSearchResult = {
 };
 export class ArcanaAgent {
   private arcana: ArcanaPlugin;
-
+  private disableEmbedding: boolean;
   private vectorStore: VectorStore;
   private noteIDer: NoteIDer;
 
-  constructor(arcana: ArcanaPlugin) {
+  constructor(arcana: ArcanaPlugin, disableEmbedding = false) {
     this.arcana = arcana;
+    this.disableEmbedding = disableEmbedding;
+    if (!disableEmbedding) {
+      this.noteIDer = new NoteIDer(arcana);
 
-    this.noteIDer = new NoteIDer(arcana);
+      this.vectorStore = new VectorStore(arcana);
 
-    this.vectorStore = new VectorStore(arcana);
-
-    this.setupEmbeddingPolicy();
+      this.setupEmbeddingPolicy();
+    }
   }
 
   private setupEmbeddingPolicy() {
@@ -77,11 +79,14 @@ export class ArcanaAgent {
   }
 
   async save() {
+    if (this.disableEmbedding) return;
     await this.vectorStore.saveStore();
   }
 
   // TODO: Move the file hashes into another file so that they are not managed by the vector stores
   private async requestNewEmbeddings(files: TFile[]) {
+    if (this.disableEmbedding) return;
+
     // Construct the text used to embed
     const getIDText = async (file: TFile) => {
       // Get the embedding for the file
@@ -171,6 +176,7 @@ export class ArcanaAgent {
     text: string,
     k: number
   ): Promise<ArcanaSearchResult[]> {
+    if (this.disableEmbedding) return [];
     // Get embedding
     const embedding = new OpenAIEmbeddings({
       openAIApiKey: this.arcana.getAPIKey(),
@@ -196,6 +202,7 @@ export class ArcanaAgent {
   }
 
   public async getFileID(file: TFile): Promise<number> {
+    if (this.disableEmbedding) return -1;
     return await this.noteIDer.getNoteID(file);
   }
 }

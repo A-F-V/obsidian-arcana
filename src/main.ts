@@ -17,6 +17,9 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   PluginSettings: {},
 };
 
+// For now, lets not have any embedding/search
+const disableEmbedding = true;
+
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
   private openResource: (() => void)[] = [];
@@ -24,7 +27,7 @@ export default class ArcanaPlugin extends Plugin {
   fs: StorageManager;
   settings: ArcanaSettings;
   plugins: ArcanaPluginBase[] = [
-    new CarterPlugin(this),
+    //new CarterPlugin(this),
     new NostradamusPlugin(this),
     new ChristiePlugin(this),
     new SocratesPlugin(this),
@@ -41,16 +44,17 @@ export default class ArcanaPlugin extends Plugin {
     this.fs = new StorageManager(this);
     await this.fs.setupStorage();
 
-    this.agent = new ArcanaAgent(this);
+    this.agent = new ArcanaAgent(this, disableEmbedding);
 
-    this.addCommand({
-      id: 'force-save',
-      name: 'Force save',
-      callback: async () => {
-        await this.agent.save();
-      },
-    });
-
+    if (!disableEmbedding) {
+      this.addCommand({
+        id: 'force-save',
+        name: 'Force save',
+        callback: async () => {
+          await this.agent.save();
+        },
+      });
+    }
     // Add plugins
     for (const plugin of this.plugins) {
       await plugin.onload();
