@@ -9,7 +9,7 @@
 - [Socrates](#socrates) - **Conversation**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
-- [Charles Darwin](#charles-darwin) -- **Auto Tagging**
+- [Charles Darwin](#charles-darwin) - **Auto Tagging**
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Howard Carter](#howard-carter) - **Smart Search** (_not available_)
 
@@ -49,6 +49,8 @@
 - She will use your note as a guide.
 - You can also highlight text and Agatha will also take that into consideration. (She will write instead at the **bottom of the file**)
 - To cancel your request, press `Esc`.
+
+![](gifs/Christie.gif)
 
 ## Richard Feynman
 
