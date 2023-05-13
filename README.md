@@ -9,7 +9,7 @@
 - [Socrates](#socrates) - **Conversation**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
-- [Charles Darwin](#charles-darwin) -- **Auto Tagging**
+- [Charles Darwin](#charles-darwin) - **Auto Tagging**
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Howard Carter](#howard-carter) - **Smart Search** (_not available_)
 
