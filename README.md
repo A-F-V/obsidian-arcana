@@ -34,6 +34,11 @@
 
 **The Socratic Method with Socrates**
 
+- Exchange in dialogue with Socrates.
+- Ask questions specific to the note currently open.
+
+![](gifs/Socrates.gif)
+
 ## Agatha Christie
 
 <p align="center">

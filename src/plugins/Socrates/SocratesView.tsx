@@ -18,20 +18,17 @@ export const SocratesView = () => {
   const [file, setFile] = React.useState<TFile | null>(null);
   const [systemMessage, setSystemMessage] = React.useState<string | null>(null);
 
-  // Create the system message
-  React.useEffect(() => {
+  const setCurrentFile = () => {
+    const file = arcana.app.workspace.getActiveFile();
     if (file) {
-      setSystemMessage(null); // Need to reset until the new message is created
       createSystemMessage(arcana, file).then(message => {
         setSystemMessage(message);
+        setFile(file);
       });
     } else {
       setSystemMessage(null);
+      setFile(null);
     }
-  }, [file]);
-
-  const setCurrentFile = () => {
-    setFile(arcana.app.workspace.getActiveFile());
   };
   // Activate
   arcana.app.workspace.on('active-leaf-change', setCurrentFile);
