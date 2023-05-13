@@ -22,7 +22,7 @@ export default class FrontMatterManager {
     });
   }
 
-  async get(file: TFile, key: string): Promise<any | null> {
+  async getArcana(file: TFile, key: string): Promise<any | null> {
     let result = null;
     await this.processFrontMatter(file, (arcanaData: any) => {
       result = arcanaData.get(key);
@@ -30,9 +30,34 @@ export default class FrontMatterManager {
     return result;
   }
 
-  async set(file: TFile, key: string, value: any): Promise<void> {
+  async setArcana(file: TFile, key: string, value: any): Promise<void> {
     await this.processFrontMatter(file, (arcanaData: any) => {
       arcanaData.set(key, value);
     });
+  }
+
+  async set(file: TFile, key: string, value: any): Promise<void> {
+    await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
+      frontMatter[key] = value;
+    });
+  }
+
+  async get<T>(file: TFile, key: string): Promise<T | null> {
+    let result: T | null = null;
+    await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
+      result = frontMatter[key];
+    });
+    return result;
+  }
+
+  async getTags(file: TFile): Promise<string[]> {
+    const tags = await this.get<string>(file, 'tags');
+    if (tags === null || tags === undefined) {
+      return [];
+    }
+    return tags.split(' ');
+  }
+  async setTags(file: TFile, tags: string[]): Promise<void> {
+    await this.set(file, 'tags', tags.join(' '));
   }
 }

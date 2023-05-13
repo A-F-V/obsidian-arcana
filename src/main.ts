@@ -10,6 +10,7 @@ import ChristiePlugin from './plugins/Christie/Christie';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
 import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
+import DarwinPlugin from './plugins/Darwin/Darwin';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -32,6 +33,7 @@ export default class ArcanaPlugin extends Plugin {
     new NostradamusPlugin(this),
     new ChristiePlugin(this),
     new FeynmanPlugin(this),
+    new DarwinPlugin(this),
   ];
 
   async onload() {

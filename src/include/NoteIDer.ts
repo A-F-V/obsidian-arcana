@@ -38,7 +38,7 @@ export default class NoteIDer {
     });
   }
   async clearID(note: TFile) {
-    await this.frontMatterManager.set(note, 'id', null);
+    await this.frontMatterManager.setArcana(note, 'id', null);
   }
   // Will get (and potentially set) a new unique id
   async getNoteID(note: TFile): Promise<number> {
@@ -50,13 +50,13 @@ export default class NoteIDer {
       // Mutex it so that we don't have multiple threads trying to dedude the next ID
       await this.setNoteIDToNextAvailable(note);
       release();
-      return await this.frontMatterManager.get(note, 'id');
+      return await this.frontMatterManager.getArcana(note, 'id');
     }
     return fetchedID;
   }
 
   private async tryFetchingNoteID(note: TFile): Promise<number | null> {
-    const id = await this.frontMatterManager.get(note, 'id');
+    const id = await this.frontMatterManager.getArcana(note, 'id');
     if (id == null || Number.isNaN(id)) {
       return null;
     }
@@ -71,7 +71,7 @@ export default class NoteIDer {
 
     assert(this.nextID != -1);
     // We have the next ID
-    this.frontMatterManager.set(note, 'id', this.nextID);
+    this.frontMatterManager.setArcana(note, 'id', this.nextID);
     // We have just consumed the next ID, so incremenet
     this.nextID++;
   }
