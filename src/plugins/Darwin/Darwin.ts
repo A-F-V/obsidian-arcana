@@ -64,7 +64,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
 
     const context = `You are an AI helping to give tags to a file. Here is a list of tags that the user has used before across other files: ${this.tags.join(
       ' '
-    )}. Answer by giving between 2 and 5 tags that you think are relevant to the file. You can also give tags that the user has not used before. You should answer by giving the tags for the file in lowercase kebab-case and seperated by spaces. You will be given the title of the file, the text in the file and the tags already present. Do not repeat tags that are already present in this file.\n\nAs an example, if you think we should add the tags 'computer-science/complexity-theory' and 'people/alan-turing', then you should write 'computer-science/alan-turing people/alan-turing'`;
+    )}.\n Answer by giving between 2 and 5 tags that you think are relevant to the file. You can also give tags that the user has not used before, but try to use one from the list above. You should answer by giving the tags for the file in lowercase kebab-case and seperated by spaces. You will be given the title of the file, the text in the file and the tags already present. Do not repeat tags that are already present in this file.\n\nAs an example, if you think we should add the tags 'computer-scienc', 'complexity-theory' and 'alan-turing', then you should write 'computer-science complexity-theory alan-turing'.`;
 
     const details = `Title of file: ${title}\n\nText in file: ${cleanedText}\n\nTags already present: ${existingTags.join(
       ' '

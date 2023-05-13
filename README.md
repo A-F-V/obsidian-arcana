@@ -9,6 +9,7 @@
 - [Socrates](#socrates) - **Conversation**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
+- [Charles Darwin](#charles-darwin) -- **Auto Tagging**
 - [Nostradamus](#nostradamus) - **Note Naming**
 - [Howard Carter](#howard-carter) - **Smart Search** (_not available_)
 
@@ -58,6 +59,21 @@
 
 ![](gifs/Feynman.gif)
 
+## Charles Darwin
+
+<p align="center">
+<img src='imgs/Darwin.png' height=500/>
+</p>
+
+**Cataloging and Classifying**
+
+- Adds 2-5 tags to your note in the frontmatter
+- Tries to use tags the user has used in other notes
+- Does not repeat tags used in the note.
+- Tags are in kebab lower case
+
+![](gifs/Darwin.gif)
+
 ## Nostradamus
 
 <p align="center">
@@ -67,6 +83,7 @@
 **Can predict the title of notes**
 
 - Takes the content of the note and uses it to give the file a better title.
+- Does it in the style of [Andy Matuschak's Evergreen notes](https://notes.andymatuschak.org/Evergreen_note_titles_are_like_APIs)
 
 ![](gifs/Nostradamus.gif)
 
@@ -83,6 +100,8 @@
 - The search finds the notes whose embeddings are closest to the search query.
 
 ![](gifs/Carter.gif)
+
+_At the moment, the Carter plugin is unavailable and will likely be removed in the future_
 
 ---
 
