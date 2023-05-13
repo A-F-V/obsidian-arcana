@@ -25,3 +25,7 @@ data.json
 
 # Exclude Package-lock
 package-lock.json
+
+desktop.ini
+
+dist/
