@@ -20,16 +20,13 @@ export const SocratesView = () => {
 
   const setCurrentFile = () => {
     setFile(arcana.app.workspace.getActiveFile());
+    setSystemMessage(null);
   };
 
   const fetchNewestSystemMessage = React.useCallback(() => {
-    console.log('fetching new system message');
-    console.log('file', file);
-    console.log('systemMessage', systemMessage);
     if (file) {
       createSystemMessage(arcana, file).then(message => {
         setSystemMessage(message);
-        console.log('new system message', message);
       });
     } else {
       setSystemMessage(null);

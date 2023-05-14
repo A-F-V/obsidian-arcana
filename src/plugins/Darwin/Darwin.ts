@@ -40,9 +40,9 @@ export default class DarwinPlugin extends ArcanaPluginBase {
         const tags = await fmm.getTags(view.file);
 
         const tagsToAdd = await this.askDarwin(view.file, tags);
-        console.log(`Tags in file: ${tags.join(', ')}`);
-        console.log(`Tags in vault: ${this.tags.join(', ')}`);
-        console.log(`Tags to add: ${tagsToAdd.join(', ')}`);
+        //console.log(`Tags in file: ${tags.join(', ')}`);
+        //console.log(`Tags in vault: ${this.tags.join(', ')}`);
+        //console.log(`Tags to add: ${tagsToAdd.join(', ')}`);
 
         // Add the tags to the file
         await fmm.setTags(view.file, tags.concat(tagsToAdd));

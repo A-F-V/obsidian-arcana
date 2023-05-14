@@ -155,8 +155,8 @@ export default function ConversationManager({
   React.useEffect(() => {
     if (file) {
       if (
-        (!conversations.has(file) ||
-          conversations.get(file)?.aiConv.getContext() !== systemMessage) &&
+        (!conversations.has(file) || // If its a new file
+          conversations.get(file)?.aiConv.getContext() !== systemMessage) && // Or the file contets have changed
         systemMessage !== null
       ) {
         const aiConv = arcana.startConversation(systemMessage);
@@ -178,9 +178,7 @@ export default function ConversationManager({
   );
 
   // Test
-  React.useEffect(() => {
-    console.log('Current conversation', currentConversation);
-  }, [currentConversation]);
+  React.useEffect(() => {}, [currentConversation]);
 
   return (
     <>
