@@ -4,6 +4,6 @@ import { SocratesView } from 'src/plugins/Socrates/SocratesView';
 
 export default class SocratesPlugin extends ViewPluginBase {
   constructor(arcana: ArcanaPlugin) {
-    super(arcana, 'socrates-view', 'book', 'socrates', SocratesView);
+    super(arcana, 'socrates-view', 'brain-cog', 'Socrates', SocratesView);
   }
 }

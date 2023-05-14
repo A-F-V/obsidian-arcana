@@ -37,8 +37,16 @@ export const SocratesView = () => {
     arcana.app.workspace.off('active-leaf-change', setCurrentFile)
   );
   return (
-    <div>
-      <h1>Socrates</h1>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <h1>Socrates 🔮</h1>
       <ConversationManager file={file} systemMessage={systemMessage} />
     </div>
   );

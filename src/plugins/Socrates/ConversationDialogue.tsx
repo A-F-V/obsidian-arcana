@@ -1,26 +1,8 @@
 import { TFile } from 'obsidian';
 import { Conversation, useConversations } from './Conversation';
-import Message from './Message';
+import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
-
-function MessageView({ message }: { message: Message }) {
-  return message.author == 'user' ? (
-    <div className="chat-message" style={{ border: '2px solid ' }}>
-      <h5 style={{ margin: 0 }}>You</h5>
-      <ReactMarkdown>{message.text}</ReactMarkdown>
-    </div>
-  ) : (
-    <div
-      className="chat-message"
-      style={{ border: '2px solid rgba(0, 123, 255, 0.25)' }}
-    >
-      <h5 style={{ margin: 0 }}>Socrates</h5>
-      <ReactMarkdown>{message.text}</ReactMarkdown>
-    </div>
-  );
-}
 
 function ConversationDialogue({
   file,
@@ -36,6 +18,16 @@ function ConversationDialogue({
   resetConversation: (conversation: Conversation) => void;
 }) {
   const [questionInFlight, setQuestionInFlight] = React.useState(false);
+
+  const dialogueRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    // Scroll to bottom
+    if (dialogueRef.current) {
+      console.log('Scrolling to bottom');
+      dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
+    }
+  }, [conversation]);
 
   const addQuestion = (question: string) => {
     const id = createMessage(conversation, 'user');
@@ -64,7 +56,7 @@ function ConversationDialogue({
   };
 
   return (
-    <div>
+    <div className="conversation">
       <div
         style={{
           display: 'flex',
@@ -73,20 +65,32 @@ function ConversationDialogue({
         }}
       >
         <h2>{file.basename}</h2>
-        <button onClick={() => resetConversation(conversation)}>Reset</button>
+        <button
+          className="beautiful-button"
+          onClick={() => resetConversation(conversation)}
+        >
+          Reset
+        </button>
       </div>
-      <input
-        type="text"
-        placeholder="Ask me something"
-        onKeyUp={onSubmitMessage}
-        className="beautiful-input"
-      />
-      <div className="dialogue">
-        {Array.from(conversation.messages).map(([i, message]) => (
-          <div key={i}>
-            <MessageView message={message} />
-          </div>
-        ))}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div className="dialogue" ref={dialogueRef}>
+          {Array.from(conversation.messages).map(([i, message]) => (
+            <div key={i}>
+              <MessageView message={message} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 'auto' }}>
+        <div style={{ marginTop: '1em' }}>
+          <input
+            type="text"
+            placeholder="Ask me something"
+            onKeyUp={onSubmitMessage}
+            className="beautiful-input"
+          />
+        </div>
       </div>
     </div>
   );
@@ -123,14 +127,23 @@ export default function ConversationManager({
     }
   }, [file, conversations, systemMessage]);
 
+  // Retrigger setting current conversation when addToMessage is called
+  const addToMessageAndRerender = React.useCallback(
+    (conversation: Conversation, id: number, text: string) => {
+      addToMessage(conversation, id, text);
+      setCurrentConversation(conversation);
+    },
+    [addToMessage]
+  );
+
   return (
-    <div>
+    <>
       {file && currentConversation && (
         <ConversationDialogue
           file={file}
           conversation={currentConversation}
           createMessage={createMessage}
-          addToMessage={addToMessage}
+          addToMessage={addToMessageAndRerender}
           resetConversation={resetConversation}
         />
       )}
@@ -144,6 +157,6 @@ export default function ConversationManager({
           <h2>Starting conversation...</h2>
         </div>
       )}
-    </div>
+    </>
   );
 }
