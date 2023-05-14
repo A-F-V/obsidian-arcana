@@ -16,12 +16,19 @@
 Primary Colors
 
 */
-.chat-message {
-  border: '2px solid #ddd';
-  border-radius: 10px;
-  margin-block: 10px;
-  padding: 10px 10px 0px 10px;
+%chat-message {
   width: auto;
+  border: '2px 2px solid #ddd';
+}
+
+.chat-message-user {
+  @extend %chat-message;
+  background-color: #fff0;
+}
+
+.chat-message-ai {
+  @extend %chat-message;
+  background-color: #f00;
 }
 
 .dialogue {
