@@ -19,12 +19,11 @@ function ConversationDialogue({
 }) {
   const [questionInFlight, setQuestionInFlight] = React.useState(false);
 
+  // TODO: Trigger when you addToMessage
   const dialogueRef = React.useRef<HTMLDivElement | null>(null);
-
   React.useEffect(() => {
     // Scroll to bottom
     if (dialogueRef.current) {
-      console.log('Scrolling to bottom');
       dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
     }
   }, [conversation]);
@@ -43,7 +42,6 @@ function ConversationDialogue({
 
     setQuestionInFlight(false);
   };
-
   const onSubmitMessage = async (e: any) => {
     if (e.key == 'Enter' && !questionInFlight) {
       const question = e.currentTarget.value;
@@ -99,9 +97,11 @@ function ConversationDialogue({
 export default function ConversationManager({
   file,
   systemMessage,
+  onResetConversation,
 }: {
   file: TFile | null;
   systemMessage: string | null;
+  onResetConversation: () => void;
 }) {
   const arcana = useArcana();
   const {
@@ -117,7 +117,11 @@ export default function ConversationManager({
 
   React.useEffect(() => {
     if (file) {
-      if (!conversations.has(file) && systemMessage) {
+      if (
+        (!conversations.has(file) ||
+          conversations.get(file)?.aiConv.getContext() !== systemMessage) &&
+        systemMessage !== null
+      ) {
         const aiConv = arcana.startConversation(systemMessage);
         addConversation(file, aiConv);
       }
@@ -127,14 +131,19 @@ export default function ConversationManager({
     }
   }, [file, conversations, systemMessage]);
 
-  // Retrigger setting current conversation when addToMessage is called
-  const addToMessageAndRerender = React.useCallback(
-    (conversation: Conversation, id: number, text: string) => {
-      addToMessage(conversation, id, text);
-      setCurrentConversation(conversation);
+  // Retrigger generation of system message when file changes
+  const resetConversationAndGetNewSystemMessage = React.useCallback(
+    (conversation: Conversation) => {
+      resetConversation(conversation);
+      onResetConversation();
     },
-    [addToMessage]
+    [resetConversation, onResetConversation]
   );
+
+  // Test
+  React.useEffect(() => {
+    console.log('Current conversation', currentConversation);
+  }, [currentConversation]);
 
   return (
     <>
@@ -143,8 +152,8 @@ export default function ConversationManager({
           file={file}
           conversation={currentConversation}
           createMessage={createMessage}
-          addToMessage={addToMessageAndRerender}
-          resetConversation={resetConversation}
+          addToMessage={addToMessage}
+          resetConversation={resetConversationAndGetNewSystemMessage}
         />
       )}
       {!file && (

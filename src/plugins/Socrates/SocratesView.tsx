@@ -19,17 +19,27 @@ export const SocratesView = () => {
   const [systemMessage, setSystemMessage] = React.useState<string | null>(null);
 
   const setCurrentFile = () => {
-    const file = arcana.app.workspace.getActiveFile();
+    setFile(arcana.app.workspace.getActiveFile());
+  };
+
+  const fetchNewestSystemMessage = React.useCallback(() => {
+    console.log('fetching new system message');
+    console.log('file', file);
+    console.log('systemMessage', systemMessage);
     if (file) {
       createSystemMessage(arcana, file).then(message => {
         setSystemMessage(message);
-        setFile(file);
+        console.log('new system message', message);
       });
     } else {
       setSystemMessage(null);
-      setFile(null);
     }
-  };
+  }, [file]);
+
+  React.useEffect(() => {
+    fetchNewestSystemMessage();
+  }, [file]);
+
   // Activate
   arcana.app.workspace.on('active-leaf-change', setCurrentFile);
   // Deactivate
@@ -47,7 +57,11 @@ export const SocratesView = () => {
       }}
     >
       <h1>Socrates 🔮</h1>
-      <ConversationManager file={file} systemMessage={systemMessage} />
+      <ConversationManager
+        file={file}
+        systemMessage={systemMessage}
+        onResetConversation={fetchNewestSystemMessage}
+      />
     </div>
   );
 };

@@ -115,4 +115,8 @@ export default class AIConversation {
 
     return response.response;
   }
+
+  public getContext(): string {
+    return this.conversationContext;
+  }
 }
