@@ -102,7 +102,7 @@ export default class AIConversation {
       [
         {
           handleLLMNewToken(token: string) {
-            if (handleToken && (!aborter || !aborter())) {
+            if (handleToken) {
               handleToken(token);
             }
           },
@@ -114,5 +114,9 @@ export default class AIConversation {
     );
 
     return response.response;
+  }
+
+  public getContext(): string {
+    return this.conversationContext;
   }
 }

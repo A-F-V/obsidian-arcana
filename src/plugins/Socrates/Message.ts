@@ -1,4 +1,4 @@
-export default class Message {
+export class Message {
   text: string;
   addText(addition: string) {
     this.text += addition;
@@ -7,10 +7,15 @@ export default class Message {
     this.text = '';
   }
 
-  author: string;
+  author: Author;
 
-  public constructor(author: string) {
+  public constructor(author: Author) {
     this.author = author;
     this.text = '';
   }
+}
+
+export enum Author {
+  AI,
+  User,
 }
