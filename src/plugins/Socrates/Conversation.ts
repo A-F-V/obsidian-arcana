@@ -36,7 +36,7 @@ export function useConversations() {
   const resetConversation = React.useCallback(
     (conversation: Conversation) => {
       conversation.messages.clear();
-      conversation.aiConv.init();
+      conversation.aiConv.disengage();
       setConversations(new Map(conversations));
     },
     [conversations]
