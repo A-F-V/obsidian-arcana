@@ -6,6 +6,7 @@ import {
 } from 'src/utilities/DocumentCleaner';
 import QuestionModal from 'src/components/QuestionModal';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
+import Aborter from 'src/include/Aborter';
 
 export default class ChristiePlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -31,18 +32,38 @@ export default class ChristiePlugin extends ArcanaPluginBase {
             const selectedText = editor.getSelection();
             // Decode the next section
             if (selectedText.length > 0) {
-              // Move the cursor to the end of the file
-              editor.setCursor(editor.lastLine(), 0);
+              const editorPosition = editor.getCursor();
+              // Get the text on the line
+              const lineText = editor.getLine(editorPosition.line);
+              editor.setCursor(editorPosition.line, lineText.length);
+              editor.replaceSelection('\n');
             }
+
+            const aborter = new Aborter();
+
+            const handler = (event: KeyboardEvent) => {
+              if (event.key === 'Escape') {
+                aborter.abort();
+                console.log('Aborted');
+              }
+            };
+            window.addEventListener('keydown', handler);
+
+            const release = () => {
+              window.removeEventListener('keydown', handler);
+              aborter.abort();
+            };
+            this.arcana.registerResource(release);
 
             await this.askChristie(
               question,
               file,
               selectedText,
               (token: string) => {
+                if (aborter.isAborted()) return;
                 editor.replaceSelection(token);
               }
-            );
+            ).finally(release);
           }
         ).open();
       },
@@ -66,10 +87,11 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Create the context
-    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. Do NOT surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question or given an instruction regarding '${title}.\n'`;
+    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. You are writing in a markdown file and are free to use bolding etc. Do NOT surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question, completing an instruction or writing about '${title}.\n'`;
     if (documentText.length > 0) {
       context += `The document is:\n${markdownText}\n`;
     }
+    question = `The following is either a question to answer or an instruction to complete: ${question.trim()}. `;
     if (selectedText.length > 0) {
       question += `\n*Note, the user has selected the following passage*:\n${selectedText}\n`;
     }
