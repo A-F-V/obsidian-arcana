@@ -102,7 +102,7 @@ export default class AIConversation {
       [
         {
           handleLLMNewToken(token: string) {
-            if (handleToken && (!aborter || !aborter())) {
+            if (handleToken) {
               handleToken(token);
             }
           },

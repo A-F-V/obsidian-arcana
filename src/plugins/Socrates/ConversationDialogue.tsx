@@ -1,52 +1,66 @@
-import { TFile } from 'obsidian';
+import { FileView, MarkdownView, TFile } from 'obsidian';
 import { Conversation, useConversations } from './Conversation';
 import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
+import Aborter from 'src/include/Aborter';
 
 function ConversationDialogue({
   file,
   conversation,
-  createMessage,
-  addToMessage,
+  createUserMessage,
+  createAIMessage,
+  addToAIMessage,
+  finishAIMessage,
   resetConversation,
 }: {
   file: TFile;
   conversation: Conversation;
-  createMessage: (conversation: Conversation, author: string) => number;
-  addToMessage: (conversation: Conversation, id: number, text: string) => void;
+  createUserMessage: (conversation: Conversation, text: string) => void;
+  createAIMessage: (conversation: Conversation, text: string) => void;
+  addToAIMessage: (conversation: Conversation, text: string) => void;
+  finishAIMessage: (conversation: Conversation) => void;
   resetConversation: (conversation: Conversation) => void;
 }) {
-  const [questionInFlight, setQuestionInFlight] = React.useState(false);
-
-  // TODO: Trigger when you addToMessage
   const dialogueRef = React.useRef<HTMLDivElement | null>(null);
+  const arcana = useArcana();
+  // TODO: Trigger when you addToMessage
+  /*
   React.useEffect(() => {
     // Scroll to bottom
     if (dialogueRef.current) {
       dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
     }
   }, [conversation]);
-
-  const addQuestion = (question: string) => {
-    const id = createMessage(conversation, 'user');
-    addToMessage(conversation, id, question);
-  };
-
+  */
   const askQuestion = async (question: string) => {
-    setQuestionInFlight(true);
-    const id = createMessage(conversation, 'ai');
-    await conversation.aiConv.askQuestion(question, (token: string) => {
-      addToMessage(conversation, id, token);
-    });
-
-    setQuestionInFlight(false);
+    createAIMessage(conversation, 'ai');
+    const currentAborter = conversation.getCurrentAborter();
+    let firstAborted = false;
+    await conversation.aiConv
+      .askQuestion(
+        question,
+        (token: string) => {
+          if (currentAborter.isAborted()) {
+            if (!firstAborted) {
+              addToAIMessage(conversation, ' (message aborted) ');
+            }
+            firstAborted = true;
+            return;
+          }
+          addToAIMessage(conversation, token);
+        },
+        currentAborter.isAborted
+      )
+      .finally(() => {
+        finishAIMessage(conversation);
+      });
   };
   const onSubmitMessage = async (e: any) => {
-    if (e.key == 'Enter' && !questionInFlight) {
+    if (e.key == 'Enter' && !conversation.isMessageBeingWrittenBack()) {
       const question = e.currentTarget.value;
       // 1) Add the question to the conversation
-      addQuestion(question);
+      createUserMessage(conversation, question);
       e.currentTarget.value = '';
       // 2) Ask the question to AI, streaming the response to the conversation
       await askQuestion(question);
@@ -74,7 +88,28 @@ function ConversationDialogue({
         <div className="dialogue" ref={dialogueRef}>
           {Array.from(conversation.messages).map(([i, message]) => (
             <div key={i}>
-              <MessageView message={message} />
+              <MessageView
+                message={message}
+                onCancel={() => {
+                  const aborter = conversation.getCurrentAborter();
+                  aborter.abort();
+                }}
+                onCopy={() => {
+                  // Write the message to the file
+                  // Get the editor for the active file
+                  const mdView = arcana.app.workspace.getMostRecentLeaf()
+                    ?.view as MarkdownView;
+                  if (mdView) {
+                    // Get current selection
+                    const selection = mdView.editor.getSelection();
+                    if (selection.length > 0)
+                      mdView.editor.replaceSelection(
+                        selection + ' ' + message.text
+                      );
+                    else mdView.editor.replaceSelection(message.text);
+                  }
+                }}
+              />
             </div>
           ))}
         </div>
@@ -107,8 +142,10 @@ export default function ConversationManager({
   const {
     conversations,
     addConversation,
-    createMessage,
-    addToMessage,
+    createAIMessage,
+    createUserMessage,
+    addToAIMessage,
+    finishAIMessage,
     resetConversation,
   } = useConversations();
 
@@ -151,8 +188,10 @@ export default function ConversationManager({
         <ConversationDialogue
           file={file}
           conversation={currentConversation}
-          createMessage={createMessage}
-          addToMessage={addToMessage}
+          createUserMessage={createUserMessage}
+          createAIMessage={createAIMessage}
+          addToAIMessage={addToAIMessage}
+          finishAIMessage={finishAIMessage}
           resetConversation={resetConversationAndGetNewSystemMessage}
         />
       )}

@@ -1,8 +1,10 @@
 import React from 'react';
-import Message from './Message';
+import { Message, Author } from './Message';
 import { TFile } from 'obsidian';
 import AIConversation from 'src/Conversation';
+import Aborter from 'src/include/Aborter';
 
+// TODO: Is there a better way?
 export function useConversations() {
   const [conversations, setConversations] = React.useState<
     Map<TFile, Conversation>
@@ -16,18 +18,25 @@ export function useConversations() {
     [conversations]
   );
 
-  const createMessage = React.useCallback(
-    (conversation: Conversation, author: string) => {
-      const id = conversation?.createNewMessageBy(author);
+  const createUserMessage = React.useCallback(
+    (conversation: Conversation, text: string) => {
+      conversation?.createUserMessage(text);
       setConversations(new Map(conversations));
-      return id;
     },
     [conversations]
   );
 
-  const addToMessage = React.useCallback(
-    (conversation: Conversation, id: number, addition: string) => {
-      conversation?.addToMessage(id, addition);
+  const createAIMessage = React.useCallback(
+    (conversation: Conversation) => {
+      conversation?.createAIMessage();
+      setConversations(new Map(conversations));
+    },
+    [conversations]
+  );
+
+  const addToAIMessage = React.useCallback(
+    (conversation: Conversation, addition: string) => {
+      conversation?.addToAIMessage(addition);
       setConversations(new Map(conversations));
     },
     [conversations]
@@ -42,30 +51,67 @@ export function useConversations() {
     [conversations]
   );
 
+  const finishAIMessage = React.useCallback(
+    (conversation: Conversation) => {
+      conversation?.finishAIMessage();
+      setConversations(new Map(conversations));
+    },
+    [conversations]
+  );
+
   return {
     conversations,
     addConversation,
-    createMessage,
-    addToMessage,
+    createUserMessage,
+    createAIMessage,
+    addToAIMessage,
     resetConversation,
+    finishAIMessage,
   };
 }
 
+// TODO: Can ID be ignored
 export class Conversation {
   messages: Map<number, Message> = new Map();
   aiConv: AIConversation;
+  private messageBeingWritten = false;
+  private currentAIMessage: null | Message = null;
+  private currentAborter: Aborter = new Aborter();
 
   public constructor(aiConv: AIConversation) {
     this.aiConv = aiConv;
   }
 
-  public createNewMessageBy(author: string): number {
+  public createUserMessage(text: string) {
     const id = this.messages.size;
-    this.messages.set(id, new Message(author));
-    return id;
+    const message = new Message(Author.User);
+    message.addText(text);
+    this.messages.set(id, message);
   }
 
-  public addToMessage(id: number, addition: string) {
-    this.messages.get(id)?.addText(addition);
+  public createAIMessage() {
+    const id = this.messages.size;
+    const message = new Message(Author.AI);
+    this.messages.set(id, message);
+    this.currentAIMessage = message;
+    this.currentAborter = new Aborter();
+    this.messageBeingWritten = true;
+  }
+
+  public getCurrentAborter(): Aborter {
+    return this.currentAborter;
+  }
+
+  public isMessageBeingWrittenBack(): boolean {
+    return this.messageBeingWritten && !this.currentAborter.isAborted();
+  }
+
+  public addToAIMessage(addition: string) {
+    this.currentAIMessage?.addText(addition);
+  }
+
+  public finishAIMessage() {
+    this.currentAIMessage = null;
+    this.messageBeingWritten = false;
   }
 }
