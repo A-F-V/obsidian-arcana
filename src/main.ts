@@ -18,9 +18,6 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   PluginSettings: {},
 };
 
-// For now, lets not have any embedding/search
-const disableEmbedding = true;
-
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
   private openResource: (() => void)[] = [];
@@ -42,22 +39,6 @@ export default class ArcanaPlugin extends Plugin {
 
     this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
-    // Setup the storage first
-    if (!disableEmbedding) {
-      this.fs = new StorageManager(this);
-      await this.fs.setupStorage();
-    }
-    this.agent = new ArcanaAgent(this, disableEmbedding);
-
-    if (!disableEmbedding) {
-      this.addCommand({
-        id: 'force-save',
-        name: 'Force save',
-        callback: async () => {
-          await this.agent.save();
-        },
-      });
-    }
     // Add plugins
     for (const plugin of this.plugins) {
       await plugin.onload();
@@ -73,8 +54,6 @@ export default class ArcanaPlugin extends Plugin {
     for (const release of this.openResource) {
       release();
     }
-
-    await this.agent.save();
   }
 
   async loadSettings() {
@@ -90,16 +69,8 @@ export default class ArcanaPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  async search(query: string, k: number): Promise<ArcanaSearchResult[]> {
-    return await this.agent.getKClosestDocuments(query, k);
-  }
-
   startConversation(sysMessage: string) {
     return this.agent.startConversation(sysMessage);
-  }
-
-  async getFileID(file: TFile): Promise<number> {
-    return await this.agent.getFileID(file);
   }
 
   async complete(
