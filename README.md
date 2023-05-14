@@ -11,7 +11,6 @@
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
 - [Nostradamus](#nostradamus) - **Note Naming**
-- [Howard Carter](#howard-carter) - **Smart Search** (_not available_)
 
 ## Usage:
 
@@ -93,22 +92,6 @@
 - Does it in the style of [Andy Matuschak's Evergreen notes](https://notes.andymatuschak.org/Evergreen_note_titles_are_like_APIs)
 
 ![](gifs/Nostradamus.gif)
-
-## Howard Carter
-
-<p align="center">
-<img src='imgs/Carter.png' height=500/>
-</p>
-
-**Rediscovering the Past**
-
-- **Smart Search** your vault that goes beyond token matching and instead searches based on meaning.
-- Each note has an embedding (periodically cached)
-- The search finds the notes whose embeddings are closest to the search query.
-
-![](gifs/Carter.gif)
-
-_At the moment, the Carter plugin is unavailable and will likely be removed in the future_
 
 ---
 

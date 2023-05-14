@@ -1,8 +1,8 @@
-import { Plugin, TFile } from 'obsidian';
+import { Notice, Plugin } from 'obsidian';
 
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
-import { ArcanaAgent, ArcanaSearchResult } from './include/ArcanaAgent';
+import { ArcanaAgent } from './include/ArcanaAgent';
 //import CarterPlugin from './plugins/Carter/Carter';
 import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
@@ -11,6 +11,7 @@ import FeynmanPlugin from './plugins/Feynman/Feynman';
 import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
+import AIConversation from './Conversation';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -18,12 +19,16 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   PluginSettings: {},
 };
 
-// For now, lets not have any embedding/search
-const disableEmbedding = true;
-
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
   private openResource: (() => void)[] = [];
+  public startConversation: (conversationContext: string) => AIConversation;
+  public complete: (
+    query: string,
+    ctx?: string,
+    handleTokens?: (tokens: string) => void,
+    aborter?: () => boolean
+  ) => Promise<string>;
 
   fs: StorageManager;
   settings: ArcanaSettings;
@@ -37,27 +42,16 @@ export default class ArcanaPlugin extends Plugin {
   ];
 
   async onload() {
+    // Load the agent
+    this.agent = new ArcanaAgent(this);
+    this.startConversation = this.agent.startConversation.bind(this.agent);
+    this.complete = this.agent.complete.bind(this.agent);
+
     // Set up the settings
     await this.loadSettings();
 
     this.addSettingTab(new ArcanaSettingsTab(this.app, this));
 
-    // Setup the storage first
-    if (!disableEmbedding) {
-      this.fs = new StorageManager(this);
-      await this.fs.setupStorage();
-    }
-    this.agent = new ArcanaAgent(this, disableEmbedding);
-
-    if (!disableEmbedding) {
-      this.addCommand({
-        id: 'force-save',
-        name: 'Force save',
-        callback: async () => {
-          await this.agent.save();
-        },
-      });
-    }
     // Add plugins
     for (const plugin of this.plugins) {
       await plugin.onload();
@@ -73,8 +67,6 @@ export default class ArcanaPlugin extends Plugin {
     for (const release of this.openResource) {
       release();
     }
-
-    await this.agent.save();
   }
 
   async loadSettings() {
@@ -88,26 +80,6 @@ export default class ArcanaPlugin extends Plugin {
   async saveSettings() {
     // Currently only settings are saved.
     await this.saveData(this.settings);
-  }
-
-  async search(query: string, k: number): Promise<ArcanaSearchResult[]> {
-    return await this.agent.getKClosestDocuments(query, k);
-  }
-
-  startConversation(sysMessage: string) {
-    return this.agent.startConversation(sysMessage);
-  }
-
-  async getFileID(file: TFile): Promise<number> {
-    return await this.agent.getFileID(file);
-  }
-
-  async complete(
-    query: string,
-    ctx = 'A conversation with an AI for use in Obsidian.',
-    handleTokens: (tokens: string) => void = () => {}
-  ): Promise<string> {
-    return await this.agent.complete(query, ctx, handleTokens);
   }
 
   getAPIKey(): string {
