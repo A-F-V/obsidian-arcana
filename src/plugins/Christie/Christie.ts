@@ -44,7 +44,6 @@ export default class ChristiePlugin extends ArcanaPluginBase {
             const handler = (event: KeyboardEvent) => {
               if (event.key === 'Escape') {
                 aborter.abort();
-                console.log('Aborted');
               }
             };
             window.addEventListener('keydown', handler);
@@ -55,13 +54,27 @@ export default class ChristiePlugin extends ArcanaPluginBase {
             };
             this.arcana.registerResource(release);
 
+            // If the users moves the cursor, abort
+            let lastPosition = editor.getCursor();
+            const hasCursorMoved = () => {
+              const currentPosition = editor.getCursor();
+              return (
+                currentPosition.line != lastPosition.line ||
+                currentPosition.ch != lastPosition.ch
+              );
+            };
+            console.log('Asking Christie');
             await this.askChristie(
               question,
               file,
               selectedText,
               (token: string) => {
+                if (hasCursorMoved()) {
+                  aborter.abort();
+                }
                 if (aborter.isAborted()) return;
                 editor.replaceSelection(token);
+                lastPosition = editor.getCursor();
               }
             ).finally(release);
           }
