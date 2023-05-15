@@ -159,7 +159,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
     // Part 2) Ask the questions
     // Create the context
     const exampleFlashcard = `What is the pythagorean theorem?\n??\nThe pythagorean theorem relates the sides of a right triangle.\nIf the triangle has sides a, b, and c, where c is the hypotenuse, then $$a^2 + b^2 = c^2$$\n`;
-    let context2 = `You are an AI that is helping write flashcards for the purpose of spaced repitition. Flashcards should have the following format: '<question>\n??\n<answer>'.\n Here is an example flashcard:\n${exampleFlashcard}\nDo NOT number the flashcards. Make sure each question is atomic, i.e. it asks only one thing. You do not need to write flashcards on everything in the document, just start with the most important.\n You will be a writing it on the subject matter of:'${title}.\n'`;
+    let context2 = `You are an AI that is helping write flashcards for the purpose of spaced repitition. Flashcards should have the following format: '<question>\n??\n<answer>'.\n Here is an example flashcard:\n${exampleFlashcard}\nDo NOT number the flashcards. Make sure each question you as is atomic, so that it only asks one thing, i.e. avoids the use of 'and'. You do not need to write flashcards on everything in the document, just start with the most important.\n You will be a writing it on the subject matter of:'${title}.\n'`;
     if (documentText.length > 0) {
       context2 += `The document is:\n${markdownText}\n`;
     }
