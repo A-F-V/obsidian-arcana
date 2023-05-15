@@ -15,6 +15,8 @@ import {
 import { assert } from 'console';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import QuestionModal from 'src/components/QuestionModal';
+import FrontMatterManager from 'src/include/FrontMatterManager';
+import { moveToEndOfFile } from 'src/include/CursorMover';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -90,6 +92,13 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             await this.askFeynman(
               oldFile,
               numberOfFlashcards,
+              (tag: string) => {
+                const fmm = new FrontMatterManager(this.arcana);
+                fmm.setTags(newFile as TFile, [tag]);
+
+                moveToEndOfFile(newEditor);
+                newEditor.replaceSelection('\n');
+              },
               (token: string) => {
                 newEditor.replaceSelection(token);
               }
@@ -122,6 +131,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   private async askFeynman(
     file: TFile,
     numberOfQuestions: number,
+    writeTag: (tag: string) => void,
     tokenHandler: (token: string) => void
   ) {
     const title = file.basename;
@@ -133,12 +143,19 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Part 1) Get the category
-    const context = `You are an AI that is helping write flashcards for the purpose of space repitition. You will need to figure out what the category of the flashcard is. The format is as follows: "#flashcards/<category>". The category may be hierarchical. For example, if the document was about pythagerous' theorem, then you would write '#flashcards/mathematics/geometry'. The depth of the category should be no more than 2 levels deep, and should be hierarchical. Keep it very general. Also, use lower case kebeb case for the category names.`;
+    const context = `You are an AI that is helping write flashcards for the purpose of space repitition. You will need to figure out what the category of the flashcard is. The format is as follows: "flashcards/<category>". The category may be hierarchical. For example, if the document was about pythagerous' theorem, then you would write '#flashcards/mathematics/geometry'. The depth of the category should be no more than 2 levels deep, and should be hierarchical. Keep it very general. Also, use lower case kebeb case for the category names.`;
     const question = `What is the flashcard category of this document, titled '${title}'?\n${markdownText}\n`;
-    await this.arcana.complete(question, context, (token: string) =>
-      tokenHandler(token.toLowerCase())
-    );
-    tokenHandler(`\n\n`);
+
+    let tag = await this.arcana.complete(question, context);
+    tag = tag
+      .trim()
+      .toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/"/g, '')
+      .replace(/#/g, '');
+    console.log(tag);
+    writeTag(tag);
+
     // Part 2) Ask the questions
     // Create the context
     const exampleFlashcard = `What is the pythagorean theorem?\n??\nThe pythagorean theorem relates the sides of a right triangle.\nIf the triangle has sides a, b, and c, where c is the hypotenuse, then $$a^2 + b^2 = c^2$$\n`;

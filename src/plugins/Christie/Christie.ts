@@ -7,6 +7,7 @@ import {
 import QuestionModal from 'src/components/QuestionModal';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import Aborter from 'src/include/Aborter';
+import { moveToEndOfLine } from 'src/include/CursorMover';
 
 export default class ChristiePlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -32,10 +33,7 @@ export default class ChristiePlugin extends ArcanaPluginBase {
             const selectedText = editor.getSelection();
             // Decode the next section
             if (selectedText.length > 0) {
-              const editorPosition = editor.getCursor();
-              // Get the text on the line
-              const lineText = editor.getLine(editorPosition.line);
-              editor.setCursor(editorPosition.line, lineText.length);
+              moveToEndOfLine(editor);
               editor.replaceSelection('\n');
             }
 
