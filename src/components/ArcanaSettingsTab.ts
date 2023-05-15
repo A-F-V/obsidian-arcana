@@ -43,6 +43,36 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
           });
       });
 
+    new Setting(containerEl)
+      .setName('Temperature')
+      .setDesc('The randomness of the generated text')
+      .addSlider(slider =>
+        slider
+          .setLimits(0, 2, 0.01)
+          .setValue(this.plugin.settings.TEMPERATURE)
+          .onChange(async value => {
+            this.plugin.settings.TEMPERATURE = value;
+            await this.plugin.saveSettings();
+          })
+          .setDynamicTooltip()
+          .showTooltip()
+      );
+
+    new Setting(containerEl)
+      .setName('Top P')
+      .setDesc('The diversity of the generated text')
+      .addSlider(slider =>
+        slider
+          .setLimits(0, 1, 0.01)
+          .setValue(this.plugin.settings.TOP_P)
+          .onChange(async value => {
+            this.plugin.settings.TOP_P = value;
+            await this.plugin.saveSettings();
+          })
+          .setDynamicTooltip()
+          .showTooltip()
+      );
+
     // Add the settings for each plugin
     for (const plugin of this.plugin.plugins) {
       plugin.addSettings(containerEl);

@@ -1,9 +1,6 @@
-import { Notice } from 'obsidian';
-
 import ArcanaPlugin from 'src/main';
 import Conversation from 'src/Conversation';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { HumanChatMessage } from 'langchain/dist/schema';
 
 export class ArcanaAgent {
   private arcana: ArcanaPlugin;
@@ -13,9 +10,15 @@ export class ArcanaAgent {
   }
 
   private getAI(streaming = true): ChatOpenAI {
+    const apiKey = this.arcana.settings.OPEN_AI_API_KEY;
+    const model = this.arcana.settings.MODEL_TYPE;
+    const temperature = this.arcana.settings.TEMPERATURE;
+    const topP = this.arcana.settings.TOP_P;
     return new ChatOpenAI({
-      openAIApiKey: this.arcana.getAPIKey(),
-      modelName: this.arcana.getAIModel(),
+      openAIApiKey: apiKey,
+      modelName: model,
+      temperature: temperature,
+      topP: topP,
       streaming: streaming,
       maxRetries: 0,
     });

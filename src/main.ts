@@ -16,6 +16,8 @@ import AIConversation from './Conversation';
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
   MODEL_TYPE: 'gpt-3.5-turbo',
+  TEMPERATURE: 0.7,
+  TOP_P: 1,
   PluginSettings: {},
 };
 
