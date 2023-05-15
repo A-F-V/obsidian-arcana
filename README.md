@@ -1,4 +1,4 @@
-**Note the project is still a WIP and we take no responsibility for any problems you may face.**
+*This plugin is not yet available on the obisidan plugin marketplace but a request for publishing has been made. Check back soon!*
 
 # 🔮 Enter the Arcana
 
@@ -14,7 +14,6 @@
 
 ## Usage:
 
-- (This plugin is not yet available on the obisidan plugin marketplace.)
 - **OpenAI API key required** - set in settings.
 - Most tools are invoked using the command palette and searching either `Arcana` or the person's name.
 - Some tools add a view in the sidebar to interact with.
