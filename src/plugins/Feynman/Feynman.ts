@@ -14,6 +14,7 @@ import {
 
 import { assert } from 'console';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
+import QuestionModal from 'src/components/QuestionModal';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -38,42 +39,63 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
       id: 'feynman',
       name: 'Feynman Flashcard',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
-        this.ensureFolderExists();
-        // Get the current file
-        const oldFile = view.file;
-        // Get current file name
-        const newFileName = `${this.setting.folder}/Flashcard - ${oldFile.basename}.md`;
-        // Create a new file
-        let newFile = this.arcana.app.vault.getAbstractFileByPath(newFileName);
-        if (newFile) {
-          new Notice(
-            `File already exists: ${newFileName}. Please delete it first.`
-          );
-          return;
-        } else {
-          newFile = await this.arcana.app.vault.create(newFileName, '');
-        }
-        // Open the new file and set to active
-        await this.arcana.app.workspace.openLinkText(newFile.path, '', true);
-        // Find the leaf with the new file
-        let flashcardLeaf: WorkspaceLeaf | null = null;
-        this.arcana.app.workspace.iterateAllLeaves(leaf => {
-          if (
-            leaf.view instanceof MarkdownView &&
-            (leaf.view as MarkdownView).file.path === newFile!.path
-          ) {
-            flashcardLeaf = leaf;
-          }
-        });
-        assert(flashcardLeaf !== null, 'Could not find the new leaf');
-        const newEditor = (flashcardLeaf!.view as MarkdownView).editor;
+        new QuestionModal(
+          this.arcana.app,
+          'How many flashcards do you want to create?',
+          async (answer: string) => {
+            const numberOfFlashcards = parseInt(answer);
+            if (isNaN(numberOfFlashcards) || numberOfFlashcards <= 0) {
+              new Notice('Please enter a valid number');
+              return;
+            }
 
-        // Place cursor at the end of the file
-        newEditor.setCursor(newEditor.lastLine(), 0);
-        // Start writing the flashcards
-        await this.askFeynman(oldFile, (token: string) => {
-          newEditor.replaceSelection(token);
-        });
+            this.ensureFolderExists();
+            // Get the current file
+            const oldFile = view.file;
+            // Get current file name
+            const newFileName = `${this.setting.folder}/Flashcard - ${oldFile.basename}.md`;
+            // Create a new file
+            let newFile =
+              this.arcana.app.vault.getAbstractFileByPath(newFileName);
+            if (newFile) {
+              new Notice(
+                `File already exists: ${newFileName}. Please delete it first.`
+              );
+              return;
+            } else {
+              newFile = await this.arcana.app.vault.create(newFileName, '');
+            }
+            // Open the new file and set to active
+            await this.arcana.app.workspace.openLinkText(
+              newFile.path,
+              '',
+              true
+            );
+            // Find the leaf with the new file
+            let flashcardLeaf: WorkspaceLeaf | null = null;
+            this.arcana.app.workspace.iterateAllLeaves(leaf => {
+              if (
+                leaf.view instanceof MarkdownView &&
+                (leaf.view as MarkdownView).file.path === newFile!.path
+              ) {
+                flashcardLeaf = leaf;
+              }
+            });
+            assert(flashcardLeaf !== null, 'Could not find the new leaf');
+            const newEditor = (flashcardLeaf!.view as MarkdownView).editor;
+
+            // Place cursor at the end of the file
+            newEditor.setCursor(newEditor.lastLine(), 0);
+            // Start writing the flashcards
+            await this.askFeynman(
+              oldFile,
+              numberOfFlashcards,
+              (token: string) => {
+                newEditor.replaceSelection(token);
+              }
+            );
+          }
+        ).open();
       },
     });
   }
@@ -97,9 +119,11 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   }
   public async onunload() {}
 
-  private async askFeynman(file: TFile, tokenHandler: (token: string) => void) {
-    const numberOfQuestions = 5;
-
+  private async askFeynman(
+    file: TFile,
+    numberOfQuestions: number,
+    tokenHandler: (token: string) => void
+  ) {
     const title = file.basename;
     // Get the document text from the file
     const documentText = await this.arcana.app.vault.read(file);
