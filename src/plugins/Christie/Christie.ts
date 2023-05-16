@@ -97,7 +97,7 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Create the context
-    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. You are writing in a markdown file and are free to use bolding, headers, etc. Do NOT surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question, completing an instruction or writing about '${title}.\n'`;
+    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. You are writing in a markdown file and are free to use markdown features not limited to latex for maths, code blocks for code, bolding, headers, etc. Do NOT surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question, completing an instruction or writing about '${title}.\n'`;
     if (documentText.length > 0) {
       context += `The document is:\n${markdownText}\n`;
     }
