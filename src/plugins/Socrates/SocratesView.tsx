@@ -16,26 +16,10 @@ async function createSystemMessage(arcana: ArcanaPlugin, file: TFile) {
 export const SocratesView = () => {
   const arcana = useArcana();
   const [file, setFile] = React.useState<TFile | null>(null);
-  const [systemMessage, setSystemMessage] = React.useState<string | null>(null);
 
   const setCurrentFile = () => {
     setFile(arcana.app.workspace.getActiveFile());
-    setSystemMessage(null);
   };
-
-  const fetchNewestSystemMessage = React.useCallback(() => {
-    if (file) {
-      createSystemMessage(arcana, file).then(message => {
-        setSystemMessage(message);
-      });
-    } else {
-      setSystemMessage(null);
-    }
-  }, [file]);
-
-  React.useEffect(() => {
-    fetchNewestSystemMessage();
-  }, [file]);
 
   // Activate
   arcana.app.workspace.on('active-leaf-change', setCurrentFile);
@@ -54,11 +38,7 @@ export const SocratesView = () => {
       }}
     >
       <h1>Socrates 🔮</h1>
-      <ConversationManager
-        file={file}
-        systemMessage={systemMessage}
-        onResetConversation={fetchNewestSystemMessage}
-      />
+      <ConversationManager file={file} getSystemMessage={createSystemMessage} />
     </div>
   );
 };

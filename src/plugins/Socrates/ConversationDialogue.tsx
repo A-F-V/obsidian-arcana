@@ -4,6 +4,7 @@ import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
 import Aborter from 'src/include/Aborter';
+import ArcanaPlugin from 'src/main';
 
 function ConversationDialogue({
   file,
@@ -131,12 +132,10 @@ function ConversationDialogue({
 
 export default function ConversationManager({
   file,
-  systemMessage,
-  onResetConversation,
+  getSystemMessage,
 }: {
   file: TFile | null;
-  systemMessage: string | null;
-  onResetConversation: () => void;
+  getSystemMessage: (arcana: ArcanaPlugin, file: TFile) => Promise<string>;
 }) {
   const arcana = useArcana();
   const {
@@ -146,6 +145,7 @@ export default function ConversationManager({
     createUserMessage,
     addToAIMessage,
     finishAIMessage,
+    setConversationContext,
     resetConversation,
   } = useConversations();
 
@@ -154,31 +154,30 @@ export default function ConversationManager({
 
   React.useEffect(() => {
     if (file) {
-      if (
-        (!conversations.has(file) || // If its a new file
-          conversations.get(file)?.aiConv.getContext() !== systemMessage) && // Or the file contets have changed
-        systemMessage !== null
-      ) {
-        const aiConv = arcana.startConversation(systemMessage);
-        addConversation(file, aiConv);
+      if (!conversations.has(file)) {
+        getSystemMessage(arcana, file).then(systemMessage => {
+          const aiConv = arcana.startConversation(systemMessage);
+          addConversation(file, aiConv);
+          setCurrentConversation(conversations.get(file) ?? null);
+        });
+      } else {
+        setCurrentConversation(conversations.get(file)!);
       }
-      setCurrentConversation(conversations.get(file) ?? null);
     } else {
       setCurrentConversation(null);
     }
-  }, [file, conversations, systemMessage]);
+  }, [file, conversations, arcana]);
 
   // Retrigger generation of system message when file changes
-  const resetConversationAndGetNewSystemMessage = React.useCallback(
+  const resetConversationAndSetContext = React.useCallback(
     (conversation: Conversation) => {
-      resetConversation(conversation);
-      onResetConversation();
+      getSystemMessage(arcana, conversation.file).then(systemMessage => {
+        resetConversation(conversation);
+        setConversationContext(conversation, systemMessage);
+      });
     },
-    [resetConversation, onResetConversation]
+    [resetConversation, setConversationContext]
   );
-
-  // Test
-  React.useEffect(() => {}, [currentConversation]);
 
   return (
     <>
@@ -190,7 +189,7 @@ export default function ConversationManager({
           createAIMessage={createAIMessage}
           addToAIMessage={addToAIMessage}
           finishAIMessage={finishAIMessage}
-          resetConversation={resetConversationAndGetNewSystemMessage}
+          resetConversation={resetConversationAndSetContext}
         />
       )}
       {!file && (

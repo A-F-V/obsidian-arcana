@@ -12,7 +12,7 @@ export function useConversations() {
 
   const addConversation = React.useCallback(
     (file: TFile, aiConv: AIConversation) => {
-      const conversation = new Conversation(aiConv);
+      const conversation = new Conversation(aiConv, file);
       setConversations(new Map(conversations).set(file, conversation));
     },
     [conversations]
@@ -51,6 +51,14 @@ export function useConversations() {
     [conversations]
   );
 
+  const setConversationContext = React.useCallback(
+    (conversation: Conversation, text: string) => {
+      conversation.setSystemMessage(text);
+      setConversations(new Map(conversations));
+    },
+    [conversations]
+  );
+
   const finishAIMessage = React.useCallback(
     (conversation: Conversation) => {
       conversation?.finishAIMessage();
@@ -66,6 +74,7 @@ export function useConversations() {
     createAIMessage,
     addToAIMessage,
     resetConversation,
+    setConversationContext,
     finishAIMessage,
   };
 }
@@ -74,12 +83,18 @@ export function useConversations() {
 export class Conversation {
   messages: Map<number, Message> = new Map();
   aiConv: AIConversation;
+  file: TFile;
   private messageBeingWritten = false;
   private currentAIMessage: null | Message = null;
   private currentAborter: Aborter = new Aborter();
 
-  public constructor(aiConv: AIConversation) {
+  public constructor(aiConv: AIConversation, file: TFile) {
     this.aiConv = aiConv;
+    this.file = file;
+  }
+
+  public setSystemMessage(text: string) {
+    this.aiConv.setContext(text);
   }
 
   public createUserMessage(text: string) {

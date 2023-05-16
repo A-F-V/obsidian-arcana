@@ -83,6 +83,9 @@ export default class AIConversation {
     return this.chain !== null;
   }
 
+  public setContext(context: string) {
+    this.conversationContext = this.escapeCurlyBraces(context);
+  }
   async askQuestion(
     question: string,
     handleToken?: (token: string) => void,

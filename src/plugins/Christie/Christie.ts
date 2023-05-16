@@ -61,7 +61,6 @@ export default class ChristiePlugin extends ArcanaPluginBase {
                 currentPosition.ch != lastPosition.ch
               );
             };
-            console.log('Asking Christie');
             await this.askChristie(
               question,
               file,
