@@ -97,7 +97,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
                 fmm.setTags(newFile as TFile, [tag]);
 
                 moveToEndOfFile(newEditor);
-                newEditor.replaceSelection('\n');
+                newEditor.replaceSelection('\n\n');
               },
               (token: string) => {
                 newEditor.replaceSelection(token);
