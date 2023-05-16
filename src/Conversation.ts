@@ -95,6 +95,7 @@ export default class AIConversation {
     if (!this.isEngaged()) {
       await this.engage();
     }
+    const handleErrors = this.handleErrors;
     // Escape curly braces
     question = this.escapeCurlyBraces(question);
     // Make the call
@@ -110,7 +111,7 @@ export default class AIConversation {
             }
           },
           handleLLMError(err, runId, parentRunId) {
-            this.handleErrors(err);
+            handleErrors(err);
           },
         },
       ]
