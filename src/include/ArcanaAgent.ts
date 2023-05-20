@@ -25,10 +25,7 @@ export class ArcanaAgent {
   }
 
   public startConversation(conversationContext: string): Conversation {
-    return new Conversation(
-      (streaming: boolean) => this.getAI(streaming),
-      conversationContext
-    );
+    return new Conversation(this.getAI.bind(this), conversationContext);
   }
 
   public async complete(

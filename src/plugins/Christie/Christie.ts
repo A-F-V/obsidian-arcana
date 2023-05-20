@@ -8,6 +8,7 @@ import QuestionModal from 'src/components/QuestionModal';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import Aborter from 'src/include/Aborter';
 import { moveToEndOfLine } from 'src/include/CursorMover';
+import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
 export default class ChristiePlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -39,41 +40,19 @@ export default class ChristiePlugin extends ArcanaPluginBase {
 
             const aborter = new Aborter();
 
-            const handler = (event: KeyboardEvent) => {
-              if (event.key === 'Escape') {
-                aborter.abort();
-              }
-            };
-            window.addEventListener('keydown', handler);
+            const abortableHandler = new EditorAbortableTokenHandler(
+              aborter,
+              editor.replaceSelection.bind(editor),
+              editor,
+              this.arcana
+            );
 
-            const release = () => {
-              window.removeEventListener('keydown', handler);
-              aborter.abort();
-            };
-            this.arcana.registerResource(release);
-
-            // If the users moves the cursor, abort
-            let lastPosition = editor.getCursor();
-            const hasCursorMoved = () => {
-              const currentPosition = editor.getCursor();
-              return (
-                currentPosition.line != lastPosition.line ||
-                currentPosition.ch != lastPosition.ch
-              );
-            };
             await this.askChristie(
               question,
               file,
               selectedText,
-              (token: string) => {
-                if (hasCursorMoved()) {
-                  aborter.abort();
-                }
-                if (aborter.isAborted()) return;
-                editor.replaceSelection(token);
-                lastPosition = editor.getCursor();
-              }
-            ).finally(release);
+              abortableHandler.handleToken.bind(abortableHandler)
+            ).finally(abortableHandler.onDone.bind(abortableHandler));
           }
         ).open();
       },

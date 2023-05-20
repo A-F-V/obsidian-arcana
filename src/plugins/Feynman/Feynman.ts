@@ -17,6 +17,8 @@ import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import QuestionModal from 'src/components/QuestionModal';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import { moveToEndOfFile } from 'src/include/CursorMover';
+import Aborter from 'src/include/Aborter';
+import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -88,6 +90,13 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
 
             // Place cursor at the end of the file
             newEditor.setCursor(newEditor.lastLine(), 0);
+            const aborter = new Aborter();
+            const abortHandler = new EditorAbortableTokenHandler(
+              aborter,
+              newEditor.replaceSelection.bind(newEditor),
+              newEditor,
+              this.arcana
+            );
             // Start writing the flashcards
             await this.askFeynman(
               oldFile,
@@ -97,12 +106,10 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
                 fmm.setTags(newFile as TFile, [tag]);
 
                 moveToEndOfFile(newEditor);
-                newEditor.replaceSelection('\n\n');
+                newEditor.replaceSelection('\n\n\n');
               },
-              (token: string) => {
-                newEditor.replaceSelection(token);
-              }
-            );
+              abortHandler.handleToken.bind(abortHandler)
+            ).finally(abortHandler.onDone.bind(abortHandler));
           }
         ).open();
       },

@@ -11,6 +11,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "type": "commonjs",
   "devDependencies": {
     "@types/node": "^16.11.6",
     "@types/react": "^18.2.0",
