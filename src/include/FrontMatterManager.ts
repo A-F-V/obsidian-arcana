@@ -51,16 +51,19 @@ export default class FrontMatterManager {
   }
 
   async getTags(file: TFile): Promise<string[]> {
-    const tags = await this.get<string>(file, 'tags');
+    const tags = await this.get<any>(file, 'tags');
     if (tags === null || tags === undefined) {
       return [];
     }
-    try {
-      return tags.split(' ');
-    } catch (error) {
-      console.log(error, tags);
-      return [];
+    // If its a string array, return
+    if (Array.isArray(tags)) {
+      return tags;
     }
+    // If its a string, split it
+    if (typeof tags === 'string') {
+      return tags.split(' ');
+    }
+    return [];
   }
   async setTags(file: TFile, tags: string[]): Promise<void> {
     await this.set(file, 'tags', tags.join(' '));
