@@ -1,11 +1,11 @@
 import { Editor } from 'obsidian';
 
 export const moveToEndOfFile = (editor: Editor) => {
-  const cursor = editor.getCursor();
-  const line = editor.getLine(cursor.line);
+  const lastLine = editor.lastLine();
+  const lastLineLength = editor.getLine(lastLine).length;
   editor.setCursor({
-    line: cursor.line,
-    ch: line.length,
+    line: lastLine,
+    ch: lastLineLength,
   });
 };
 

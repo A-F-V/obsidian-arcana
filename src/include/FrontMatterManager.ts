@@ -55,7 +55,12 @@ export default class FrontMatterManager {
     if (tags === null || tags === undefined) {
       return [];
     }
-    return tags.split(' ');
+    try {
+      return tags.split(' ');
+    } catch (error) {
+      console.log(error, tags);
+      return [];
+    }
   }
   async setTags(file: TFile, tags: string[]): Promise<void> {
     await this.set(file, 'tags', tags.join(' '));

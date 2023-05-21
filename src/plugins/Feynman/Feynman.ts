@@ -101,12 +101,16 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             await this.askFeynman(
               oldFile,
               numberOfFlashcards,
-              (tag: string) => {
+              async (tag: string) => {
                 const fmm = new FrontMatterManager(this.arcana);
-                fmm.setTags(newFile as TFile, [tag]);
+                await fmm.setTags(newFile as TFile, [tag]);
+                // Pause 1 second to let tags be written
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
                 moveToEndOfFile(newEditor);
-                newEditor.replaceSelection('\n\n\n');
+                newEditor.replaceSelection(
+                  `Flashcards for [[${oldFile.basename}]]\n\n`
+                );
               },
               abortHandler.handleToken.bind(abortHandler)
             ).finally(abortHandler.onDone.bind(abortHandler));
@@ -138,7 +142,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   private async askFeynman(
     file: TFile,
     numberOfQuestions: number,
-    writeTag: (tag: string) => void,
+    writeTag: (tag: string) => Promise<void>,
     tokenHandler: (token: string) => void
   ) {
     const title = file.basename;
@@ -160,8 +164,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
       .replace(/ /g, '-')
       .replace(/"/g, '')
       .replace(/#/g, '');
-    console.log(tag);
-    writeTag(tag);
+    await writeTag(tag);
 
     // Part 2) Ask the questions
     // Create the context
