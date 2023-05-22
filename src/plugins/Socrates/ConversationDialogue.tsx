@@ -172,6 +172,7 @@ export default function ConversationManager({
   const resetConversationAndSetContext = React.useCallback(
     (conversation: Conversation) => {
       getSystemMessage(arcana, conversation.file).then(systemMessage => {
+        conversation.getCurrentAborter().abort();
         resetConversation(conversation);
         setConversationContext(conversation, systemMessage);
       });
