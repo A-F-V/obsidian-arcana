@@ -38,7 +38,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       });
 
     this.priorInstruction =
-      this.arcana.settings.PluginSettings['Socrates'].priorInstruction ?? '';
+      this.arcana.settings.PluginSettings['Socrates']?.priorInstruction ?? '';
   }
 
   constructor(arcana: ArcanaPlugin) {

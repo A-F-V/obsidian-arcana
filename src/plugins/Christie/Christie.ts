@@ -81,7 +81,7 @@ export default class ChristiePlugin extends ArcanaPluginBase {
       });
 
     this.priorInstruction =
-      this.arcana.settings.PluginSettings['Christie'].priorInstruction ?? '';
+      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
   }
 
   public async onunload() {}
