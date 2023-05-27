@@ -2,18 +2,11 @@ import * as React from 'react';
 import { TFile } from 'obsidian';
 import { useArcana } from 'src/hooks/hooks';
 import ConversationManager from './ConversationDialogue';
-import ArcanaPlugin from 'src/main';
-import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
-
-async function createSystemMessage(arcana: ArcanaPlugin, file: TFile) {
-  let text = await arcana.app.vault.read(file);
-  text = removeFrontMatter(text);
-  const title = file.basename;
-  return `You are a very intelligent thinker that is having a conversation with a human. The user has presented you with a file called ${title}. The file contains the following text:\n ${text}. The user will then start asking you questions that may be related to the text in the file, but also draw ideas from your own knowledge. You should try to answer the questions as best as you can.`;
-}
 
 // A react component for the view
-export const SocratesView = () => {
+export const SocratesView = (
+  createSystemMessage: (file: TFile) => Promise<string>
+) => {
   const arcana = useArcana();
   const [file, setFile] = React.useState<TFile | null>(null);
 

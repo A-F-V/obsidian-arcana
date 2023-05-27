@@ -1,10 +1,8 @@
-import { FileView, MarkdownView, TFile } from 'obsidian';
+import { MarkdownView, TFile } from 'obsidian';
 import { Conversation, useConversations } from './Conversation';
 import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
-import Aborter from 'src/include/Aborter';
-import ArcanaPlugin from 'src/main';
 
 function ConversationDialogue({
   file,
@@ -135,7 +133,7 @@ export default function ConversationManager({
   getSystemMessage,
 }: {
   file: TFile | null;
-  getSystemMessage: (arcana: ArcanaPlugin, file: TFile) => Promise<string>;
+  getSystemMessage: (file: TFile) => Promise<string>;
 }) {
   const arcana = useArcana();
   const {
@@ -155,7 +153,7 @@ export default function ConversationManager({
   React.useEffect(() => {
     if (file) {
       if (!conversations.has(file)) {
-        getSystemMessage(arcana, file).then(systemMessage => {
+        getSystemMessage(file).then(systemMessage => {
           const aiConv = arcana.startConversation(systemMessage);
           addConversation(file, aiConv);
           setCurrentConversation(conversations.get(file) ?? null);
@@ -171,7 +169,7 @@ export default function ConversationManager({
   // Retrigger generation of system message when file changes
   const resetConversationAndSetContext = React.useCallback(
     (conversation: Conversation) => {
-      getSystemMessage(arcana, conversation.file).then(systemMessage => {
+      getSystemMessage(conversation.file).then(systemMessage => {
         conversation.getCurrentAborter().abort();
         resetConversation(conversation);
         setConversationContext(conversation, systemMessage);

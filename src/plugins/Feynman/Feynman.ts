@@ -35,9 +35,6 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
     }
   }
   public async onload() {
-    this.setting = this.arcana.settings.PluginSettings['Feynman'] ?? {
-      folder: 'FeynmanFlashcards', // The default setting
-    };
     // Register the nostradamus command
     this.arcana.addCommand({
       id: 'feynman',
@@ -136,6 +133,10 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             await this.arcana.saveSettings();
           });
       });
+
+    this.setting = this.arcana.settings.PluginSettings['Feynman'] ?? {
+      folder: 'FeynmanFlashcards', // The default setting
+    };
   }
   public async onunload() {}
 

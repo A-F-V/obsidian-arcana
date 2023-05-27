@@ -4,7 +4,7 @@ import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
 
 export default abstract class ViewPluginBase extends ArcanaPluginBase {
-  private arcana: ArcanaPlugin;
+  protected arcana: ArcanaPlugin;
   private viewType: string;
   private leaf: WorkspaceLeaf;
 

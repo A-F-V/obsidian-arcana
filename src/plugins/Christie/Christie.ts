@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, TFile } from 'obsidian';
+import { Editor, MarkdownView, Setting, TFile } from 'obsidian';
 import ArcanaPlugin from 'src/main';
 import {
   removeFrontMatter,
@@ -12,6 +12,8 @@ import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
 export default class ChristiePlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
+  private priorInstruction = '';
+
   public constructor(arcana: ArcanaPlugin) {
     super();
     this.arcana = arcana;
@@ -59,6 +61,29 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     });
   }
 
+  public addSettings(containerEl: HTMLElement) {
+    containerEl.createEl('h2', { text: 'Christie Write' });
+
+    new Setting(containerEl)
+      .setName("Christie's System Message")
+      .setDesc('The prior instruction given to Christie')
+      .addTextArea(text => {
+        text
+          .setPlaceholder('')
+          .setValue(this.priorInstruction)
+          .onChange(async (value: string) => {
+            this.priorInstruction = value;
+            this.arcana.settings.PluginSettings['Christie'] = {
+              priorInstruction: value,
+            };
+            await this.arcana.saveSettings();
+          });
+      });
+
+    this.priorInstruction =
+      this.arcana.settings.PluginSettings['Christie'].priorInstruction ?? '';
+  }
+
   public async onunload() {}
 
   private async askChristie(
@@ -76,11 +101,15 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     const markdownText = surroundWithMarkdown(cleanedText);
 
     // Create the context
-    let context = `'You are an AI that is an excellent writer and scholar. You write with a academic and domain specific vocabulary. You are concise and to the point. You are writing in a markdown file and are free to use markdown features not limited to latex for maths, code blocks for code, bolding, headers, etc. Never surround your answer in a markdown block. Avoid repeating what has already been written. You will be answering a question, completing an instruction or writing about '${title}.\n'`;
+    let context = `You will be answering a question, completing an instruction or writing about '${title}.'`;
     if (documentText.length > 0) {
       context += `The document is:\n${markdownText}\n`;
     }
-    question = `The following is either a question to answer or an instruction to complete: ${question.trim()}. Answer but do not surround your answer in a markdown block.`;
+    if (this.priorInstruction.length > 0) {
+      context += `\n${this.priorInstruction}\n`;
+    }
+
+    question = `The following is either a question to answer or an instruction to complete: ${question.trim()}.`;
     if (selectedText.length > 0) {
       question += `\n*Note, the user has selected the following passage*:\n${selectedText}\n`;
     }
