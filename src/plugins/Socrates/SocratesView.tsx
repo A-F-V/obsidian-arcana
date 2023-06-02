@@ -28,6 +28,7 @@ export const SocratesView = (
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        userSelect: 'text',
       }}
     >
       <h1>Socrates 🔮</h1>
