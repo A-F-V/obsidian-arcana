@@ -118,8 +118,11 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Feynman Flashcards' });
+    this.setting = this.arcana.settings.PluginSettings['Feynman'] ?? {
+      folder: 'FeynmanFlashcards', // The default setting
+    };
 
+    containerEl.createEl('h2', { text: 'Feynman Flashcards' });
     new Setting(containerEl)
       .setName('Feynman Flashcard Folder')
       .setDesc('The folder where the flashcards will be stored')
@@ -133,10 +136,6 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             await this.arcana.saveSettings();
           });
       });
-
-    this.setting = this.arcana.settings.PluginSettings['Feynman'] ?? {
-      folder: 'FeynmanFlashcards', // The default setting
-    };
   }
   public async onunload() {}
 

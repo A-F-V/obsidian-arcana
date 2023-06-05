@@ -62,8 +62,10 @@ export default class ChristiePlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Christie Write' });
+    this.priorInstruction =
+      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
 
+    containerEl.createEl('h2', { text: 'Christie Write' });
     new Setting(containerEl)
       .setName("Christie's System Message")
       .setDesc('The prior instruction given to Christie')
@@ -79,9 +81,6 @@ export default class ChristiePlugin extends ArcanaPluginBase {
             await this.arcana.saveSettings();
           });
       });
-
-    this.priorInstruction =
-      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
   }
 
   public async onunload() {}

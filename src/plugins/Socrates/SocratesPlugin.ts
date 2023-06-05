@@ -19,8 +19,10 @@ export default class SocratesPlugin extends ViewPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Socrates Think' });
+    this.priorInstruction =
+      this.arcana.settings.PluginSettings['Socrates']?.priorInstruction ?? '';
 
+    containerEl.createEl('h2', { text: 'Socrates Think' });
     new Setting(containerEl)
       .setName("Socrates's System Message")
       .setDesc('The prior instruction given to Socrates')
@@ -36,9 +38,6 @@ export default class SocratesPlugin extends ViewPluginBase {
             await this.arcana.saveSettings();
           });
       });
-
-    this.priorInstruction =
-      this.arcana.settings.PluginSettings['Socrates']?.priorInstruction ?? '';
   }
 
   constructor(arcana: ArcanaPlugin) {
