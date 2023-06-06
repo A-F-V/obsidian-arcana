@@ -7,6 +7,9 @@ import { ConversationDialogue } from './ConversationDialogue';
 export const SocratesView = (getSystemMessage: () => string) => {
   const arcana = useArcana();
   const [file, setFile] = React.useState<TFile | null>(null);
+  const [systemMessage, setSystemMessage] = React.useState<string>(
+    getSystemMessage()
+  );
 
   const setCurrentFile = () => {
     setFile(arcana.app.workspace.getActiveFile());
@@ -18,6 +21,18 @@ export const SocratesView = (getSystemMessage: () => string) => {
   arcana.registerResource(() =>
     arcana.app.workspace.off('active-leaf-change', setCurrentFile)
   );
+
+  // Set periodic timer to update system message
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const sys = getSystemMessage();
+      if (sys != systemMessage) {
+        setSystemMessage(sys);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [systemMessage]);
+
   return (
     <div
       style={{
@@ -30,7 +45,7 @@ export const SocratesView = (getSystemMessage: () => string) => {
       }}
     >
       <h1>Socrates 🔮</h1>
-      <ConversationDialogue file={file} getSystemMessage={getSystemMessage} />
+      <ConversationDialogue file={file} systemMessage={systemMessage} />
     </div>
   );
 };

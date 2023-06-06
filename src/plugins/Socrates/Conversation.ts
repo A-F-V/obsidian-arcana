@@ -11,13 +11,13 @@ class ConvState {
   currentAborter: Aborter = new Aborter();
 }
 
-export function useConversation(conversationSystemMessage: () => string) {
+export function useConversation() {
   const arcana = useArcana();
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [convState, setConvState] = React.useState<ConvState>(new ConvState());
 
   const [aiConv, setAIConv] = React.useState<AIConversation>(
-    arcana.startConversation(conversationSystemMessage())
+    arcana.startConversation('')
   );
 
   const createUserMessage = React.useCallback((text: string) => {
@@ -40,7 +40,7 @@ export function useConversation(conversationSystemMessage: () => string) {
 
   const resetConversation = React.useCallback(() => {
     aiConv.disengage();
-    setAIConv(arcana.startConversation(conversationSystemMessage()));
+    setAIConv(arcana.startConversation(aiConv.getContext()));
     setMessages([]);
     setConvState(new ConvState());
   }, [aiConv]);

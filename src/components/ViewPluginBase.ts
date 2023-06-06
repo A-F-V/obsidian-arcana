@@ -19,8 +19,9 @@ export default abstract class ViewPluginBase extends ArcanaPluginBase {
   ) {
     super();
     this.arcana = arcana;
-    this.viewFactory = (leaf: WorkspaceLeaf) =>
-      new ObsidianView(leaf, arcana, viewType, icon, displayText, view);
+    this.viewFactory = (leaf: WorkspaceLeaf) => {
+      return new ObsidianView(leaf, arcana, viewType, icon, displayText, view);
+    };
   }
   async onload() {
     // Register the Carter View on load

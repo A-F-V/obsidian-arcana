@@ -20,6 +20,8 @@ export default class ChristiePlugin extends ArcanaPluginBase {
   }
 
   public async onload() {
+    this.priorInstruction =
+      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
     // Register the nostradamus command
     this.arcana.addCommand({
       id: 'christie',
@@ -62,9 +64,6 @@ export default class ChristiePlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    this.priorInstruction =
-      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
-
     containerEl.createEl('h2', { text: 'Christie Write' });
     new Setting(containerEl)
       .setName("Christie's System Message")

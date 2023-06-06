@@ -7,10 +7,10 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 export function ConversationDialogue({
   file,
-  getSystemMessage,
+  systemMessage,
 }: {
   file: TFile | null;
-  getSystemMessage: () => string;
+  systemMessage: string;
 }) {
   const arcana = useArcana();
   const {
@@ -18,9 +18,10 @@ export function ConversationDialogue({
     createUserMessage,
     askQuestion,
     resetConversation,
+    setConversationContext,
     isAIReplying,
     cancelAIMessage,
-  } = useConversation(getSystemMessage);
+  } = useConversation();
   // TODO: Trigger when you addToMessage
   /*
     const dialogueRef = React.useRef<HTMLDivElement | null>(null);
@@ -31,6 +32,12 @@ export function ConversationDialogue({
     }
   }, [conversation]);
   */
+
+  // Set timer for 2 seconds to wait for settings to load
+  React.useEffect(() => {
+    console.log(systemMessage);
+    setConversationContext(systemMessage);
+  }, [systemMessage]);
 
   const onSubmitMessage = React.useCallback(
     (e: any) => {

@@ -7,15 +7,19 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 export default class SocratesPlugin extends ViewPluginBase {
   private priorInstruction = '';
 
-  private getSystemMessage() {
+  private getPriorInstruction(): string {
     return this.priorInstruction;
   }
 
-  public addSettings(containerEl: HTMLElement) {
+  public async onload(): Promise<void> {
+    await super.onload();
     this.priorInstruction =
       this.arcana.settings.PluginSettings['Socrates']?.priorInstruction ?? '';
+  }
 
+  public addSettings(containerEl: HTMLElement) {
     containerEl.createEl('h2', { text: 'Socrates Think' });
+
     new Setting(containerEl)
       .setName("Socrates's System Message")
       .setDesc('The prior instruction given to Socrates')
@@ -35,7 +39,7 @@ export default class SocratesPlugin extends ViewPluginBase {
 
   constructor(arcana: ArcanaPlugin) {
     super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () =>
-      SocratesView(this.getSystemMessage.bind(this))
+      SocratesView(this.getPriorInstruction.bind(this))
     );
   }
 }
