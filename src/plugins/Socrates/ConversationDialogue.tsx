@@ -1,30 +1,29 @@
-import { MarkdownView, TFile } from 'obsidian';
-import { Conversation, useConversations } from './Conversation';
+import { MarkdownView, Notice, TFile } from 'obsidian';
+import { useConversation } from './Conversation';
 import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
+import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
-function ConversationDialogue({
+export function ConversationDialogue({
   file,
-  conversation,
-  createUserMessage,
-  createAIMessage,
-  addToAIMessage,
-  finishAIMessage,
-  resetConversation,
+  getSystemMessage,
 }: {
-  file: TFile;
-  conversation: Conversation;
-  createUserMessage: (conversation: Conversation, text: string) => void;
-  createAIMessage: (conversation: Conversation, text: string) => void;
-  addToAIMessage: (conversation: Conversation, text: string) => void;
-  finishAIMessage: (conversation: Conversation) => void;
-  resetConversation: (conversation: Conversation) => void;
+  file: TFile | null;
+  getSystemMessage: () => string;
 }) {
-  const dialogueRef = React.useRef<HTMLDivElement | null>(null);
   const arcana = useArcana();
+  const {
+    messages,
+    createUserMessage,
+    askQuestion,
+    resetConversation,
+    isAIReplying,
+    cancelAIMessage,
+  } = useConversation(getSystemMessage);
   // TODO: Trigger when you addToMessage
   /*
+    const dialogueRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
     // Scroll to bottom
     if (dialogueRef.current) {
@@ -32,37 +31,35 @@ function ConversationDialogue({
     }
   }, [conversation]);
   */
-  const askQuestion = async (question: string) => {
-    createAIMessage(conversation, 'ai');
-    const currentAborter = conversation.getCurrentAborter();
-    let firstAborted = false;
-    await conversation.aiConv
-      .askQuestion(
-        question,
-        (token: string) => {
-          if (currentAborter.isAborted()) {
-            if (!firstAborted) {
-              addToAIMessage(conversation, ' (message aborted) ');
-            }
-            firstAborted = true;
-            return;
-          }
-          addToAIMessage(conversation, token);
-        },
-        currentAborter.isAborted
-      )
-      .finally(() => {
-        finishAIMessage(conversation);
+
+  const onSubmitMessage = React.useCallback(
+    (e: any) => {
+      console.log('Pressed');
+      if (e.key == 'Enter' && !isAIReplying) {
+        const question = e.currentTarget.value;
+        e.currentTarget.value = '';
+        createUserMessage(question);
+        askQuestion(question);
+      }
+    },
+    [isAIReplying, askQuestion, createUserMessage]
+  );
+
+  const sendFileMessage = () => {
+    if (!isAIReplying) {
+      // Load the file
+      if (!file) {
+        new Notice('No file selected');
+        return;
+      }
+
+      arcana.app.vault.read(file).then(fileContents => {
+        const message = `Below is a document the user wants you to read. Once you have read, reply with "All read 👍." .\nTitle:${
+          file.basename
+        }\n${removeFrontMatter(fileContents)}`;
+        createUserMessage("I'm sending you a document to read");
+        askQuestion(message);
       });
-  };
-  const onSubmitMessage = async (e: any) => {
-    if (e.key == 'Enter' && !conversation.isMessageBeingWrittenBack()) {
-      const question = e.currentTarget.value;
-      // 1) Add the question to the conversation
-      createUserMessage(conversation, question);
-      e.currentTarget.value = '';
-      // 2) Ask the question to AI, streaming the response to the conversation
-      await askQuestion(question);
     }
   };
 
@@ -75,24 +72,23 @@ function ConversationDialogue({
           alignItems: 'center',
         }}
       >
-        <h2>{file.basename}</h2>
+        <button className="beautiful-button" onClick={() => sendFileMessage()}>
+          Send Note
+        </button>
         <button
           className="beautiful-button"
-          onClick={() => resetConversation(conversation)}
+          onClick={() => resetConversation()}
         >
           Reset
         </button>
       </div>
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <div className="dialogue" ref={dialogueRef}>
-          {Array.from(conversation.messages).map(([i, message]) => (
+        <div className="dialogue">
+          {messages.map((message, i) => (
             <div key={i}>
               <MessageView
                 message={message}
-                onCancel={() => {
-                  const aborter = conversation.getCurrentAborter();
-                  aborter.abort();
-                }}
+                onCancel={cancelAIMessage}
                 onCopy={() => {
                   // Write the message to the file
                   // Get the editor for the active file
@@ -127,7 +123,7 @@ function ConversationDialogue({
     </div>
   );
 }
-
+/*
 export default function ConversationManager({
   file,
   getSystemMessage,
@@ -204,3 +200,4 @@ export default function ConversationManager({
     </>
   );
 }
+*/

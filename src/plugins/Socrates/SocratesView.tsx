@@ -1,12 +1,10 @@
 import * as React from 'react';
 import { TFile } from 'obsidian';
 import { useArcana } from 'src/hooks/hooks';
-import ConversationManager from './ConversationDialogue';
+import { ConversationDialogue } from './ConversationDialogue';
 
 // A react component for the view
-export const SocratesView = (
-  createSystemMessage: (file: TFile) => Promise<string>
-) => {
+export const SocratesView = (getSystemMessage: () => string) => {
   const arcana = useArcana();
   const [file, setFile] = React.useState<TFile | null>(null);
 
@@ -32,7 +30,7 @@ export const SocratesView = (
       }}
     >
       <h1>Socrates 🔮</h1>
-      <ConversationManager file={file} getSystemMessage={createSystemMessage} />
+      <ConversationDialogue file={file} getSystemMessage={getSystemMessage} />
     </div>
   );
 };

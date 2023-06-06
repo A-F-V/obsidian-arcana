@@ -7,15 +7,8 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 export default class SocratesPlugin extends ViewPluginBase {
   private priorInstruction = '';
 
-  private async createSystemMessage(
-    arcana: ArcanaPlugin,
-    file: TFile
-  ): Promise<string> {
-    let text = await arcana.app.vault.read(file);
-    text = removeFrontMatter(text);
-    const title = file.basename;
-    console.log(`Prior instruction: ${this.priorInstruction}`);
-    return `The user has presented you with a file called ${title}. The file contains the following text:\n ${text}.\n${this.priorInstruction}`;
+  private getSystemMessage() {
+    return this.priorInstruction;
   }
 
   public addSettings(containerEl: HTMLElement) {
@@ -42,7 +35,7 @@ export default class SocratesPlugin extends ViewPluginBase {
 
   constructor(arcana: ArcanaPlugin) {
     super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () =>
-      SocratesView(this.createSystemMessage.bind(this, arcana))
+      SocratesView(this.getSystemMessage.bind(this))
     );
   }
 }
