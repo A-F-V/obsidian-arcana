@@ -16,7 +16,9 @@ export default class AIConversation {
   private chain: ConversationChain | null = null;
 
   private escapeCurlyBraces(text: string): string {
-    return text.replace(RegExp('{', 'g'), '{{').replace(RegExp('}', 'g'), '}}');
+    return new String(text)
+      .replace(RegExp('{', 'g'), '{{')
+      .replace(RegExp('}', 'g'), '}}');
   }
 
   // Never fires exception

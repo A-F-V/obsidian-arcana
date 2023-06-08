@@ -87,6 +87,11 @@ export function useConversation() {
             if (currentAborter.isAborted()) {
               if (!firstAborted) {
                 addToAIMessage(currentAIMessage, ' (message aborted) ');
+                setConvState({
+                  messageBeingWritten: false,
+                  currentAIMessage: null,
+                  currentAborter: new Aborter(),
+                });
               }
               firstAborted = true;
               return;

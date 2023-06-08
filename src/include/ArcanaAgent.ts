@@ -35,6 +35,6 @@ export class ArcanaAgent {
     aborter?: () => boolean
   ): Promise<string> {
     const conversation = this.startConversation(ctx);
-    return await conversation.askQuestion(query, handleTokens, aborter);
+    return conversation.askQuestion(query, handleTokens, aborter);
   }
 }
