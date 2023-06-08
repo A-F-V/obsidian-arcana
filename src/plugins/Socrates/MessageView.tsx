@@ -1,6 +1,8 @@
 import { Author, Message } from './Message';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import React from 'react';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export default function MessageView({
   message,
@@ -44,7 +46,9 @@ export default function MessageView({
           )}
         </div>
       </div>
-      <ReactMarkdown>{message.text}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+        {message.text}
+      </ReactMarkdown>
     </div>
   );
 }
