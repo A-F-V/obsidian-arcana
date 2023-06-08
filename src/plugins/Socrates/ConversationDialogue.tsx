@@ -35,13 +35,11 @@ export function ConversationDialogue({
 
   // Set timer for 2 seconds to wait for settings to load
   React.useEffect(() => {
-    console.log(systemMessage);
     setConversationContext(systemMessage);
   }, [systemMessage]);
 
   const onSubmitMessage = React.useCallback(
     (e: any) => {
-      console.log('Pressed');
       if (e.key == 'Enter' && !isAIReplying) {
         const question = e.currentTarget.value;
         e.currentTarget.value = '';

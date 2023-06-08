@@ -7,7 +7,7 @@ import {
   SystemMessagePromptTemplate,
   MessagesPlaceholder,
 } from 'langchain/prompts';
-import { BufferMemory } from 'langchain/memory';
+import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
 
 export default class AIConversation {
@@ -16,7 +16,7 @@ export default class AIConversation {
   private chain: ConversationChain | null = null;
 
   private escapeCurlyBraces(text: string): string {
-    return text.replace('{', '{{').replace('}', '}}');
+    return text.replace(RegExp('{', 'g'), '{{').replace(RegExp('}', 'g'), '}}');
   }
 
   // Never fires exception
@@ -47,6 +47,7 @@ export default class AIConversation {
 
   private async engage() {
     try {
+      console.log(this.conversationContext);
       const chatPrompt = ChatPromptTemplate.fromPromptMessages([
         SystemMessagePromptTemplate.fromTemplate(this.conversationContext),
         new MessagesPlaceholder('history'),
@@ -54,9 +55,10 @@ export default class AIConversation {
       ]);
 
       this.chain = new ConversationChain({
-        memory: new BufferMemory({
+        memory: new BufferWindowMemory({
           returnMessages: true,
           memoryKey: 'history',
+          k: 12,
         }),
         prompt: chatPrompt,
         llm: this.fetchModel(true),
