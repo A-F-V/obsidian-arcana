@@ -17,7 +17,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
     containerEl.createEl('h2', { text: 'Arcana' });
 
     new Setting(containerEl)
-      .setName('OpenAI API Key')
+      .setName('OpenAI API key')
       .setDesc('Your OpenAI API key')
       .addText(text =>
         text
@@ -30,7 +30,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName('Model Type')
+      .setName('Model type')
       .setDesc('The model to use for generating text')
       .addDropdown(dropdown => {
         dropdown
