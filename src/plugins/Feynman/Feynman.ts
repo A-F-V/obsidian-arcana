@@ -122,9 +122,9 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Feynman Flashcards' });
+    containerEl.createEl('h2', { text: 'Feynman' });
     new Setting(containerEl)
-      .setName('Feynman Flashcard Folder')
+      .setName('Feynman flashcard folder')
       .setDesc('The folder where the flashcards will be stored')
       .addText(text => {
         text

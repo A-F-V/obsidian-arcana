@@ -64,9 +64,9 @@ export default class ChristiePlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Christie Write' });
+    containerEl.createEl('h2', { text: 'Christie' });
     new Setting(containerEl)
-      .setName("Christie's System Message")
+      .setName("Christie's system message")
       .setDesc('The prior instruction given to Christie')
       .addTextArea(text => {
         text

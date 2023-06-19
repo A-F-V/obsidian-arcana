@@ -26,7 +26,7 @@ export default class SocratesPlugin extends ViewPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Socrates Think' });
+    containerEl.createEl('h2', { text: 'Socrates' });
 
     new Setting(containerEl)
       .setName("Socrates's System Message")

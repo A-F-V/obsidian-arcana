@@ -14,7 +14,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl('h2', { text: 'Arcana Settings' });
+    containerEl.createEl('h2', { text: 'Arcana' });
 
     new Setting(containerEl)
       .setName('OpenAI API Key')
