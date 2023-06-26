@@ -1,4 +1,4 @@
-*This plugin is not yet available on the obisidan plugin marketplace but a request for publishing has been made. Check back soon!*
+*Upcoming: LLM Tools like Web Search and Calculator*
 
 # 🔮 Enter the Arcana
 
