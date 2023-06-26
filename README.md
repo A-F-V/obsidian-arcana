@@ -14,7 +14,7 @@
 
 ## Usage:
 
-- **OpenAI API key required** - set in settings.
+- **[OpenAI API key](https://platform.openai.com/account/api-keys) required** - set in settings.
 - Most tools are invoked using the command palette and searching either `Arcana` or the person's name.
 - Some tools add a view in the sidebar to interact with.
 
