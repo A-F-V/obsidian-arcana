@@ -2,7 +2,7 @@ import ArcanaPlugin from 'src/main';
 import { ItemView } from 'obsidian';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import { Root, createRoot } from 'react-dom/client';
 import { ArcanaContext } from 'src/hooks/context';
 
 // The general boiler plate for creating an obsidian view
@@ -12,7 +12,7 @@ export class ObsidianView extends ItemView {
   private viewType: string;
   private iconName: string;
   private displayText: string;
-  private rootUnmount: () => void;
+  private root: Root | null = null;
 
   constructor(
     leaf: any,
@@ -43,9 +43,9 @@ export class ObsidianView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
-    const root = createRoot(this.containerEl.children[1]);
+    this.root = createRoot(this.containerEl.children[1]);
 
-    root.render(
+    this.root.render(
       <React.StrictMode>
         <ArcanaContext.Provider value={this.arcana}>
           {React.createElement(this.view)}
@@ -55,7 +55,9 @@ export class ObsidianView extends ItemView {
   }
 
   destroy(): void {
-    ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+    if (this.root) {
+      this.root.unmount();
+    }
   }
   async onClose(): Promise<void> {
     this.destroy();
