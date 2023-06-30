@@ -1,10 +1,10 @@
 import ArcanaPlugin from 'src/main';
-import Aborter from './Aborter';
+import SerializableAborter from './Aborter';
 import { Editor, EditorPosition } from 'obsidian';
 
 abstract class TokenAbortRule {
-  protected aborter: Aborter;
-  constructor(aborter: Aborter) {
+  protected aborter: SerializableAborter;
+  constructor(aborter: SerializableAborter) {
     this.aborter = aborter;
   }
 
@@ -14,11 +14,11 @@ abstract class TokenAbortRule {
 }
 
 export class AbortableTokenHandler {
-  public aborter: Aborter;
+  public aborter: SerializableAborter;
   private handler: (token: string) => void;
   private abortRules = new Array<TokenAbortRule>();
 
-  constructor(aborter: Aborter, handler: (token: string) => void) {
+  constructor(aborter: SerializableAborter, handler: (token: string) => void) {
     this.aborter = aborter;
     this.handler = handler;
   }
@@ -42,7 +42,7 @@ export class AbortableTokenHandler {
 
 export class EscAbortRule extends TokenAbortRule {
   private cleanUp: () => void;
-  constructor(aborter: Aborter, arcana: ArcanaPlugin) {
+  constructor(aborter: SerializableAborter, arcana: ArcanaPlugin) {
     super(aborter);
 
     const escapeHandler = (event: KeyboardEvent) => {
@@ -75,7 +75,7 @@ export class CursorMoveAbortRule extends TokenAbortRule {
   private editor: Editor;
   private lastEditorPosition: EditorPosition | null;
 
-  constructor(aborter: Aborter, editor: Editor) {
+  constructor(aborter: SerializableAborter, editor: Editor) {
     super(aborter);
     this.editor = editor;
   }
@@ -95,7 +95,7 @@ export class CursorMoveAbortRule extends TokenAbortRule {
 
 export class EditorAbortableTokenHandler extends AbortableTokenHandler {
   constructor(
-    aborter: Aborter,
+    aborter: SerializableAborter,
     handler: (token: string) => void,
     editor: Editor,
     arcana: ArcanaPlugin

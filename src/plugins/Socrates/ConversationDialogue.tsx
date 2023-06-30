@@ -1,27 +1,18 @@
 import { MarkdownView, Notice, TFile } from 'obsidian';
-import { useConversation } from './Conversation';
 import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 export function ConversationDialogue({
-  file,
+  current_file,
   systemMessage,
 }: {
-  file: TFile | null;
+  current_file: TFile | null;
   systemMessage: string;
 }) {
-  const arcana = useArcana();
-  const {
-    messages,
-    createUserMessage,
-    askQuestion,
-    resetConversation,
-    setConversationContext,
-    isAIReplying,
-    cancelAIMessage,
-  } = useConversation();
+  //const arcana = useArcana();
+
   // TODO: Trigger when you addToMessage
   /*
     const dialogueRef = React.useRef<HTMLDivElement | null>(null);
@@ -34,6 +25,7 @@ export function ConversationDialogue({
   */
 
   // Set timer for 2 seconds to wait for settings to load
+  /*
   React.useEffect(() => {
     setConversationContext(systemMessage);
   }, [systemMessage]);
@@ -52,15 +44,15 @@ export function ConversationDialogue({
 
   const sendFileMessage = () => {
     if (!isAIReplying) {
-      // Load the file
-      if (!file) {
-        new Notice('No file selected');
+      // Load the current_file
+      if (!current_file) {
+        new Notice('No current_file selected');
         return;
       }
 
-      arcana.app.vault.read(file).then(fileContents => {
+      arcana.app.vault.read(current_file).then(fileContents => {
         const message = `Below is a document the user wants you to read. Once you have read, reply with "All read 👍." .\nTitle:${
-          file.basename
+          current_file.basename
         }\n${removeFrontMatter(fileContents)}`;
         createUserMessage("I'm sending you a document to read");
         askQuestion(message);
@@ -95,8 +87,8 @@ export function ConversationDialogue({
                 message={message}
                 onCancel={cancelAIMessage}
                 onCopy={() => {
-                  // Write the message to the file
-                  // Get the editor for the active file
+                  // Write the message to the current_file
+                  // Get the editor for the active current_file
                   const mdView = arcana.app.workspace.getMostRecentLeaf()
                     ?.view as MarkdownView;
                   if (mdView) {
@@ -127,4 +119,6 @@ export function ConversationDialogue({
       </div>
     </div>
   );
+  */
+  return <div></div>;
 }

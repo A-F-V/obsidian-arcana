@@ -11,7 +11,7 @@ import FeynmanPlugin from './plugins/Feynman/Feynman';
 import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
-import AIConversation from './Conversation';
+import AIFeed from './AIFeed';
 
 const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
   OPEN_AI_API_KEY: '',
@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
   private openResource: (() => void)[] = [];
-  public startConversation: (conversationContext: string) => AIConversation;
+  public startFeed: (conversationContext: string) => AIFeed;
   public complete: (
     query: string,
     ctx?: string,
@@ -46,7 +46,7 @@ export default class ArcanaPlugin extends Plugin {
   async onload() {
     // Load the agent
     this.agent = new ArcanaAgent(this);
-    this.startConversation = this.agent.startConversation.bind(this.agent);
+    this.startFeed = this.agent.startFeed.bind(this.agent);
     this.complete = this.agent.complete.bind(this.agent);
 
     // Set up the settings

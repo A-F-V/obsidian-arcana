@@ -9,26 +9,29 @@ import {
 } from 'langchain/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
+import ArcanaPlugin from './main';
+import ArcanaSettings from './include/ArcanaSettings';
+import SerializableAborter from './include/Aborter';
+import { escapeCurlyBraces } from './include/TextPostProcesssing';
 
-export default class AIConversation {
-  private fetchModel: (streaming: boolean) => ChatOpenAI;
+class ConvState {
+  currentAborter: AbortController = new AbortController();
+  engaged = false;
+}
+
+export default class AIFeed {
+  private settings: ArcanaSettings;
+
+  private convState: ConvState = new ConvState();
   private conversationContext: string;
+
   private chain: ConversationChain | null = null;
 
-  private escapeCurlyBraces(text: string): string {
-    return new String(text)
-      .replace(RegExp('{', 'g'), '{{')
-      .replace(RegExp('}', 'g'), '}}');
-  }
-
   // Never fires exception
-  constructor(
-    fetchModel: (streaming: boolean) => ChatOpenAI,
-    conversationContext: string
-  ) {
-    this.fetchModel = fetchModel;
+  constructor(aiSettings: ArcanaSettings, conversationContext: string) {
+    this.settings = aiSettings;
     // Clean
-    this.conversationContext = this.escapeCurlyBraces(conversationContext);
+    this.conversationContext = escapeCurlyBraces(conversationContext);
   }
 
   private handleErrors(e: Error) {
@@ -47,9 +50,23 @@ export default class AIConversation {
     throw e;
   }
 
+  private getLLM(streaming = true): ChatOpenAI {
+    const apiKey = this.settings.OPEN_AI_API_KEY;
+    const model = this.settings.MODEL_TYPE;
+    const temperature = this.settings.TEMPERATURE;
+    const topP = this.settings.TOP_P;
+    return new ChatOpenAI({
+      openAIApiKey: apiKey,
+      modelName: model,
+      temperature: temperature,
+      topP: topP,
+      streaming: streaming,
+      maxRetries: 0,
+    });
+  }
+
   private async engage() {
     try {
-      console.log(this.conversationContext);
       const chatPrompt = ChatPromptTemplate.fromPromptMessages([
         SystemMessagePromptTemplate.fromTemplate(this.conversationContext),
         new MessagesPlaceholder('history'),
@@ -63,55 +80,67 @@ export default class AIConversation {
           k: 12,
         }),
         prompt: chatPrompt,
-        llm: this.fetchModel(true),
+        llm: this.getLLM(true),
       });
 
       // Test if the AI is working
       await this.sendTestMessage();
+
+      this.convState = new ConvState();
+      this.convState.engaged = true;
     } catch (e) {
       this.handleErrors(e);
     }
   }
 
   private async sendTestMessage() {
-    this.fetchModel(false).call([
+    this.getLLM(false).call([
       new HumanChatMessage('This is a test of the API. Does it work?'),
     ]);
   }
 
   public disengage() {
     this.chain = null;
+    this.convState = new ConvState();
   }
 
   private isEngaged(): boolean {
-    return this.chain !== null;
+    return this.convState.engaged;
   }
 
   public setContext(context: string) {
-    this.conversationContext = this.escapeCurlyBraces(context);
+    this.conversationContext = escapeCurlyBraces(context);
   }
+
+  public abortQuestion() {
+    this.convState.currentAborter.abort();
+  }
+
   async askQuestion(
     question: string,
-    handleToken?: (token: string) => void,
-    aborter?: () => boolean
-  ): Promise<string> {
-    // Engage if not engaged
-    if (!this.isEngaged()) {
-      await this.engage();
+    onToken?: (token: string) => void,
+    onAborted?: () => void
+  ): Promise<string | null> {
+    if (this.isEngaged()) {
+      return null;
     }
+
+    this.engage();
+
     const handleErrors = this.handleErrors;
     // Escape curly braces
-    question = this.escapeCurlyBraces(question);
+    question = escapeCurlyBraces(question);
     // Make the call
     const response = await this.chain!.call(
       {
         input: question,
+        signal: this.convState.currentAborter.signal,
       },
       [
         {
           handleLLMNewToken(token: string) {
-            if (handleToken) {
-              handleToken(token);
+            if (onToken) {
+              onToken(token);
             }
           },
           handleLLMError(err, runId, parentRunId) {
@@ -121,10 +150,36 @@ export default class AIConversation {
       ]
     );
 
+    if (this.convState.currentAborter.signal.aborted && onAborted) {
+      onAborted();
+    }
+
+    this.disengage();
+
     return response.response;
   }
 
   public getContext(): string {
     return this.conversationContext;
+  }
+}
+
+export class AIFeedRegistery {
+  // AgentName to Conversation
+  private static feeds: Map<string, AIFeed> = new Map<string, AIFeed>();
+
+  public static createFeedIfDoesNotExist(
+    arcana: ArcanaPlugin,
+    name: string
+  ): AIFeed {
+    let conv = this.getConversation(name);
+    if (conv) return conv;
+    conv = arcana.startFeed(name);
+    this.feeds.set(name, conv);
+    return conv;
+  }
+
+  public static getConversation(name: string): AIFeed | null {
+    return this.feeds.get(name) ?? null;
   }
 }

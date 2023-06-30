@@ -6,7 +6,7 @@ import {
 } from 'src/utilities/DocumentCleaner';
 import QuestionModal from 'src/components/QuestionModal';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
-import Aborter from 'src/include/Aborter';
+import SerializableAborter from 'src/include/Aborter';
 import { moveToEndOfLine } from 'src/include/CursorMover';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
@@ -42,7 +42,7 @@ export default class ChristiePlugin extends ArcanaPluginBase {
               editor.replaceSelection('\n');
             }
 
-            const aborter = new Aborter();
+            const aborter = new SerializableAborter();
 
             const abortableHandler = new EditorAbortableTokenHandler(
               aborter,

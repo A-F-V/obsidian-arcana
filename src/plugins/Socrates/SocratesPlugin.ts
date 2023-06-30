@@ -1,4 +1,5 @@
 import { Setting, TFile } from 'obsidian';
+import AIFeed from 'src/AIFeed';
 import ViewPluginBase from 'src/components/ViewPluginBase';
 import ArcanaPlugin from 'src/main';
 import { SocratesView } from 'src/plugins/Socrates/SocratesView';
@@ -7,12 +8,16 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 export default class SocratesPlugin extends ViewPluginBase {
   private settings = {
     priorInstruction: '',
-    usingWeb: false,
-    serpApiToken: '',
+    //  usingWeb: false,
+    //  serpApiToken: '',
+    agent_folder: 'Arcana/Agents',
   };
 
   private getPriorInstruction(): string {
     return this.settings.priorInstruction;
+  }
+  private getAgentFolder(): string {
+    return this.settings.agent_folder;
   }
 
   public async onload(): Promise<void> {
@@ -20,8 +25,9 @@ export default class SocratesPlugin extends ViewPluginBase {
 
     this.settings = this.arcana.settings.PluginSettings['Socrates'] ?? {
       priorInstruction: '',
-      usingWeb: false,
-      serpApiToken: '',
+      // usingWeb: false,
+      // serpApiToken: '',
+      agent_folder: 'Arcana/Agents',
     };
   }
 
@@ -42,6 +48,20 @@ export default class SocratesPlugin extends ViewPluginBase {
           });
       });
 
+    new Setting(containerEl)
+      .setName('Conversation Agent Folder')
+      .setDesc('The folder from which to load conversation agent templates.')
+      .addText(text => {
+        text
+          .setPlaceholder('')
+          .setValue(this.settings.agent_folder)
+          .onChange(async (value: string) => {
+            this.settings.agent_folder = value;
+            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
+            await this.arcana.saveSettings();
+          });
+      });
+    /*
     new Setting(containerEl)
       .setName('With Web Search')
       .setDesc('Whether to give Socrates access to the web')
@@ -68,11 +88,12 @@ export default class SocratesPlugin extends ViewPluginBase {
           });
       });
     //.setDisabled(!this.settings.usingWeb);
+    */
   }
 
   constructor(arcana: ArcanaPlugin) {
     super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () =>
-      SocratesView(this.getPriorInstruction.bind(this))
+      SocratesView(arcana, this.getAgentFolder.bind(this))
     );
   }
 }

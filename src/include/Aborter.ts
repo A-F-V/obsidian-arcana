@@ -1,19 +1,19 @@
-export default class Aborter {
-  private abortController: AbortController;
+export default class SerializableAborter {
+  private aborted = false;
 
   constructor() {
-    this.abortController = new AbortController();
+    this.reset();
   }
 
   public abort() {
-    this.abortController.abort();
+    this.aborted = true;
   }
 
   public isAborted(): boolean {
-    return this.abortController.signal.aborted;
+    return this.aborted;
   }
 
   public reset() {
-    this.abortController = new AbortController();
+    this.aborted = false;
   }
 }

@@ -17,7 +17,7 @@ import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import QuestionModal from 'src/components/QuestionModal';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import { moveToEndOfFile } from 'src/include/CursorMover';
-import Aborter from 'src/include/Aborter';
+import SerializableAborter from 'src/include/Aborter';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
@@ -91,7 +91,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
 
             // Place cursor at the end of the file
             newEditor.setCursor(newEditor.lastLine(), 0);
-            const aborter = new Aborter();
+            const aborter = new SerializableAborter();
             const abortHandler = new EditorAbortableTokenHandler(
               aborter,
               newEditor.replaceSelection.bind(newEditor),
