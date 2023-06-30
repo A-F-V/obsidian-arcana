@@ -40,8 +40,11 @@
 ![](gifs/Socrates.gif)
 
 ### Adding Custom Chat Agents
-You can create new agents like Socrates that are specialized for your own use cases and are always ready to talk with you.
-In order to create a new agent, add a new file to the `Conversation Agent Folder` specified in settings.
+You can create new agents like Socrates that are specialized for your own use cases. 
+
+For example, bring **Aristotle**, the teacher of Alexander the Greater, to life by using [Mr Ranedeer's AI Tutor Prompt](https://github.com/JushBJJ/Mr.-Ranedeer-AI-Tutor) as the initial message.
+
+To create a new agent, add a new file to the `Conversation Agent Folder` specified in settings.
 1) The agent's **name** is the name of the file. Names must be unique and cannot be the same as **Socrates**
 2) The agent's **initial message** is the body of the file.
 3) For additional agent settings, see the below table:
