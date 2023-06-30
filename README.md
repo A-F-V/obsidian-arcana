@@ -1,5 +1,6 @@
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/AFV7)
 
+[Looking for Collaborators](#collaborating)
 # 🔮 Enter the Arcana
 
 > A plugin for [Obsidian](https://obsidian.md/)
@@ -7,6 +8,7 @@
 **Arcana** is a collection of AI powered tools designed to help you be more creative and productive with your Obsidian vault. Each tool is inspired by a famous historical figure:
 
 - [Socrates](#socrates) - **Conversation**
+  - [Students of Socrates](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
@@ -36,6 +38,18 @@
 - Ask questions specific to the note currently open.
 
 ![](gifs/Socrates.gif)
+
+### Adding Custom Chat Agents
+You can create new agents like Socrates that are specialized for your own use cases and are always ready to talk with you.
+In order to create a new agent, add a new file to the `Conversation Agent Folder` specified in settings.
+1) The agent's **name** is the name of the file. Names must be unique and cannot be the same as **Socrates**
+2) The agent's **initial message** is the body of the file.
+3) For additional agent settings, see the below table:
+
+| Setting ID | Setting Type | Description |
+| --- | --- | --- |
+| `arcana-agent-emoji` | Emoji | The emoji the agent will use for the conversation |
+| `arcana-user-emoji` | Emoji | The emoji the user will use for the conversation |
 
 ## Agatha Christie
 
@@ -94,8 +108,8 @@
 
 ---
 
-### Contributing:
-
+### Collaborating:
+**Actively Looking for Collaborators**
 If you would like to contribute or collaborate, message me directly on twitter [@AFV_7](https://twitter.com/AFV_7) and we can talk :).
 
 ---
