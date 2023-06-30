@@ -84,9 +84,9 @@ function isSerializable(x: any) {
 }
 
 function ChatAgentReducer(state = initialState, action: ChatAgentAction) {
-  console.log('ChatAgentReducer', action, state);
-  console.log('isSerializable action', isSerializable(action));
-  console.log('isSerializable state', isSerializable(state));
+  //console.log('ChatAgentReducer', action, state);
+  //console.log('isSerializable action', isSerializable(action));
+  //console.log('isSerializable state', isSerializable(state));
   switch (action.type) {
     case 'agent/add': {
       const agent: AgentData = action.agent;
