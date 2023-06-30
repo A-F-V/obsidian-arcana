@@ -179,7 +179,6 @@ export const SocratesView = (
   };
 
   React.useEffect(() => {
-    console.log('Registering events');
     addSocrates();
     addAllAgentsInFolder();
 
@@ -191,7 +190,6 @@ export const SocratesView = (
     arcana.registerInterval(interval);
 
     return () => {
-      console.log('Unregistering events');
       arcana.app.vault.off('create', createAgent);
       arcana.app.vault.off('modify', onModify);
       arcana.app.vault.off('delete', onDelete);

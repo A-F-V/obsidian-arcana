@@ -25,11 +25,8 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
         const file = view.file;
         // Get the better name
         let betterName = await this.getBetterName(file);
-        // If the betterName does not include .md then add it
-        if (!betterName.endsWith('.md')) {
-          betterName += '.md';
-        }
-        // Get the parent folder of the file
+        betterName = this.normalizeTitle(betterName);
+
         const parentFolder = file.parent;
         const parentName = normalizePath(parentFolder?.path ?? '');
         // Join the parent folder and the better name
@@ -61,5 +58,15 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
     const question = `Old title - ${file.basename}\nNote contents:\n${contents}\n\nWhat is the new title?`;
 
     return await this.arcana.complete(question, context);
+  }
+
+  private normalizeTitle(title: string): string {
+    // Remove the extension
+    title = title.replace('.md', '');
+    // Remove slashes and colons
+    title = title.replace(/[:/\\]/g, '');
+    // Add extension back
+    title += '.md';
+    return title;
   }
 }
