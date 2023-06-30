@@ -103,7 +103,8 @@ export default class SocratesPlugin extends ViewPluginBase {
     return {
       name: 'Socrates',
       initialMessage: this.getPriorInstruction(),
-      emoji: '🤖',
+      agentEmoji: '🤖',
+      userEmoji: '😀',
     };
   }
 

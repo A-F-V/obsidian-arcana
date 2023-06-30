@@ -17,7 +17,7 @@ export default function AgentSelector({
       return Object.values(state.agents).map(({ agent }) => {
         return {
           value: agent.name,
-          label: `${agent.emoji} ${agent.name}`,
+          label: `${agent.agentEmoji} ${agent.name}`,
         };
       });
     }

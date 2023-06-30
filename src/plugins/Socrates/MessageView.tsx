@@ -27,7 +27,11 @@ export default function MessageView({
       <div style={{ fontSize: '1.25em' }}>
         <div style={{ display: 'flex' }}>
           <div style={{ flex: 1 }}>
-            <b>{!isAI ? '😀 You' : `${agent.emoji} ${agent.name}`}</b>
+            <b>
+              {!isAI
+                ? `${agent.userEmoji} You`
+                : `${agent.agentEmoji} ${agent.name}`}
+            </b>
           </div>
           {isAI && (
             <div>

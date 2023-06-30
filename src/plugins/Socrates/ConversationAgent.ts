@@ -9,32 +9,39 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 export type AgentData = {
   name: string;
   initialMessage: string;
-  emoji: string;
+  agentEmoji: string;
+  userEmoji: string;
 };
 
 export class AgentDataLoader {
   private static defaultAgentEmoji = '🤖';
+  private static defaultUserEmoji = '😀';
 
   public static async fromFile(
     arcana: ArcanaPlugin,
     file: TFile
   ): Promise<AgentData | null> {
     const fmm = new FrontMatterManager(arcana);
-    const name = file.basename;
 
+    // Agent name is name of the file
+    const name = file.basename;
     if (!name || name == 'Socrates') return null;
 
-    let emoji =
+    // Agent Emoji
+    let agentEmoji =
       (await fmm.get<string>(file, 'arcana-agent-emoji')) ??
       this.defaultAgentEmoji;
+    if (!isEmoji(agentEmoji)) agentEmoji = this.defaultAgentEmoji;
+    // User Emoji
+    let userEmoji =
+      (await fmm.get<string>(file, 'arcana-user-emoji')) ??
+      this.defaultUserEmoji;
 
-    console.log(emoji);
+    if (!isEmoji(userEmoji)) userEmoji = this.defaultUserEmoji;
 
-    if (!isEmoji(emoji)) emoji = this.defaultAgentEmoji;
     // initial message is the contents of the file
-
     const initialMessage = removeFrontMatter(await arcana.app.vault.read(file));
 
-    return { name, initialMessage, emoji };
+    return { name, initialMessage, agentEmoji, userEmoji };
   }
 }
