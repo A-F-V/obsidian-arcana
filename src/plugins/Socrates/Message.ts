@@ -1,17 +1,18 @@
 export class Message {
   text: string;
+  author: Author;
+}
+export class MessageManager {
+  private message: Message;
   addText(addition: string) {
-    this.text += addition;
+    this.message.text += addition;
   }
   clearText() {
-    this.text = '';
+    this.message.text = '';
   }
 
-  author: Author;
-
-  public constructor(author: Author) {
-    this.author = author;
-    this.text = '';
+  public constructor(message: Message) {
+    this.message = message;
   }
 }
 

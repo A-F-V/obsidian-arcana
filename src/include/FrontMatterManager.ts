@@ -21,7 +21,7 @@ export default class FrontMatterManager {
       frontMatter.arcana = Object.fromEntries(arcanaFrontMatter.entries());
     });
   }
-
+  /*
   async getArcana(file: TFile, key: string): Promise<any | null> {
     let result = null;
     await this.processFrontMatter(file, (arcanaData: any) => {
@@ -35,7 +35,7 @@ export default class FrontMatterManager {
       arcanaData.set(key, value);
     });
   }
-
+  */
   async set(file: TFile, key: string, value: any): Promise<void> {
     await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
       frontMatter[key] = value;
