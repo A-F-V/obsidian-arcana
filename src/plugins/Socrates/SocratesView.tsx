@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { MarkdownEditView, TFile, TFolder, WorkspaceLeaf } from 'obsidian';
 import { useArcana } from 'src/hooks/hooks';
 import { ConversationDialogue } from './ConversationDialogue';
 import ArcanaPlugin from 'src/main';
@@ -9,20 +9,52 @@ import { useSelector, useDispatch } from 'react-redux';
 import { AgentData, AgentDataLoader } from './ConversationAgent';
 import AgentSelector from './AgentSelector';
 import { getBaseName } from 'src/include/TextPostProcesssing';
+import { AIFeedRegistery } from 'src/AIFeed';
 
 function SocratesInnerView() {
   const [currentAgent, setCurrentAgent] = React.useState<string | null>(null);
+  const [currentFile, setCurrentFile] = React.useState<TFile | null>(null);
+  const arcana = useArcana();
 
+  const setCurrentFileFromLeaf = () => {
+    setCurrentFile(arcana.app.workspace.getActiveFile());
+  };
+
+  // Handles the current file changing
   React.useEffect(() => {
-    if (currentAgent) {
-      console.log(`Current agent is ${currentAgent}`);
-    }
-  }, [currentAgent]);
+    // Activate
+    arcana.registerEvent(
+      arcana.app.workspace.on('active-leaf-change', setCurrentFileFromLeaf)
+    );
+    return () => {
+      // Deactivate
+      arcana.app.workspace.off('active-leaf-change', setCurrentFileFromLeaf);
+    };
+  }, []);
 
   return (
-    <div>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        userSelect: 'text',
+      }}
+    >
       <AgentSelector setCurrentAgent={setCurrentAgent} />
-      {currentAgent ? <h1>{currentAgent}</h1> : <h1>No Agent Selected</h1>}
+      {currentAgent ? (
+        <>
+          <h1>{currentAgent}</h1>
+          <ConversationDialogue
+            agentName={currentAgent}
+            current_file={currentFile}
+          />
+        </>
+      ) : (
+        <h1>No Agent Selected</h1>
+      )}
     </div>
   );
 }
@@ -39,11 +71,6 @@ export const SocratesView = (
   //   })
   // );
   //// Activate
-  //arcana.app.workspace.on('active-leaf-change', setCurrentFile);
-  //// Deactivate
-  //arcana.registerResource(() =>
-  //  arcana.app.workspace.off('active-leaf-change', setCurrentFile)
-  //);
 
   // Set periodic timer to update system message
   //React.useEffect(() => {
@@ -65,12 +92,14 @@ export const SocratesView = (
     if (isAgentFile(file)) {
       AgentDataLoader.fromFile(arcana, file).then(
         (agentData: AgentData | null) => {
-          if (agentData != null)
+          if (agentData != null) {
+            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
+
             store.dispatch({
               type: 'agent/add',
               agent: agentData,
-              chat_id: 1,
             });
+          }
         }
       );
     }
@@ -80,13 +109,15 @@ export const SocratesView = (
     if (isAgentFile(file)) {
       AgentDataLoader.fromFile(arcana, file).then(
         (agentData: AgentData | null) => {
-          if (agentData != null)
+          if (agentData != null) {
+            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
+
             store.dispatch({
               type: 'agent/update',
               agent: agentData,
               old_name: getBaseName(file.basename),
             });
-          else
+          } else
             store.dispatch({
               type: 'agent/remove',
               name: getBaseName(file.basename),
@@ -106,13 +137,14 @@ export const SocratesView = (
     if (isAgentFile(file)) {
       AgentDataLoader.fromFile(arcana, file).then(
         (agentData: AgentData | null) => {
-          if (agentData != null)
+          if (agentData != null) {
+            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
             store.dispatch({
               type: 'agent/update',
               agent: agentData,
               old_name: getBaseName(oldPath),
             });
-          else
+          } else
             store.dispatch({
               type: 'agent/remove',
               name: getBaseName(oldPath),
@@ -130,6 +162,7 @@ export const SocratesView = (
   };
   const addSocrates = () => {
     const socrates = getSocrates();
+    AIFeedRegistery.createFeedIfDoesNotExist(arcana, 'Socrates');
     store.dispatch({
       type: 'agent/add',
       agent: socrates,
@@ -167,20 +200,9 @@ export const SocratesView = (
     };
   }, []);
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        userSelect: 'text',
-      }}
-    >
-      <Provider store={store}>
-        <SocratesInnerView />
-      </Provider>
-    </div>
+    <Provider store={store}>
+      <SocratesInnerView />
+    </Provider>
   );
 };
 //<h1>Socrates 🔮</h1>

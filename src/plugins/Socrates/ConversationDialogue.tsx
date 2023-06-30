@@ -3,50 +3,97 @@ import MessageView from './MessageView';
 import React from 'react';
 import { useArcana } from 'src/hooks/hooks';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
+import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
+import { Message } from './Message';
 
 export function ConversationDialogue({
   current_file,
-  systemMessage,
+  agentName,
 }: {
   current_file: TFile | null;
-  systemMessage: string;
+  agentName: string;
 }) {
-  //const arcana = useArcana();
-
-  // TODO: Trigger when you addToMessage
-  /*
-    const dialogueRef = React.useRef<HTMLDivElement | null>(null);
-  React.useEffect(() => {
-    // Scroll to bottom
-    if (dialogueRef.current) {
-      dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
-    }
-  }, [conversation]);
-  */
-
-  // Set timer for 2 seconds to wait for settings to load
-  /*
-  React.useEffect(() => {
-    setConversationContext(systemMessage);
-  }, [systemMessage]);
-
-  const onSubmitMessage = React.useCallback(
-    (e: any) => {
-      if (e.key == 'Enter' && !isAIReplying) {
-        const question = e.currentTarget.value;
-        e.currentTarget.value = '';
-        createUserMessage(question);
-        askQuestion(question);
-      }
-    },
-    [isAIReplying, askQuestion, createUserMessage]
+  const arcana = useArcana();
+  const { agent, messages } = useSelector(
+    (state: ChatAgentState) => state.agents[agentName]
   );
+  const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
+  const dispatch = useDispatch<StoreDispatch>();
 
+  React.useEffect(() => {
+    new Notice(`Agent ${agentName} selected`);
+    // Load the AI Feed
+
+    const aiFeed = AIFeedRegistery.getFeed(agentName);
+    if (!aiFeed) {
+      new Notice(`No AI Feed for ${agentName}`);
+      return;
+    }
+    setAIFeed(aiFeed);
+  }, [agentName]);
+
+  // Sets the initial message whenever it changes
+  React.useEffect(() => {
+    if (aiFeed) {
+      aiFeed.setContext(agent.initialMessage);
+    }
+  }, [aiFeed, agent.initialMessage]);
+
+  const resetConversation = () => {
+    dispatch({
+      type: ChatActionTypes.RESET_AGENT_CONVERSATION,
+      agentName,
+    });
+
+    aiFeed?.disconnect();
+  };
+  const cancelAIMessage = () => {
+    aiFeed?.abortCurrentQuestion();
+  };
+  const createAIMessage = () => {
+    dispatch({
+      type: ChatActionTypes.CREATE_AI_MESSAGE,
+      agentName,
+    });
+  };
+  const addToAIMessage = (text: string) => {
+    dispatch({
+      type: ChatActionTypes.APPEND_TO_LAST_AI_MESSAGE,
+      agentName,
+      text,
+    });
+  };
+
+  const askQuestion = (question: string) => {
+    if (aiFeed) {
+      createAIMessage();
+      aiFeed.askQuestion(question, addToAIMessage);
+    }
+  };
+
+  const createUserMessage = (message: string) => {
+    dispatch({
+      type: ChatActionTypes.CREATE_USER_MESSAGE,
+      agentName,
+      text: message,
+    });
+  };
+
+  const onSubmitMessage = (e: any) => {
+    if (e.key == 'Enter' && aiFeed && !aiFeed.isQuestionBeingAsked()) {
+      const question = e.currentTarget.value;
+      e.currentTarget.value = '';
+      createUserMessage(question);
+      askQuestion(question);
+    }
+  };
   const sendFileMessage = () => {
-    if (!isAIReplying) {
+    if (aiFeed) {
       // Load the current_file
       if (!current_file) {
-        new Notice('No current_file selected');
+        new Notice('No file selected');
         return;
       }
 
@@ -59,7 +106,6 @@ export function ConversationDialogue({
       });
     }
   };
-
   return (
     <div className="conversation">
       <div
@@ -85,8 +131,10 @@ export function ConversationDialogue({
             <div key={i}>
               <MessageView
                 message={message}
+                agent={agent}
                 onCancel={cancelAIMessage}
                 onCopy={() => {
+                  // TODO: Clean up
                   // Write the message to the current_file
                   // Get the editor for the active current_file
                   const mdView = arcana.app.workspace.getMostRecentLeaf()
@@ -119,6 +167,6 @@ export function ConversationDialogue({
       </div>
     </div>
   );
-  */
+
   return <div></div>;
 }

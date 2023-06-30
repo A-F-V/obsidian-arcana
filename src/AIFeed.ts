@@ -15,14 +15,19 @@ import SerializableAborter from './include/Aborter';
 import { escapeCurlyBraces } from './include/TextPostProcesssing';
 
 class ConvState {
+  connected = false;
+}
+
+class QuestionState {
   currentAborter: AbortController = new AbortController();
-  engaged = false;
+  abortAcknowledged = false;
 }
 
 export default class AIFeed {
   private settings: ArcanaSettings;
 
   private convState: ConvState = new ConvState();
+  private currentQuestionState: QuestionState | null = null;
   private conversationContext: string;
 
   private chain: ConversationChain | null = null;
@@ -46,7 +51,7 @@ export default class AIFeed {
     new Notice(errorMessage);
     console.error(errorMessage);
 
-    this.disengage();
+    this.disconnect();
     throw e;
   }
 
@@ -64,8 +69,7 @@ export default class AIFeed {
       maxRetries: 0,
     });
   }
-
-  private async engage() {
+  private async connect() {
     try {
       const chatPrompt = ChatPromptTemplate.fromPromptMessages([
         SystemMessagePromptTemplate.fromTemplate(this.conversationContext),
@@ -86,11 +90,20 @@ export default class AIFeed {
       // Test if the AI is working
       await this.sendTestMessage();
 
-      this.convState = new ConvState();
-      this.convState.engaged = true;
+      this.convState = { ...new ConvState(), connected: true };
     } catch (e) {
       this.handleErrors(e);
     }
+  }
+
+  public disconnect() {
+    this.chain = null;
+    this.convState = new ConvState();
+    this.currentQuestionState = null;
+  }
+
+  public isConnected(): boolean {
+    return this.convState.connected;
   }
 
   private async sendTestMessage() {
@@ -99,21 +112,16 @@ export default class AIFeed {
     ]);
   }
 
-  public disengage() {
-    this.chain = null;
-    this.convState = new ConvState();
-  }
-
-  private isEngaged(): boolean {
-    return this.convState.engaged;
-  }
-
   public setContext(context: string) {
     this.conversationContext = escapeCurlyBraces(context);
   }
 
-  public abortQuestion() {
-    this.convState.currentAborter.abort();
+  public abortCurrentQuestion() {
+    this.currentQuestionState?.currentAborter.abort();
+  }
+
+  public isQuestionBeingAsked(): boolean {
+    return this.currentQuestionState !== null;
   }
 
   async askQuestion(
@@ -121,24 +129,40 @@ export default class AIFeed {
     onToken?: (token: string) => void,
     onAborted?: () => void
   ): Promise<string | null> {
-    if (this.isEngaged()) {
+    // Must be connected
+    if (!this.isConnected()) {
+      await this.connect();
+    }
+    // Cannot ask question while another is being asked
+    if (this.isQuestionBeingAsked()) {
       return null;
     }
-
-    this.engage();
 
     const handleErrors = this.handleErrors;
     // Escape curly braces
     question = escapeCurlyBraces(question);
     // Make the call
+
+    const state = new QuestionState();
+    this.currentQuestionState = state;
+    const stopAsking = (() => {
+      this.currentQuestionState = null;
+    }).bind(this);
+
     const response = await this.chain!.call(
       {
         input: question,
-        signal: this.convState.currentAborter.signal,
       },
       [
         {
           handleLLMNewToken(token: string) {
+            if (state.abortAcknowledged) return;
+            if (state.currentAborter.signal.aborted) {
+              state.abortAcknowledged = true;
+              stopAsking();
+              onAborted?.();
+              return;
+            }
             if (onToken) {
               onToken(token);
             }
@@ -149,13 +173,8 @@ export default class AIFeed {
         },
       ]
     );
-
-    if (this.convState.currentAborter.signal.aborted && onAborted) {
-      onAborted();
-    }
-
-    this.disengage();
-
+    // If the answer was not prematurely stopped, then the question is now done
+    if (!state.abortAcknowledged) this.currentQuestionState = null;
     return response.response;
   }
 
@@ -172,14 +191,14 @@ export class AIFeedRegistery {
     arcana: ArcanaPlugin,
     name: string
   ): AIFeed {
-    let conv = this.getConversation(name);
+    let conv = this.getFeed(name);
     if (conv) return conv;
     conv = arcana.startFeed(name);
     this.feeds.set(name, conv);
     return conv;
   }
 
-  public static getConversation(name: string): AIFeed | null {
+  public static getFeed(name: string): AIFeed | null {
     return this.feeds.get(name) ?? null;
   }
 }

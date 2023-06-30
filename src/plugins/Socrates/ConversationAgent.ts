@@ -27,6 +27,9 @@ export class AgentDataLoader {
     let emoji =
       (await fmm.get<string>(file, 'arcana-agent-emoji')) ??
       this.defaultAgentEmoji;
+
+    console.log(emoji);
+
     if (!isEmoji(emoji)) emoji = this.defaultAgentEmoji;
     // initial message is the contents of the file
 

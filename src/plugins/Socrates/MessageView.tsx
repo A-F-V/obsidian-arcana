@@ -3,13 +3,16 @@ import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import React from 'react';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { AgentData } from './ConversationAgent';
 
 export default function MessageView({
   message,
+  agent,
   onCancel,
   onCopy,
 }: {
   message: Message;
+  agent: AgentData;
   onCancel: () => void;
   onCopy: () => void;
 }) {
@@ -24,7 +27,7 @@ export default function MessageView({
       <div style={{ fontSize: '1.25em' }}>
         <div style={{ display: 'flex' }}>
           <div style={{ flex: 1 }}>
-            <b>{!isAI ? '😀 You' : '🤖 Socrates'}</b>
+            <b>{!isAI ? '😀 You' : `${agent.emoji} ${agent.name}`}</b>
           </div>
           {isAI && (
             <div>
