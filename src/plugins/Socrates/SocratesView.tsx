@@ -22,6 +22,7 @@ function SocratesInnerView() {
   return (
     <div>
       <AgentSelector setCurrentAgent={setCurrentAgent} />
+      {currentAgent ? <h1>{currentAgent}</h1> : <h1>No Agent Selected</h1>}
     </div>
   );
 }
@@ -29,7 +30,8 @@ function SocratesInnerView() {
 // A react component for the view
 export const SocratesView = (
   arcana: ArcanaPlugin,
-  getAgentFolder: () => string
+  getAgentFolder: () => string,
+  getSocrates: () => AgentData
 ) => {
   // arcana.registerEvent(
   //   arcana.app.vault.on('create', (file: TFile) => {
@@ -61,25 +63,36 @@ export const SocratesView = (
 
   const createAgent = (file: TFile) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData) => {
-        store.dispatch({
-          type: 'agent/add',
-          agent: agentData,
-          chat_id: 1,
-        });
-      });
+      AgentDataLoader.fromFile(arcana, file).then(
+        (agentData: AgentData | null) => {
+          if (agentData != null)
+            store.dispatch({
+              type: 'agent/add',
+              agent: agentData,
+              chat_id: 1,
+            });
+        }
+      );
     }
   };
 
   const onModify = (file: TFile) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData) => {
-        store.dispatch({
-          type: 'agent/update',
-          agent: agentData,
-          old_name: getBaseName(file.basename),
-        });
-      });
+      AgentDataLoader.fromFile(arcana, file).then(
+        (agentData: AgentData | null) => {
+          if (agentData != null)
+            store.dispatch({
+              type: 'agent/update',
+              agent: agentData,
+              old_name: getBaseName(file.basename),
+            });
+          else
+            store.dispatch({
+              type: 'agent/remove',
+              name: getBaseName(file.basename),
+            });
+        }
+      );
     }
   };
 
@@ -91,13 +104,21 @@ export const SocratesView = (
 
   const onRename = (file: TFile, oldPath: string) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData) => {
-        store.dispatch({
-          type: 'agent/update',
-          agent: agentData,
-          old_name: getBaseName(oldPath),
-        });
-      });
+      AgentDataLoader.fromFile(arcana, file).then(
+        (agentData: AgentData | null) => {
+          if (agentData != null)
+            store.dispatch({
+              type: 'agent/update',
+              agent: agentData,
+              old_name: getBaseName(oldPath),
+            });
+          else
+            store.dispatch({
+              type: 'agent/remove',
+              name: getBaseName(oldPath),
+            });
+        }
+      );
     }
   };
 
@@ -107,22 +128,42 @@ export const SocratesView = (
       folder.children.forEach(createAgent);
     }
   };
+  const addSocrates = () => {
+    const socrates = getSocrates();
+    store.dispatch({
+      type: 'agent/add',
+      agent: socrates,
+    });
+  };
+  const updateSocrates = () => {
+    const socrates = getSocrates();
+
+    store.dispatch({
+      type: 'agent/update',
+      agent: socrates,
+      old_name: 'Socrates',
+    });
+  };
 
   React.useEffect(() => {
     console.log('Registering events');
+    addSocrates();
+    addAllAgentsInFolder();
 
     arcana.registerEvent(arcana.app.vault.on('create', createAgent));
     arcana.registerEvent(arcana.app.vault.on('modify', onModify));
     arcana.registerEvent(arcana.app.vault.on('delete', onDelete));
     arcana.registerEvent(arcana.app.vault.on('rename', onRename));
+    const interval = window.setInterval(updateSocrates, 10000);
+    arcana.registerInterval(interval);
 
-    addAllAgentsInFolder();
     return () => {
       console.log('Unregistering events');
       arcana.app.vault.off('create', createAgent);
       arcana.app.vault.off('modify', onModify);
       arcana.app.vault.off('delete', onDelete);
       arcana.app.vault.off('rename', onRename);
+      window.clearInterval(interval);
     };
   }, []);
   return (

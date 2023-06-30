@@ -4,6 +4,8 @@ import ViewPluginBase from 'src/components/ViewPluginBase';
 import ArcanaPlugin from 'src/main';
 import { SocratesView } from 'src/plugins/Socrates/SocratesView';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
+import store from './AgentState';
+import { AgentData } from './ConversationAgent';
 
 export default class SocratesPlugin extends ViewPluginBase {
   private settings = {
@@ -45,6 +47,12 @@ export default class SocratesPlugin extends ViewPluginBase {
             this.settings.priorInstruction = value;
             this.arcana.settings.PluginSettings['Socrates'] = this.settings;
             await this.arcana.saveSettings();
+
+            store.dispatch({
+              type: 'agent/update',
+              agent: this.getSocrates(),
+              old_name: 'Socrates',
+            });
           });
       });
 
@@ -91,9 +99,21 @@ export default class SocratesPlugin extends ViewPluginBase {
     */
   }
 
+  private getSocrates(): AgentData {
+    return {
+      name: 'Socrates',
+      initialMessage: this.getPriorInstruction(),
+      emoji: '🤖',
+    };
+  }
+
   constructor(arcana: ArcanaPlugin) {
     super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () =>
-      SocratesView(arcana, this.getAgentFolder.bind(this))
+      SocratesView(
+        arcana,
+        this.getAgentFolder.bind(this),
+        this.getSocrates.bind(this)
+      )
     );
   }
 }

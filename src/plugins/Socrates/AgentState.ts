@@ -100,13 +100,14 @@ function ChatAgentReducer(state = initialState, action: ChatAgentAction) {
       else {
         // Do agent/remove then agent/add
         const agents = { ...state.agents };
+        const old_messages = agents[old_name].messages;
         delete agents[old_name];
         const agent: AgentData = action.agent;
         return {
           ...state,
           agents: {
             ...agents,
-            [agent.name]: { agent, messages: [] },
+            [agent.name]: { agent, messages: old_messages },
           },
         };
       }
