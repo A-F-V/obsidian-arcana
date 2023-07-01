@@ -4,6 +4,7 @@ import React from 'react';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { AgentData } from './ConversationAgent';
+import remarkGfm from 'remark-gfm';
 
 export default function MessageView({
   message,
@@ -53,7 +54,10 @@ export default function MessageView({
           )}
         </div>
       </div>
-      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkMath, remarkGfm]}
+        rehypePlugins={[rehypeKatex]}
+      >
         {message.text}
       </ReactMarkdown>
     </div>
