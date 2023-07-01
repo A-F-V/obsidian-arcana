@@ -56,6 +56,7 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 | `arcana-agent-emoji` | Emoji | The emoji the agent will use for the conversation |
 | `arcana-user-emoji` | Emoji | The emoji the user will use for the conversation |
 
+[This website](https://flowgpt.com/) provides some good prompts for making agents.
 ## Agatha Christie
 
 <p align="center">
