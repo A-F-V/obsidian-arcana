@@ -10,7 +10,7 @@
 **Arcana** is a collection of AI powered tools designed to help you be more creative and productive with your Obsidian vault. Each tool is inspired by a famous historical figure:
 
 - [Socrates](#socrates) - **Conversation**
-  - [Students of Socrates](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
+  - [Custom Agents](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
