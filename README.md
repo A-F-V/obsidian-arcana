@@ -49,7 +49,7 @@ For example, bring **Aristotle**, the teacher of Alexander the Greater, to life 
 To create a new agent, add a new file to the `Conversation Agent Folder` specified in settings.
 1) The agent's **name** is the name of the file. Names must be unique and cannot be the same as **Socrates**
 2) The agent's **initial message** is the body of the file.
-3) For additional agent settings, see the below table:
+3) For additional agent settings, you can add the following fields to the file's YAML frontmatter:
 
 | Setting ID | Setting Type | Description |
 | --- | --- | --- |
@@ -57,6 +57,19 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 | `arcana-user-emoji` | Emoji | The emoji the user will use for the conversation |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
+#### Example
+In a file called `Aristotle.md` 
+```md
+---
+arcana-user-emoji: 🧐
+arcana-agent-emoji: 🗿
+---
+I want you to act like Aristotle.
+I want you to respond and answer like Aristotle using the tone, manner and vocabulary Aristotle would use.
+Do not write any explanations.
+Only answer like Aristotle. You must know all of the knowledge of Aristotle.
+```
+
 ## Agatha Christie
 
 <p align="center">
