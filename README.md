@@ -105,11 +105,10 @@ Only answer like Aristotle. You must know all of the knowledge of Aristotle.
 
 **Cataloging and Classifying**
 
-- Adds 2-5 tags to your note in the frontmatter
-- Tries to use tags the user has used in other notes
+- Adds 1-4 tags to your note in the frontmatter
+- Only uses tags that are in your vault.
 - Does not repeat tags used in the note.
-- Tags are in kebab lower case
-
+  
 ![](gifs/Darwin.gif)
 
 ## Nostradamus
