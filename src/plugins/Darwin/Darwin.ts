@@ -23,7 +23,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
   }
 
   // TODO: #44: Setting for max number of tags to show
-  private MAX_TAGS_TO_SHOW = 3;
+  private MAX_TAGS_TO_SHOW = 4;
 
   private async getTagsForFile(file: TFile): Promise<string[]> {
     const fmm = new FrontMatterManager(this.arcana);
@@ -200,9 +200,8 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     2. You should only return the list of additional tags and nothing else. Do not give any preamble or other text.
     3. The length of the list of additional tags must be less than or equal to ${this.MAX_TAGS_TO_SHOW}.
     4. The list of additional tags must not contain any tags that are already present in the file.
-    5. Tags should be in the same style as the EXISTING TAGS.
-    6. Tags must be be valid according to the tag format.
-    7. Only suggest tags that are in the EXISTING TAGS list.`;
+    5. Tags must be be valid according to the tag format.
+    6. Only suggest tags that are in the EXISTING TAGS list.`;
 
     const context = `
     [Purpose]
@@ -211,12 +210,11 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     ${existing_tags}
     [Tag format]
     ${tag_format}
-    [Tagging Style]
-    ${tag_style} 
     [Rules]
     ${rules}
     `;
-
+    // [Tagging Style]
+    //    ${tag_style}
     const title = file.basename;
     // Get the document text from the file
     const documentText = await this.arcana.app.vault.read(file);
