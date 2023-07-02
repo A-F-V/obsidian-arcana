@@ -43,11 +43,18 @@ export default class FrontMatterManager {
   }
 
   async get<T>(file: TFile, key: string): Promise<T | null> {
-    let result: T | null = null;
-    await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
-      result = frontMatter[key];
-    });
-    return result;
+    try {
+      let result: T | null = null;
+      await this.arcana.app.fileManager.processFrontMatter(
+        file,
+        frontMatter => {
+          result = frontMatter[key];
+        }
+      );
+      return result;
+    } catch (e) {
+      return null;
+    }
   }
 
   async getTags(file: TFile): Promise<string[]> {

@@ -123,7 +123,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     this.arcana.registerInterval(
       window.setInterval(async () => {
         await this.getAllTagsInVault();
-      }, 1000 * 10)
+      }, 1000 * 45)
     );
 
     this.arcana.addCommand({
