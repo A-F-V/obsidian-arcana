@@ -19,6 +19,7 @@
 ## Usage:
 
 - **[OpenAI API key](https://platform.openai.com/account/api-keys) required** - set in settings.
+- **It is highly recommended that you use the GPT4 API instead of the GPT3.5.**
 - Most tools are invoked using the command palette and searching either `Arcana` or the person's name.
 - Some tools add a view in the sidebar to interact with.
 
