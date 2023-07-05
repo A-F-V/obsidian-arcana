@@ -31,7 +31,9 @@ export default class FrontMatterManager {
 
     await this.arcana.app.fileManager
       .processFrontMatter(file, frontmatter => {
-        tags = parseFrontMatterTags(frontmatter);
+        tags =
+          parseFrontMatterTags(frontmatter)?.map(tag => tag.replace('#', '')) ??
+          null;
       })
       .catch(e => {});
 
