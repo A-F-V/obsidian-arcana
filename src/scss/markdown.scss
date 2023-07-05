@@ -1,0 +1,31 @@
+.mac-buttons {
+  position: relative;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mac-button {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+
+.close-button {
+  background-color: #ff605c;
+}
+
+.minimize-button {
+  background-color: #ffbd44;
+}
+
+.expand-button {
+  background-color: #00ca4e;
+}
+
+.beautiful-code {
+  background-color: #282a36;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 68px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
