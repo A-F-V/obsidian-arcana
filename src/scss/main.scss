@@ -1,4 +1,8 @@
 @import url('https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css');
+
+//import markdown.scss file
+@import 'markdown.scss';
+
 // Colours
 $primary: #007bff;
 $secondary: #6c757d;
