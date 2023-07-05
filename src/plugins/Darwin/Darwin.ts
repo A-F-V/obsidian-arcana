@@ -2,6 +2,7 @@ import {
   Editor,
   MarkdownView,
   Notice,
+  Setting,
   TAbstractFile,
   TFile,
   TFolder,
@@ -12,18 +13,37 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 
+enum TagStyle {
+  None,
+  PascalCase,
+  CamelCase,
+  SnakeCase,
+  KebabCase,
+  TitleCase,
+}
+
+type DarwinSettings = {
+  minimum_tag_count_to_present: number;
+  only_show_existing_tags: boolean;
+  max_tags_to_show: number;
+  tag_style: TagStyle;
+};
+
+const DEFAULT_SETTINGS: DarwinSettings = {
+  minimum_tag_count_to_present: 1,
+  only_show_existing_tags: false,
+  max_tags_to_show: 4,
+  tag_style: TagStyle.None,
+};
 export default class DarwinPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
-  private setting: { folder: string };
+  private setting: DarwinSettings = DEFAULT_SETTINGS;
   private tagCountCache: [string, number][] | null = null;
 
   public constructor(arcana: ArcanaPlugin) {
     super();
     this.arcana = arcana;
   }
-
-  // TODO: #44: Setting for max number of tags to show
-  private MAX_TAGS_TO_SHOW = 4;
 
   private async getTagsForFile(file: TFile): Promise<string[]> {
     const fmm = new FrontMatterManager(this.arcana);
@@ -83,11 +103,11 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     // Check if tag is empty
     if (tag.length === 0) return false;
     // Check if tag has a non-numerical character
-    if (!/[a-zA-Z_\-\/]/.test(tag)) return false;
+    if (!/[a-zA-Z_\-/]/.test(tag)) return false;
     // Check if tag has a space
     if (/\s/.test(tag)) return false;
     // Check if the tag has only valid characters
-    if (!/^[a-zA-Z0-9_\-\/]+$/.test(tag)) return false;
+    if (!/^[a-zA-Z0-9_\-/]+$/.test(tag)) return false;
     return true;
   }
 
@@ -107,7 +127,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
       .filter(tag => this.tagCountCache?.map(t => t[0]).includes(tag));
     const uniqueTags = [...new Set(tags)];
     if (uniqueTags.length === 0) return [];
-    if (uniqueTags.length > this.MAX_TAGS_TO_SHOW) return [];
+    if (uniqueTags.length > this.setting.max_tags_to_show) return [];
     return uniqueTags;
   }
 
@@ -118,6 +138,9 @@ export default class DarwinPlugin extends ArcanaPluginBase {
   }
 
   public async onload() {
+    this.setting =
+      this.arcana.settings.PluginSettings['Darwin'] ?? DEFAULT_SETTINGS;
+
     // Get lits of all tags periodically
     await this.getAllTagsInVault();
     this.arcana.registerInterval(
@@ -168,6 +191,87 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     );
   }
 
+  public addSettings(containerEl: HTMLElement) {
+    containerEl.createEl('h2', { text: 'Darwin' });
+
+    new Setting(containerEl)
+      .setName('Max tags to add')
+      .setDesc('The max tags Darwin should recommend')
+      .addText(text => {
+        text
+          .setPlaceholder('4')
+          .setValue(this.setting.max_tags_to_show.toString())
+          .onChange(async (value: string) => {
+            const limit = parseInt(value);
+            if (isNaN(limit)) {
+              new Notice(`Darwin: Invalid number ${value} as max tags`);
+              return;
+            }
+            this.setting.max_tags_to_show = limit;
+            this.arcana.settings.PluginSettings['Darwin'] = this.setting;
+            await this.arcana.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('Only Existing Tags')
+      .setDesc(
+        'If enabled, Darwin will only suggest tags that already exist in the vault'
+      )
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.setting.only_show_existing_tags)
+          .onChange(async (value: boolean) => {
+            this.setting.only_show_existing_tags = value;
+            this.arcana.settings.PluginSettings['Darwin'] = this.setting;
+            await this.arcana.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('Min tag count to show to Darwin')
+      .setDesc(
+        'The minimum number of times a tag must appear in the vault to be shown to Darwin. Darwin does better with fewer tags to choose from.'
+      )
+      .addText(text => {
+        text
+          .setPlaceholder('1')
+          .setValue(this.setting.minimum_tag_count_to_present.toString())
+          .onChange(async (value: string) => {
+            const limit = parseInt(value);
+            if (isNaN(limit)) {
+              new Notice(
+                `Darwin: Invalid number ${value} as min tag count to show`
+              );
+              return;
+            }
+            this.setting.minimum_tag_count_to_present = limit;
+            this.arcana.settings.PluginSettings['Darwin'] = this.setting;
+            await this.arcana.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('New Tag Style')
+      .setDesc('The style of new tags that Darwin will suggest')
+      .addDropdown(dropdown => {
+        dropdown
+          .addOption('None', 'None')
+          .addOption('KebabCase', 'kebab-case')
+          .addOption('SnakeCase', 'snake_case')
+          .addOption('CamelCase', 'camelCase')
+          .addOption('PascalCase', 'PascalCase')
+          .setValue(this.setting.tag_style.toString())
+          .onChange(async (value: string) => {
+            // Parse the value as a TagStyle
+            const tagStyle = TagStyle[value as keyof typeof TagStyle];
+            this.setting.tag_style = tagStyle;
+            this.arcana.settings.PluginSettings['Darwin'] = this.setting;
+            await this.arcana.saveSettings();
+          });
+      });
+  }
+
   public async onunload() {}
 
   private async autoTagFile(file: TFile) {
@@ -183,8 +287,6 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     await fmm.setTags(file, tagsInFrontMatter.concat(tagsToAdd));
   }
 
-  // TODO: #45: Setting to specify the style explictly
-
   private async askDarwin(file: TFile): Promise<string[]> {
     const purpose = `You are an AI designed to select additional tags to add to a given file. You select from handful of EXISTING TAGS that you will suggest should be added.`;
 
@@ -198,7 +300,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
 
     const rules = `1. Return a list of additional tags to add that are most relevant to the file. The list should be space seperated. For example: 'tag1 tag2 tag3'.
     2. You should only return the list of additional tags and nothing else. Do not give any preamble or other text.
-    3. The length of the list of additional tags must be less than or equal to ${this.MAX_TAGS_TO_SHOW}.
+    3. The length of the list of additional tags must be less than or equal to ${this.setting.max_tags_to_show}.
     4. The list of additional tags must not contain any tags that are already present in the file.
     5. Tags must be be valid according to the tag format.
     6. Only suggest tags that are in the EXISTING TAGS list.`;
@@ -206,8 +308,6 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     const context = `
     [Purpose]
     ${purpose}.
-    [EXISTING TAGS]
-    ${existing_tags}
     [Tag format]
     ${tag_format}
     [Rules]
@@ -222,11 +322,21 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     const cleanedText = removeFrontMatter(documentText);
     // Get the tags in the file:
     const tagsInFile = await this.getTagsForFile(file);
-    let details = `Title of file: ${title}\n\nText in file: ${cleanedText}\n\n`;
+
+    let details = `
+    [EXISTING TAGS]
+    ${existing_tags}
+    [Title] 
+    ${title}
+    [Text]
+    ${cleanedText}
+    `;
     if (tagsInFile.length > 0)
       details += `Tags present in file: ${tagsInFile.join(' ')}`;
 
     const response = await this.arcana.complete(details, context);
+    console.log(`Details: ${details}`);
+    console.log(`Response: ${response}`);
 
     return this.getAdditionalTagsFromResponse(response, tagsInFile);
   }
