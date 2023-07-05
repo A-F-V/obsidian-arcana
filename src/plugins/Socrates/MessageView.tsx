@@ -1,10 +1,7 @@
-import { Author, Message } from './Message';
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import React from 'react';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import { Author, Message } from './Message';
 import { AgentData } from './ConversationAgent';
-import remarkGfm from 'remark-gfm';
+import MarkdownViewer from 'src/components/MarkdownViewer';
 
 export default function MessageView({
   message,
@@ -54,12 +51,7 @@ export default function MessageView({
           )}
         </div>
       </div>
-      <ReactMarkdown
-        remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[rehypeKatex]}
-      >
-        {message.text}
-      </ReactMarkdown>
+      <MarkdownViewer markdown={message.text} />
     </div>
   );
 }

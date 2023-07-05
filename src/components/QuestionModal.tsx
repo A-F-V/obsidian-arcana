@@ -1,7 +1,7 @@
 import { App, Modal, Setting, debounce } from 'obsidian';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import { Root, createRoot } from 'react-dom/client';
 
 function QuestionModalView({
   question,
@@ -36,6 +36,7 @@ export default class QuestionModal extends Modal {
   question: string;
   onSubmit: (result: string) => void;
 
+  private root: Root | null = null;
   constructor(app: App, question: string, onSubmit: (result: string) => void) {
     super(app);
     this.onSubmit = onSubmit;
@@ -60,6 +61,8 @@ export default class QuestionModal extends Modal {
   }
 
   onClose() {
-    ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+    if (this.root) {
+      this.root.unmount();
+    }
   }
 }
