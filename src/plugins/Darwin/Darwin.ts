@@ -178,11 +178,12 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     this.setting =
       this.arcana.settings.PluginSettings['Darwin'] ?? DEFAULT_SETTINGS;
 
-    // Get lits of all tags periodically
+    // Get lists of all tags periodically
+    // TODO: Just add tags heuristicly after initial load
     this.arcana.registerInterval(
       window.setInterval(async () => {
         await this.getAllTagsInVault();
-      }, 1000 * 45)
+      }, 1000 * 60)
     );
 
     await this.getAllTagsInVault().then(() => {
