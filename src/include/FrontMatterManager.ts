@@ -1,4 +1,4 @@
-import { TFile } from 'obsidian';
+import { TFile, parseFrontMatterEntry, parseFrontMatterTags } from 'obsidian';
 import ArcanaPlugin from 'src/main';
 
 export default class FrontMatterManager {
@@ -43,36 +43,32 @@ export default class FrontMatterManager {
   }
 
   async get<T>(file: TFile, key: string): Promise<T | null> {
-    try {
-      let result: T | null = null;
-      await this.arcana.app.fileManager.processFrontMatter(
-        file,
-        frontMatter => {
-          result = frontMatter[key];
-        }
-      );
-      return result;
-    } catch (e) {
-      return null;
-    }
+    let result: T | null = null;
+
+    await this.arcana.app.fileManager
+      .processFrontMatter(file, frontMatter => {
+        result = parseFrontMatterEntry(frontMatter, key);
+      })
+      .catch(e => {});
+
+    return result;
   }
 
   async getTags(file: TFile): Promise<string[]> {
-    const tags = await this.get<any>(file, 'tags');
-    if (tags === null || tags === undefined) {
-      return [];
-    }
-    // If its a string array, return
-    if (Array.isArray(tags)) {
-      return tags;
-    }
-    // If its a string, split it
-    if (typeof tags === 'string') {
-      return tags.split(' ');
-    }
-    return [];
+    let tags: string[] | null = null;
+
+    await this.arcana.app.fileManager
+      .processFrontMatter(file, frontmatter => {
+        console.log(frontmatter);
+        //tags = parseFrontMatterTags(frontmatter);
+      })
+      .catch(e => {});
+
+    return tags ?? [];
   }
   async setTags(file: TFile, tags: string[]): Promise<void> {
-    await this.set(file, 'tags', tags.join(' '));
+    await this.arcana.app.fileManager.processFrontMatter(file, frontmatter => {
+      frontmatter.tags = tags.join(' ');
+    });
   }
 }
