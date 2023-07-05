@@ -3,11 +3,11 @@
 $primary: #007bff;
 $secondary: #6c757d;
 $success: #28a745;
-
+//TODO: One for text area and one for input
 .beautiful-input {
   border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 10px 10px;
+  border-radius: 5px;
   font-size: 16px;
   outline: none;
   box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.1);

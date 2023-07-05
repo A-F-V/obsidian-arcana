@@ -156,9 +156,8 @@ export function ConversationDialogue({
       </div>
 
       <div style={{ marginTop: 'auto' }}>
-        <div style={{ marginTop: '1em' }}>
-          <input
-            type="text"
+        <div style={{ marginTop: '1em', padding: '2px' }}>
+          <textarea
             placeholder="Ask me something"
             onKeyUp={onSubmitMessage}
             className="beautiful-input"
