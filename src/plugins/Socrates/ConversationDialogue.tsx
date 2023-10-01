@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
 import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
 import { Message } from './Message';
+import WhisperButton from './WhisperButton';
 
 export function ConversationDialogue({
   current_file,
@@ -162,6 +163,7 @@ export function ConversationDialogue({
             onKeyUp={onSubmitMessage}
             className="beautiful-input"
           />
+          <WhisperButton />
         </div>
       </div>
     </div>
