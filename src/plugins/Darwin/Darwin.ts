@@ -192,6 +192,10 @@ export default class DarwinPlugin extends ArcanaPluginBase {
         name: 'Darwin Tag',
         editorCallback: async (editor: Editor, view: MarkdownView) => {
           const file = view.file;
+          if (!file) {
+            new Notice('Darwin: No file selected');
+            return;
+          }
           await this.autoTagFile(file);
         },
       });

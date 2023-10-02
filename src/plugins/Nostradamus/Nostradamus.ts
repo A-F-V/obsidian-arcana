@@ -23,6 +23,9 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         // Get the file name
         const file = view.file;
+        if (!file) {
+          return;
+        }
         // Get the better name
         let betterName = await this.getBetterName(file);
         betterName = this.normalizeTitle(betterName);

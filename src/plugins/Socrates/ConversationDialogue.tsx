@@ -6,8 +6,8 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
 import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
-import { Message } from './Message';
 import WhisperButton from './WhisperButton';
+import { OpenAIWhisperAudio } from 'langchain/document_loaders/fs/openai_whisper_audio';
 
 export function ConversationDialogue({
   current_file,
@@ -107,6 +107,29 @@ export function ConversationDialogue({
       });
     }
   };
+
+  const transcribeMessage = async (blob: Blob) => {
+    const filePath = '/SocratesAudio.webm';
+    // Write blob to file
+    arcana.app.vault
+      .createBinary(filePath, await blob.arrayBuffer())
+      .then(file => {
+        const openAIWhisperAudio = new OpenAIWhisperAudio(filePath, {
+          clientOptions: {
+            apiKey: arcana.getAPIKey(),
+            dangerouslyAllowBrowser: true,
+          },
+        });
+        // TODO: Use Open AI directly instead of LangChain
+        openAIWhisperAudio
+          .load()
+          .then(console.log)
+          .finally(() => {
+            // Delete the file
+            arcana.app.vault.delete(file);
+          });
+      });
+  };
   return (
     <div className="conversation">
       <div
@@ -157,13 +180,14 @@ export function ConversationDialogue({
       </div>
 
       <div style={{ marginTop: 'auto' }}>
-        <div style={{ marginTop: '1em', padding: '2px' }}>
+        <div style={{ marginTop: '1em', padding: '2px', flexDirection: 'row' }}>
           <textarea
             placeholder="Ask me something"
             onKeyUp={onSubmitMessage}
             className="beautiful-input"
+            // So that we can add text to the textarea
           />
-          <WhisperButton />
+          <WhisperButton onRecordingEnd={transcribeMessage} />
         </div>
       </div>
     </div>

@@ -1,22 +1,21 @@
 /*
 A voice record button that uses OpenAI's Whispher model
 */
-import React, { useState, useEffect } from 'react';
-import { useArcana } from 'src/hooks/hooks';
+import React, { useState, useEffect, useRef } from 'react';
 
 class Recorder {
   gumStream: MediaStream | null; //stream from getUserMedia()
   recorder: MediaRecorder | null; //MediaRecorder object
   chunks: BlobPart[] = []; //Array of chunks of audio data from the browser
   extension: string | null;
-  fileWriter: (data: ArrayBuffer) => Promise<void>;
+  onFinish: (blob: Blob) => void;
 
-  constructor(fileWriter: (data: ArrayBuffer) => Promise<void>) {
+  constructor(onFinish: (blob: Blob) => void) {
     this.gumStream = null;
     this.recorder = null;
     this.chunks = [];
     this.extension = null;
-    this.fileWriter = fileWriter;
+    this.onFinish = onFinish;
   }
 
   async beginRecording() {
@@ -36,64 +35,61 @@ class Recorder {
 				  https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
 			  */
 
-    navigator.mediaDevices
-      .getUserMedia(constraints)
-      .then((stream: MediaStream) => {
-        console.log(
-          'getUserMedia() success, stream created, initializing MediaRecorder'
-        );
+    const callback = ((stream: MediaStream) => {
+      console.log(
+        'getUserMedia() success, stream created, initializing MediaRecorder'
+      );
+      console.log(this);
 
-        /*  assign to gumStream for later use  */
-        this.gumStream = stream;
+      /*  assign to gumStream for later use  */
+      this.gumStream = stream;
 
-        const options = {
-          audioBitsPerSecond: 256000,
-          videoBitsPerSecond: 2500000,
-          bitsPerSecond: 2628000,
-          mimeType: 'audio/' + this.extension + ';codecs=opus',
-        };
+      const options = {
+        audioBitsPerSecond: 256000,
+        videoBitsPerSecond: 2500000,
+        bitsPerSecond: 2628000,
+        mimeType: 'audio/' + this.extension + ';codecs=opus',
+      };
 
-        //update the format
-        // document.getElementById("formats").innerHTML =
-        //   "Sample rate: 48kHz, MIME: audio/" + extension + ";codecs=opus";
+      //update the format
+      // document.getElementById("formats").innerHTML =
+      //   "Sample rate: 48kHz, MIME: audio/" + extension + ";codecs=opus";
 
-        /*
+      /*
 					  Create the MediaRecorder object
 				  */
-        this.recorder = new MediaRecorder(stream, options);
-        console.log('recorder is now a MediaRecorder object');
+      this.recorder = new MediaRecorder(stream, options);
+      console.log('recorder is now a MediaRecorder object');
 
-        //when data becomes available add it to our array of audio data
-        this.recorder.ondataavailable = (e: BlobEvent) => {
-          console.log('recorder.ondataavailable:' + e.data);
+      //when data becomes available add it to our array of audio data
+      this.recorder.ondataavailable = (e: BlobEvent) => {
+        // console.log("recorder.bitsPerSecond:" + recorder.bitsPerSecond);
+        // add stream data to chunks
+        this.chunks.push(e.data);
+      };
+      this.recorder.onstop = ((e: Event) => {
+        console.log('recorder.onstop'); // convert stream data chunks to a 'webm' audio format as a blob
+        const blob = new Blob(this.chunks, {
+          type: 'audio/' + this.extension,
+        });
+        console.log(blob.type);
+        this.onFinish(blob);
+      }).bind(this);
+      this.recorder.onerror = console.log;
 
-          console.log(
-            'recorder.audioBitsPerSecond:' + this.recorder?.audioBitsPerSecond
-          );
-          // console.log("recorder.bitsPerSecond:" + recorder.bitsPerSecond);
-          // add stream data to chunks
-          this.chunks.push(e.data);
-          // if recorder is 'inactive' then recording has finished
-          if (this.recorder?.state == 'inactive') {
-            // convert stream data chunks to a 'webm' audio format as a blob
-            const blob = new Blob(this.chunks, {
-              type: 'audio/' + this.extension,
-            });
-            this.createAudioFile(blob);
-          }
-        };
+      //start recording using 1 second chunks
+      //Chrome and Firefox will record one long chunk if you do not specify the chunck length
+      this.recorder.start(1000);
 
-        this.recorder.onerror = console.log;
+      //recorder.start();
+      //   recorder = null;
+      //   blob = null;
+      this.chunks = [];
+    }).bind(this);
 
-        //start recording using 1 second chunks
-        //Chrome and Firefox will record one long chunk if you do not specify the chunck length
-        this.recorder.start(1000);
-
-        //recorder.start();
-        //   recorder = null;
-        //   blob = null;
-        this.chunks = [];
-      })
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then(callback)
       .catch(function (err) {
         //enable the record button if getUserMedia() fails
         console.log(err);
@@ -103,33 +99,30 @@ class Recorder {
       });
   }
   async stopRecording() {
+    console.log(this.recorder);
     this.recorder?.stop();
-    //stop microphone access
-    this.gumStream?.getAudioTracks()[0].stop();
-  }
-  async createAudioFile(blob: Blob) {
-    blob.arrayBuffer().then(data => {
-      console.log(data);
-      this.fileWriter(data);
-    });
+    this.gumStream //stop microphone access
+      ?.getAudioTracks()[0]
+      .stop();
   }
 }
 
-export default function WhisperButton() {
+export default function WhisperButton({
+  onRecordingEnd,
+}: {
+  onRecordingEnd: (blob: Blob) => void;
+}) {
   // A stylish button that goes red when pressed
   const [recording, setRecording] = useState(false);
-  const arcana = useArcana();
-
-  const recorder = new Recorder(async (data: ArrayBuffer) => {
-    await arcana.app.vault.createBinary('/test.webm', data);
-  });
+  // Use a ref to keep a consistent reference to the recorder across renders
+  const recorderRef = useRef(new Recorder(onRecordingEnd));
 
   const beginRecording = () => {
-    recorder.beginRecording();
+    recorderRef.current.beginRecording();
   };
 
   const endRecording = () => {
-    recorder.stopRecording();
+    recorderRef.current.stopRecording();
   };
 
   useEffect(() => {

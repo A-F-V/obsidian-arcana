@@ -34,6 +34,9 @@ export default class ChristiePlugin extends ArcanaPluginBase {
           async (question: string) => {
             // Get the current file
             const file = view.file;
+            if (!file) {
+              return;
+            }
             // Get the current selected text
             const selectedText = editor.getSelection();
             // Decode the next section
