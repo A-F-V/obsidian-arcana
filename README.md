@@ -12,6 +12,7 @@
 
 - [Socrates](#socrates) - **Conversation**
   - [Custom Agents](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
+  - **Text to Speech Transcription**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
@@ -40,6 +41,7 @@
 
 - Exchange in dialogue with Socrates.
 - Ask questions specific to the note currently open.
+- Use OpenAI's Whisper Text to Speech transcription.
 
 ![](gifs/Socrates.gif)
 
