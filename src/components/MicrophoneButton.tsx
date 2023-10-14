@@ -154,16 +154,7 @@ export function MicrophoneButton({
     <div>
       <button
         onClick={() => setRecording(!recording)}
-        style={{
-          backgroundColor: recording ? 'red' : 'blue',
-          color: 'white',
-          borderRadius: '50%',
-          width: '50px',
-          height: '50px',
-          fontSize: '20px',
-          fontWeight: 'bold',
-          border: 'none',
-        }}
+        className={`recording-button ${recording ? 'active' : ''}`}
       >
         {recording ? '🎙️' : '🎤'}
       </button>

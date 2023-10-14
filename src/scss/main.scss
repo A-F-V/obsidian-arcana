@@ -2,8 +2,10 @@
 
 //import markdown.scss file
 @import 'markdown.scss';
+@import 'recording.scss';
 
 // Colours
+// TODO: Colours should be in a separate file
 $primary: #007bff;
 $secondary: #6c757d;
 $success: #28a745;

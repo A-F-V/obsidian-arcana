@@ -169,7 +169,14 @@ export function ConversationDialogue({
       </div>
 
       <div style={{ marginTop: 'auto' }}>
-        <div style={{ marginTop: '1em', padding: '2px', flexDirection: 'row' }}>
+        <div
+          style={{
+            marginTop: '1em',
+            padding: '2px',
+            display: 'flex',
+            flexDirection: 'row',
+          }}
+        >
           <textarea
             ref={userAreaRef}
             placeholder="Ask me something"
@@ -177,14 +184,16 @@ export function ConversationDialogue({
             className="beautiful-input"
             // So that we can add text to the textarea
           />
-          <WhisperButton
-            onTranscription={onTranscription}
-            onFailedTranscription={(
-              error: TranslationError | RecordingError
-            ) => {
-              console.log(error);
-            }}
-          />
+          <div style={{ margin: '2px' }}>
+            <WhisperButton
+              onTranscription={onTranscription}
+              onFailedTranscription={(
+                error: TranslationError | RecordingError
+              ) => {
+                console.log(error);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

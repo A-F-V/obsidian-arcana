@@ -1,0 +1,21 @@
+.recording-button {
+  background-color: blue;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 5px;
+
+  &.active {
+    background-color: red;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
