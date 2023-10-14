@@ -90,7 +90,6 @@ export function ConversationDialogue({
   const sendMessage = React.useCallback(
     (textArea: HTMLTextAreaElement) => {
       if (aiFeed && !aiFeed.isQuestionBeingAsked()) {
-        console.log('Sending message');
         const question = textArea.value;
         textArea.value = '';
         createUserMessage(question);
@@ -130,8 +129,7 @@ export function ConversationDialogue({
         userAreaRef.current.value += text;
       }
       // If the agent is on auto send, then send the message
-      console.log(agentName);
-      console.log(agent);
+
       if (agent.autoSendTranscription) sendMessage(userAreaRef.current);
     },
     [agentName, agent, sendMessage, userAreaRef]

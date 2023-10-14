@@ -48,11 +48,6 @@ class Recorder {
 			  */
 
     const callback = ((stream: MediaStream) => {
-      console.log(
-        'getUserMedia() success, stream created, initializing MediaRecorder'
-      );
-      console.log(this);
-
       /*  assign to gumStream for later use  */
       this.gumStream = stream;
 
@@ -71,16 +66,12 @@ class Recorder {
 					  Create the MediaRecorder object
 				  */
       this.recorder = new MediaRecorder(stream, options);
-      console.log('recorder is now a MediaRecorder object');
-
       //when data becomes available add it to our array of audio data
       this.recorder.ondataavailable = (e: BlobEvent) => {
-        // console.log("recorder.bitsPerSecond:" + recorder.bitsPerSecond);
         // add stream data to chunks
         this.chunks.push(e.data);
       };
       this.recorder.onstop = ((e: Event) => {
-        console.log('recorder.onstop'); // convert stream data chunks to a 'webm' audio format as a blob
         const blob = new Blob(this.chunks, {
           type: 'audio/' + this.extension,
         });
@@ -88,7 +79,6 @@ class Recorder {
       }).bind(this);
 
       this.recorder.onerror = ((e: Event) => {
-        console.log('recorder.onerror', e);
         this.onError(RecordingError.FAILED_TO_RECORD);
       }).bind(this);
 
@@ -114,7 +104,6 @@ class Recorder {
       );
   }
   async stopRecording() {
-    console.log(this.recorder);
     this.recorder?.stop();
     this.gumStream //stop microphone access
       ?.getAudioTracks()[0]
