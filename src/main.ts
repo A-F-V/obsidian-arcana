@@ -1,4 +1,4 @@
-import { Notice, Plugin } from 'obsidian';
+import { Plugin } from 'obsidian';
 
 import ArcanaSettings from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
@@ -31,6 +31,7 @@ export default class ArcanaPlugin extends Plugin {
     handleTokens?: (tokens: string) => void,
     aborter?: () => boolean
   ) => Promise<string>;
+  public transcribe: (file: File) => Promise<string>;
 
   fs: StorageManager;
   settings: ArcanaSettings;
@@ -48,6 +49,7 @@ export default class ArcanaPlugin extends Plugin {
     this.agent = new ArcanaAgent(this);
     this.startFeed = this.agent.startFeed.bind(this.agent);
     this.complete = this.agent.complete.bind(this.agent);
+    this.transcribe = this.agent.transcribe.bind(this.agent);
 
     // Set up the settings
     await this.loadSettings();

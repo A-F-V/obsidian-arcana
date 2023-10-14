@@ -57,6 +57,9 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             this.ensureFolderExists();
             // Get the current file
             const oldFile = view.file;
+            if (!oldFile) {
+              return;
+            }
             // Get current file name
             const newFileName = `${this.setting.folder}/Flashcard - ${oldFile.basename}.md`;
             // Create a new file
@@ -81,7 +84,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
             this.arcana.app.workspace.iterateAllLeaves(leaf => {
               if (
                 leaf.view instanceof MarkdownView &&
-                (leaf.view as MarkdownView).file.path === newFile!.path
+                (leaf.view as MarkdownView).file?.path === newFile?.path
               ) {
                 flashcardLeaf = leaf;
               }

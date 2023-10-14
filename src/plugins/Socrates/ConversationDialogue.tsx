@@ -6,7 +6,11 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
 import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
-import { Message } from './Message';
+import {
+  RecordingError,
+  TranslationError,
+  WhisperButton,
+} from '../../components/MicrophoneButton';
 
 export function ConversationDialogue({
   current_file,
@@ -20,6 +24,7 @@ export function ConversationDialogue({
     (state: ChatAgentState) => state.agents[agentName]
   );
   const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
+  const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
   const dispatch = useDispatch<StoreDispatch>();
 
   React.useEffect(() => {
@@ -36,10 +41,11 @@ export function ConversationDialogue({
 
   // Sets the initial message whenever it changes
   React.useEffect(() => {
+    console.log('Agent changed to ' + agentName);
     if (aiFeed) {
       aiFeed.setContext(agent.initialMessage);
     }
-  }, [aiFeed, agent.initialMessage]);
+  }, [agentName]);
 
   const resetConversation = () => {
     dispatch({
@@ -81,14 +87,22 @@ export function ConversationDialogue({
     });
   };
 
+  const sendMessage = React.useCallback(
+    (textArea: HTMLTextAreaElement) => {
+      if (aiFeed && !aiFeed.isQuestionBeingAsked()) {
+        const question = textArea.value;
+        textArea.value = '';
+        createUserMessage(question);
+        askQuestion(question);
+      }
+    },
+    [agentName, aiFeed]
+  );
+
   const onSubmitMessage = (e: any) => {
-    if (e.key == 'Enter' && aiFeed && !aiFeed.isQuestionBeingAsked()) {
-      const question = e.currentTarget.value;
-      e.currentTarget.value = '';
-      createUserMessage(question);
-      askQuestion(question);
-    }
+    sendMessage(e.currentTarget);
   };
+
   const sendFileMessage = () => {
     if (aiFeed) {
       // Load the current_file
@@ -106,6 +120,21 @@ export function ConversationDialogue({
       });
     }
   };
+
+  const onTranscription = React.useCallback(
+    (text: string) => {
+      // Check if the user text area is valid, then append to it
+      if (!userAreaRef.current) return;
+      if (userAreaRef.current) {
+        userAreaRef.current.value += text;
+      }
+      // If the agent is on auto send, then send the message
+
+      if (agent.autoSendTranscription) sendMessage(userAreaRef.current);
+    },
+    [agentName, agent, sendMessage, userAreaRef]
+  );
+
   return (
     <div className="conversation">
       <div
@@ -156,12 +185,31 @@ export function ConversationDialogue({
       </div>
 
       <div style={{ marginTop: 'auto' }}>
-        <div style={{ marginTop: '1em', padding: '2px' }}>
+        <div
+          style={{
+            marginTop: '1em',
+            padding: '2px',
+            display: 'flex',
+            flexDirection: 'row',
+          }}
+        >
           <textarea
+            ref={userAreaRef}
             placeholder="Ask me something"
             onKeyUp={onSubmitMessage}
             className="beautiful-input"
+            // So that we can add text to the textarea
           />
+          <div style={{ margin: '2px' }}>
+            <WhisperButton
+              onTranscription={onTranscription}
+              onFailedTranscription={(
+                error: TranslationError | RecordingError
+              ) => {
+                console.log(error);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

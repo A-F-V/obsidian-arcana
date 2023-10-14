@@ -10,6 +10,7 @@ import { AgentData } from './ConversationAgent';
 export default class SocratesPlugin extends ViewPluginBase {
   private settings = {
     priorInstruction: '',
+    autoSendTranscription: false,
     //  usingWeb: false,
     //  serpApiToken: '',
     agent_folder: 'Arcana/Agents',
@@ -18,6 +19,10 @@ export default class SocratesPlugin extends ViewPluginBase {
   private getPriorInstruction(): string {
     return this.settings.priorInstruction;
   }
+  private getAutoSendTranscription(): boolean {
+    return this.settings.autoSendTranscription;
+  }
+
   private getAgentFolder(): string {
     return this.settings.agent_folder;
   }
@@ -53,6 +58,21 @@ export default class SocratesPlugin extends ViewPluginBase {
               agent: this.getSocrates(),
               old_name: 'Socrates',
             });
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Automatically Send Socrates' transcription")
+      .setDesc(
+        "Whether to automatically send Socrates' transcription after recording"
+      )
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.settings.autoSendTranscription)
+          .onChange(async (value: boolean) => {
+            this.settings.autoSendTranscription = value;
+            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
+            await this.arcana.saveSettings();
           });
       });
 
@@ -105,6 +125,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       initialMessage: this.getPriorInstruction(),
       agentEmoji: '🤖',
       userEmoji: '😀',
+      autoSendTranscription: this.getAutoSendTranscription(),
     };
   }
 
