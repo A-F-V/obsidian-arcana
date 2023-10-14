@@ -100,7 +100,7 @@ export function ConversationDialogue({
   );
 
   const onSubmitMessage = (e: any) => {
-    sendMessage(e.currentTarget);
+    if (e.key === 'Enter') sendMessage(e.currentTarget);
   };
 
   const sendFileMessage = () => {
