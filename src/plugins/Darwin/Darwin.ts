@@ -305,13 +305,13 @@ export default class DarwinPlugin extends ArcanaPluginBase {
       });
 
     new Setting(containerEl)
-      .setName('Exclude Tag Prefixes')
+      .setName('Exclude Tags')
       .setDesc(
         "If 'Only Existing Tags' is enabled, Darwin will not choose from vault tags that match these tag families. Wild cards are supported. Otherwise tags match exactly to be excluded."
       )
       .addText(text => {
         text
-          .setPlaceholder('prefix1 prefix2')
+          .setPlaceholder('tag tag-family/*')
           .setValue(
             this.setting.exclude_tags?.join(' ') ??
               DEFAULT_SETTINGS.exclude_tags.join(' ')

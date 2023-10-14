@@ -57,10 +57,10 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 2. The agent's **initial message** is the body of the file.
 3. For additional agent settings, you can add the following fields to the file's YAML frontmatter:
 
-| Setting ID                  | Setting Type | Description                                                       |
-| --------------------------- | ------------ | ----------------------------------------------------------------- |
-| `arcana-agent-emoji`        | Emoji        | The emoji the agent will use for the conversation                 |
-| `arcana-user-emoji`         | Emoji        | The emoji the user will use for the conversation                  |
+| Setting ID                       | Setting Type | Description                                                       |
+| -------------------------------- | ------------ | ----------------------------------------------------------------- |
+| `arcana-agent-emoji`             | Emoji        | The emoji the agent will use for the conversation                 |
+| `arcana-user-emoji`              | Emoji        | The emoji the user will use for the conversation                  |
 | `arcana-auto-send-transcription` | Boolean      | Whether to send a transcribed message immediately after recording |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
@@ -117,9 +117,12 @@ Only answer like Aristotle. You must know all of the knowledge of Aristotle.
 
 **Cataloging and Classifying**
 
-- Adds 1-4 tags to your note in the frontmatter
-- Only uses tags that are in your vault.
+- Adds up to `Max tags to add` new tags to note
+- Can request that `Only Existing Tags` be considered. Otherwise, new tags are allowed as well
+  - Can `Exclude Tags` to be considered from vault (like `flashcards/*`). Wild cards allowed.
+  - Can also only show tags that exceed or are equal to `Min Tag Count` to filter uncommon tags.
 - Does not repeat tags used in the note.
+- Can set the `New Tag Style` to: None, Kebab, Camel, Snake and Pascal Case. This applies only to tags not already in vault.
 
 ![](gifs/Darwin.gif)
 
