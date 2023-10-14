@@ -6,8 +6,11 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
 import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
-import WhisperButton from './WhisperButton';
-import { OpenAIWhisperAudio } from 'langchain/document_loaders/fs/openai_whisper_audio';
+import {
+  RecordingError,
+  TranslationError,
+  WhisperButton,
+} from '../../components/MicrophoneButton';
 
 export function ConversationDialogue({
   current_file,
@@ -21,6 +24,7 @@ export function ConversationDialogue({
     (state: ChatAgentState) => state.agents[agentName]
   );
   const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
+  const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
   const dispatch = useDispatch<StoreDispatch>();
 
   React.useEffect(() => {
@@ -108,28 +112,13 @@ export function ConversationDialogue({
     }
   };
 
-  const transcribeMessage = async (blob: Blob) => {
-    const filePath = '/SocratesAudio.webm';
-    // Write blob to file
-    arcana.app.vault
-      .createBinary(filePath, await blob.arrayBuffer())
-      .then(file => {
-        const openAIWhisperAudio = new OpenAIWhisperAudio(filePath, {
-          clientOptions: {
-            apiKey: arcana.getAPIKey(),
-            dangerouslyAllowBrowser: true,
-          },
-        });
-        // TODO: Use Open AI directly instead of LangChain
-        openAIWhisperAudio
-          .load()
-          .then(console.log)
-          .finally(() => {
-            // Delete the file
-            arcana.app.vault.delete(file);
-          });
-      });
+  const onTranscription = (text: string) => {
+    // Check if the user text area is valid, then append to it
+    if (userAreaRef.current) {
+      userAreaRef.current.value += text;
+    }
   };
+
   return (
     <div className="conversation">
       <div
@@ -182,12 +171,20 @@ export function ConversationDialogue({
       <div style={{ marginTop: 'auto' }}>
         <div style={{ marginTop: '1em', padding: '2px', flexDirection: 'row' }}>
           <textarea
+            ref={userAreaRef}
             placeholder="Ask me something"
             onKeyUp={onSubmitMessage}
             className="beautiful-input"
             // So that we can add text to the textarea
           />
-          <WhisperButton onRecordingEnd={transcribeMessage} />
+          <WhisperButton
+            onTranscription={onTranscription}
+            onFailedTranscription={(
+              error: TranslationError | RecordingError
+            ) => {
+              console.log(error);
+            }}
+          />
         </div>
       </div>
     </div>

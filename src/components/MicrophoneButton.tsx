@@ -1,7 +1,15 @@
 /*
 A voice record button that uses OpenAI's Whispher model
 */
+import { useArcana } from '../hooks/hooks';
 import React, { useState, useEffect, useRef } from 'react';
+
+// An enum of recording errors
+export enum RecordingError {
+  DOES_NOT_SUPPORT_RECORDING = 'DOES_NOT_SUPPORT_RECORDING',
+  NO_MICROPHONE_FOUND = 'NO_MICROPHONE_FOUND',
+  FAILED_TO_RECORD = 'FAILED_TO_RECORD',
+}
 
 class Recorder {
   gumStream: MediaStream | null; //stream from getUserMedia()
@@ -9,13 +17,18 @@ class Recorder {
   chunks: BlobPart[] = []; //Array of chunks of audio data from the browser
   extension: string | null;
   onFinish: (blob: Blob) => void;
+  onError: (e: RecordingError) => void;
 
-  constructor(onFinish: (blob: Blob) => void) {
+  constructor(
+    onFinish: (blob: Blob) => void,
+    onError: (e: RecordingError) => void
+  ) {
     this.gumStream = null;
     this.recorder = null;
     this.chunks = [];
     this.extension = null;
     this.onFinish = onFinish;
+    this.onError = onError;
   }
 
   async beginRecording() {
@@ -24,8 +37,7 @@ class Recorder {
     if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
       this.extension = 'webm';
     } else {
-      // TODO:
-      // Raise a warning
+      this.onError(RecordingError.DOES_NOT_SUPPORT_RECORDING);
     }
 
     const constraints = { audio: true, video: false };
@@ -72,10 +84,13 @@ class Recorder {
         const blob = new Blob(this.chunks, {
           type: 'audio/' + this.extension,
         });
-        console.log(blob.type);
         this.onFinish(blob);
       }).bind(this);
-      this.recorder.onerror = console.log;
+
+      this.recorder.onerror = ((e: Event) => {
+        console.log('recorder.onerror', e);
+        this.onError(RecordingError.FAILED_TO_RECORD);
+      }).bind(this);
 
       //start recording using 1 second chunks
       //Chrome and Firefox will record one long chunk if you do not specify the chunck length
@@ -90,13 +105,13 @@ class Recorder {
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(callback)
-      .catch(function (err) {
-        //enable the record button if getUserMedia() fails
-        console.log(err);
-        console.log(
-          'getUserMedia() failed. Please check your browser settings.'
-        );
-      });
+      .catch(
+        function (err: any) {
+          // I think this is correct
+          console.log(err);
+          this.onError(RecordingError.NO_MICROPHONE_FOUND);
+        }.bind(this)
+      );
   }
   async stopRecording() {
     console.log(this.recorder);
@@ -107,15 +122,17 @@ class Recorder {
   }
 }
 
-export default function WhisperButton({
+export function MicrophoneButton({
   onRecordingEnd,
+  onRecordingError,
 }: {
   onRecordingEnd: (blob: Blob) => void;
+  onRecordingError: (e: RecordingError) => void;
 }) {
   // A stylish button that goes red when pressed
   const [recording, setRecording] = useState(false);
   // Use a ref to keep a consistent reference to the recorder across renders
-  const recorderRef = useRef(new Recorder(onRecordingEnd));
+  const recorderRef = useRef(new Recorder(onRecordingEnd, onRecordingError));
 
   const beginRecording = () => {
     recorderRef.current.beginRecording();
@@ -151,5 +168,39 @@ export default function WhisperButton({
         {recording ? '🎙️' : '🎤'}
       </button>
     </div>
+  );
+}
+
+export enum TranslationError {
+  FAILED_TO_TRANSLATE = 'FAILED_TO_TRANSLATE',
+}
+
+export function WhisperButton({
+  onTranscription,
+  onFailedTranscription,
+}: {
+  onTranscription: (text: string) => void;
+  onFailedTranscription: (error: TranslationError | RecordingError) => void;
+}) {
+  const arcana = useArcana();
+  const onRecordingEnd = (blob: Blob) => {
+    arcana
+      .transcribe(new File([blob], 'recording.webm'))
+      .then(text => {
+        onTranscription(text);
+      })
+      .catch(error => {
+        console.log(error);
+        onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
+      });
+  };
+  const onRecordingError = (error: RecordingError) => {
+    onFailedTranscription(error);
+  };
+  return (
+    <MicrophoneButton
+      onRecordingEnd={onRecordingEnd}
+      onRecordingError={onRecordingError}
+    />
   );
 }
