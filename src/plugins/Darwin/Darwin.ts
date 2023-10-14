@@ -24,6 +24,7 @@ enum TagStyle {
 type DarwinSettings = {
   minimum_tag_count_to_present: number;
   only_suggest_existing_tags: boolean;
+  exclude_tags: string[];
   max_tags_to_show: number;
   tag_style: TagStyle;
 };
@@ -31,6 +32,7 @@ type DarwinSettings = {
 const DEFAULT_SETTINGS: DarwinSettings = {
   minimum_tag_count_to_present: 1,
   only_suggest_existing_tags: false,
+  exclude_tags: [],
   max_tags_to_show: 4,
   tag_style: TagStyle.None,
 };
@@ -135,6 +137,30 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     }
   }
 
+  private getAllSuggestableVaultTags(): string[] {
+    return (
+      this.tagCountCache
+        // Filter out tags that don't meet the minimum count
+        ?.filter(
+          ([tag, count]) => count >= this.setting.minimum_tag_count_to_present
+        )
+        .map(t => t[0])
+        // Ignore all vault tags that match exclude_tags
+        .filter(vaultTag => {
+          return !this.setting.exclude_tags.some(exTag => {
+            const regex = new RegExp(
+              exTag
+                // replace all wild cards with regex wild cards
+                .replace(/\*/g, '.*')
+                // Add a ^ and $ to the regex to make sure it matches the whole string
+                .replace(/^(.*)$/, '^$1$')
+            );
+            return regex.test(vaultTag);
+          });
+        }) ?? []
+    );
+  }
+
   // Robust function to get tags from response
   private getAdditionalTagsFromResponse(
     response: string,
@@ -156,7 +182,11 @@ export default class DarwinPlugin extends ArcanaPluginBase {
       .filter(tag => !tagsFromFile.includes(tag))
       .filter(tag => {
         if (this.setting.only_suggest_existing_tags)
-          return this.tagCountCache?.map(t => t[0]).includes(tag);
+          return (
+            this.getAllSuggestableVaultTags()
+              // Only suggest from the tags that remain
+              .includes(tag)
+          );
         else return true;
       })
       .map(tag => {
@@ -263,9 +293,32 @@ export default class DarwinPlugin extends ArcanaPluginBase {
       )
       .addToggle(toggle => {
         toggle
-          .setValue(this.setting.only_suggest_existing_tags)
+          .setValue(
+            this.setting.only_suggest_existing_tags ??
+              DEFAULT_SETTINGS.only_suggest_existing_tags
+          )
           .onChange(async (value: boolean) => {
             this.setting.only_suggest_existing_tags = value;
+            this.arcana.settings.PluginSettings['Darwin'] = this.setting;
+            await this.arcana.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('Exclude Tag Prefixes')
+      .setDesc(
+        "If 'Only Existing Tags' is enabled, Darwin will not choose from vault tags that match these tag families. Wild cards are supported. Otherwise tags match exactly to be excluded."
+      )
+      .addText(text => {
+        text
+          .setPlaceholder('prefix1 prefix2')
+          .setValue(
+            this.setting.exclude_tags?.join(' ') ??
+              DEFAULT_SETTINGS.exclude_tags.join(' ')
+          )
+          .onChange(async (value: string) => {
+            const prefixes = value.split(' ');
+            this.setting.exclude_tags = prefixes;
             this.arcana.settings.PluginSettings['Darwin'] = this.setting;
             await this.arcana.saveSettings();
           });
@@ -343,13 +396,6 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     if (this.setting.only_suggest_existing_tags)
       purpose += `You select from handful of EXISTING TAGS that you will suggest should be added.`;
 
-    const existing_tags = `${this.tagCountCache
-      ?.filter(
-        ([tag, count]) => count >= this.setting.minimum_tag_count_to_present
-      )
-      .map(([tag, count]) => `${tag}`)
-      .join(' ')}`;
-
     const tag_format = `Tags must use the only the following characters: Alphabetical letters, Numbers, Underscore (_), Hyphen (-), Forward slash (/) for Nested tags. Tags cannot contain blank spaces. Tags must contain at least one non-numerical character. For example, #1984 isn't a valid tag, but #y1984 is.`;
 
     let rules = `- Return a list of additional tags to add that are most relevant to the file. The list should be space seperated. For example: 'tag1 tag2 tag3'.
@@ -371,7 +417,9 @@ export default class DarwinPlugin extends ArcanaPluginBase {
     `;
 
     if (this.setting.only_suggest_existing_tags) {
-      context += `\n[EXISTING TAGS]\n${existing_tags}`;
+      context += `\n[EXISTING TAGS]\n${this.getAllSuggestableVaultTags().join(
+        ' '
+      )}`;
     }
     return context;
   }
