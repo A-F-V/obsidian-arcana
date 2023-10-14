@@ -41,10 +41,11 @@ export function ConversationDialogue({
 
   // Sets the initial message whenever it changes
   React.useEffect(() => {
+    console.log('Agent changed to ' + agentName);
     if (aiFeed) {
       aiFeed.setContext(agent.initialMessage);
     }
-  }, [aiFeed, agent.initialMessage]);
+  }, [agentName]);
 
   const resetConversation = () => {
     dispatch({
@@ -86,14 +87,23 @@ export function ConversationDialogue({
     });
   };
 
+  const sendMessage = React.useCallback(
+    (textArea: HTMLTextAreaElement) => {
+      if (aiFeed && !aiFeed.isQuestionBeingAsked()) {
+        console.log('Sending message');
+        const question = textArea.value;
+        textArea.value = '';
+        createUserMessage(question);
+        askQuestion(question);
+      }
+    },
+    [agentName, aiFeed]
+  );
+
   const onSubmitMessage = (e: any) => {
-    if (e.key == 'Enter' && aiFeed && !aiFeed.isQuestionBeingAsked()) {
-      const question = e.currentTarget.value;
-      e.currentTarget.value = '';
-      createUserMessage(question);
-      askQuestion(question);
-    }
+    sendMessage(e.currentTarget);
   };
+
   const sendFileMessage = () => {
     if (aiFeed) {
       // Load the current_file
@@ -112,12 +122,20 @@ export function ConversationDialogue({
     }
   };
 
-  const onTranscription = (text: string) => {
-    // Check if the user text area is valid, then append to it
-    if (userAreaRef.current) {
-      userAreaRef.current.value += text;
-    }
-  };
+  const onTranscription = React.useCallback(
+    (text: string) => {
+      // Check if the user text area is valid, then append to it
+      if (!userAreaRef.current) return;
+      if (userAreaRef.current) {
+        userAreaRef.current.value += text;
+      }
+      // If the agent is on auto send, then send the message
+      console.log(agentName);
+      console.log(agent);
+      if (agent.autoSendTranscription) sendMessage(userAreaRef.current);
+    },
+    [agentName, agent, sendMessage, userAreaRef]
+  );
 
   return (
     <div className="conversation">

@@ -3,6 +3,7 @@
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22arcana%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 
 [Looking for Collaborators](#collaborating)
+
 # 🔮 Arcana
 
 > A plugin for [Obsidian](https://obsidian.md/)
@@ -43,28 +44,35 @@
 ![](gifs/Socrates.gif)
 
 ### Adding Custom Chat Agents
-You can create new agents like Socrates that are specialized for your own use cases. 
+
+You can create new agents like Socrates that are specialized for your own use cases.
 
 For example, bring **Aristotle**, the teacher of Alexander the Greater, to life by using [Mr Ranedeer's AI Tutor Prompt](https://github.com/JushBJJ/Mr.-Ranedeer-AI-Tutor) as the initial message.
 
 To create a new agent, add a new file to the `Conversation Agent Folder` specified in settings.
-1) The agent's **name** is the name of the file. Names must be unique and cannot be the same as **Socrates**
-2) The agent's **initial message** is the body of the file.
-3) For additional agent settings, you can add the following fields to the file's YAML frontmatter:
 
-| Setting ID | Setting Type | Description |
-| --- | --- | --- |
-| `arcana-agent-emoji` | Emoji | The emoji the agent will use for the conversation |
-| `arcana-user-emoji` | Emoji | The emoji the user will use for the conversation |
+1. The agent's **name** is the name of the file. Names must be unique and cannot be the same as **Socrates**
+2. The agent's **initial message** is the body of the file.
+3. For additional agent settings, you can add the following fields to the file's YAML frontmatter:
+
+| Setting ID                  | Setting Type | Description                                                       |
+| --------------------------- | ------------ | ----------------------------------------------------------------- |
+| `arcana-agent-emoji`        | Emoji        | The emoji the agent will use for the conversation                 |
+| `arcana-user-emoji`         | Emoji        | The emoji the user will use for the conversation                  |
+| `arcana-auto-transcription` | Boolean      | Whether to send a transcribed message immediately after recording |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
+
 #### Example
-In a file called `Aristotle.md` 
+
+In a file called `Aristotle.md`
+
 ```md
 ---
 arcana-user-emoji: 🧐
 arcana-agent-emoji: 🗿
 ---
+
 I want you to act like Aristotle.
 I want you to respond and answer like Aristotle using the tone, manner and vocabulary Aristotle would use.
 Do not write any explanations.
@@ -109,7 +117,7 @@ Only answer like Aristotle. You must know all of the knowledge of Aristotle.
 - Adds 1-4 tags to your note in the frontmatter
 - Only uses tags that are in your vault.
 - Does not repeat tags used in the note.
-  
+
 ![](gifs/Darwin.gif)
 
 ## Nostradamus
@@ -128,6 +136,7 @@ Only answer like Aristotle. You must know all of the knowledge of Aristotle.
 ---
 
 ### Collaborating:
+
 **Actively Looking for Collaborators**
 If you would like to contribute or collaborate, message me directly on twitter [@AFV_7](https://twitter.com/AFV_7) and we can talk :).
 

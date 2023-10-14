@@ -2,7 +2,7 @@
 A voice record button that uses OpenAI's Whispher model
 */
 import { useArcana } from '../hooks/hooks';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // An enum of recording errors
 export enum RecordingError {
@@ -134,6 +134,10 @@ export function MicrophoneButton({
   // Use a ref to keep a consistent reference to the recorder across renders
   const recorderRef = useRef(new Recorder(onRecordingEnd, onRecordingError));
 
+  useEffect(() => {
+    recorderRef.current = new Recorder(onRecordingEnd, onRecordingError);
+  }, [onRecordingEnd, onRecordingError]);
+
   const beginRecording = () => {
     recorderRef.current.beginRecording();
   };
@@ -174,24 +178,25 @@ export function WhisperButton({
   onFailedTranscription: (error: TranslationError | RecordingError) => void;
 }) {
   const arcana = useArcana();
-  const onRecordingEnd = (blob: Blob) => {
-    arcana
-      .transcribe(new File([blob], 'recording.webm'))
-      .then(text => {
-        onTranscription(text);
-      })
-      .catch(error => {
-        console.log(error);
-        onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
-      });
-  };
-  const onRecordingError = (error: RecordingError) => {
-    onFailedTranscription(error);
-  };
+
+  const onRecordingEnd = useCallback(
+    (blob: Blob) => {
+      arcana
+        .transcribe(new File([blob], 'recording.webm'))
+        .then(text => {
+          onTranscription(text);
+        })
+        .catch(error => {
+          console.log(error);
+          onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
+        });
+    },
+    [onTranscription, onFailedTranscription]
+  );
   return (
     <MicrophoneButton
       onRecordingEnd={onRecordingEnd}
-      onRecordingError={onRecordingError}
+      onRecordingError={onFailedTranscription}
     />
   );
 }
