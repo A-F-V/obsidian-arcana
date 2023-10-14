@@ -59,7 +59,7 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 | --------------------------- | ------------ | ----------------------------------------------------------------- |
 | `arcana-agent-emoji`        | Emoji        | The emoji the agent will use for the conversation                 |
 | `arcana-user-emoji`         | Emoji        | The emoji the user will use for the conversation                  |
-| `arcana-auto-transcription` | Boolean      | Whether to send a transcribed message immediately after recording |
+| `arcana-auto-send-transcription` | Boolean      | Whether to send a transcribed message immediately after recording |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
 
@@ -71,6 +71,7 @@ In a file called `Aristotle.md`
 ---
 arcana-user-emoji: 🧐
 arcana-agent-emoji: 🗿
+aracana-auto-send-transcription: true
 ---
 
 I want you to act like Aristotle.
