@@ -12,12 +12,14 @@ import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
+import { EdenTextToSpeechParams } from './include/TextToSpeech';
 
-const DEFAULT_SETTINGS: Partial<ArcanaSettings> = {
+const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
   MODEL_TYPE: 'gpt-3.5-turbo',
   TEMPERATURE: 0.7,
   TOP_P: 1,
+  EDEN_AI_API_KEY: '',
   PluginSettings: {},
 };
 
@@ -32,6 +34,10 @@ export default class ArcanaPlugin extends Plugin {
     aborter?: () => boolean
   ) => Promise<string>;
   public transcribe: (file: File) => Promise<string>;
+  public speak: (
+    text: string,
+    settings: EdenTextToSpeechParams
+  ) => Promise<HTMLAudioElement>;
 
   fs: StorageManager;
   settings: ArcanaSettings;
@@ -50,7 +56,7 @@ export default class ArcanaPlugin extends Plugin {
     this.startFeed = this.agent.startFeed.bind(this.agent);
     this.complete = this.agent.complete.bind(this.agent);
     this.transcribe = this.agent.transcribe.bind(this.agent);
-
+    this.speak = this.agent.speak.bind(this.agent);
     // Set up the settings
     await this.loadSettings();
 

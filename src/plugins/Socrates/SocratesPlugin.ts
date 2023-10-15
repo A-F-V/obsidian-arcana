@@ -7,12 +7,18 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import store from './AgentState';
 import { AgentData } from './ConversationAgent';
 
+interface SocratesSettings {
+  priorInstruction: string;
+  agent_folder: string;
+  // Speech to Text
+  autoSendTranscription: boolean;
+  // Text to Speech
+}
+
 export default class SocratesPlugin extends ViewPluginBase {
-  private settings = {
+  private settings: SocratesSettings = {
     priorInstruction: '',
     autoSendTranscription: false,
-    //  usingWeb: false,
-    //  serpApiToken: '',
     agent_folder: 'Arcana/Agents',
   };
 
@@ -39,7 +45,7 @@ export default class SocratesPlugin extends ViewPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Socrates' });
+    containerEl.createEl('h3', { text: 'Socrates' });
 
     new Setting(containerEl)
       .setName("Socrates's System Message")
@@ -62,6 +68,22 @@ export default class SocratesPlugin extends ViewPluginBase {
       });
 
     new Setting(containerEl)
+      .setName('Conversation Agent Folder')
+      .setDesc('The folder from which to load conversation agent templates.')
+      .addText(text => {
+        text
+          .setPlaceholder('')
+          .setValue(this.settings.agent_folder)
+          .onChange(async (value: string) => {
+            this.settings.agent_folder = value;
+            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
+            await this.arcana.saveSettings();
+          });
+      });
+    // Create h3 for Speech to Text
+    containerEl.createEl('h2', { text: 'Speech to Text' });
+
+    new Setting(containerEl)
       .setName("Automatically Send Socrates' transcription")
       .setDesc(
         "Whether to automatically send Socrates' transcription after recording"
@@ -76,19 +98,6 @@ export default class SocratesPlugin extends ViewPluginBase {
           });
       });
 
-    new Setting(containerEl)
-      .setName('Conversation Agent Folder')
-      .setDesc('The folder from which to load conversation agent templates.')
-      .addText(text => {
-        text
-          .setPlaceholder('')
-          .setValue(this.settings.agent_folder)
-          .onChange(async (value: string) => {
-            this.settings.agent_folder = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
-          });
-      });
     /*
     new Setting(containerEl)
       .setName('With Web Search')

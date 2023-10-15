@@ -265,7 +265,7 @@ export default class DarwinPlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Darwin' });
+    containerEl.createEl('h3', { text: 'Darwin' });
 
     new Setting(containerEl)
       .setName('Max tags to add')

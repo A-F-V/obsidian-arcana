@@ -8,11 +8,13 @@ export default function MessageView({
   agent,
   onCancel,
   onCopy,
+  onSpeak,
 }: {
   message: Message;
   agent: AgentData;
   onCancel: () => void;
   onCopy: () => void;
+  onSpeak: (text: string) => void;
 }) {
   const [isAI, setIsAI] = React.useState<boolean>(false);
   React.useEffect(() => {
@@ -46,6 +48,13 @@ export default function MessageView({
                 onClick={e => onCopy()}
               >
                 ✍️
+              </button>
+              <button
+                className="beautiful-button"
+                style={{ marginInline: 10 }}
+                onClick={e => onSpeak(message.text)}
+              >
+                🗣️
               </button>
             </div>
           )}

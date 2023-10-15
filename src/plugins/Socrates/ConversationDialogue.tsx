@@ -12,6 +12,11 @@ import {
   WhisperButton,
 } from '../../components/MicrophoneButton';
 
+import {
+  EdenTextToSpeech,
+  EdenTextToSpeechParams,
+} from '../../include/TextToSpeech';
+
 export function ConversationDialogue({
   current_file,
   agentName,
@@ -135,6 +140,14 @@ export function ConversationDialogue({
     [agentName, agent, sendMessage, userAreaRef]
   );
 
+  const onSpeak = (text: string) => {
+    console.log('Speak: ' + text);
+    const settings: EdenTextToSpeechParams = {};
+    arcana.speak(text, settings).then((audio: HTMLAudioElement) => {
+      audio.play();
+    });
+  };
+
   return (
     <div className="conversation">
       <div
@@ -178,6 +191,7 @@ export function ConversationDialogue({
                     else mdView.editor.replaceSelection(message.text);
                   }
                 }}
+                onSpeak={onSpeak}
               />
             </div>
           ))}
