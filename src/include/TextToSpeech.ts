@@ -25,7 +25,6 @@ export class EdenTextToSpeech {
       settings: { [settings.provider]: settings.model },
     });
 
-    console.log(body);
     const audio = await requestUrl({
       method: 'POST',
       url: 'https://api.edenai.run/v2/audio/text_to_speech',
@@ -36,23 +35,29 @@ export class EdenTextToSpeech {
         authorization: `Bearer ${api_key}`,
         Accept: 'application/json',
       },
-    })
-      .then((response: RequestUrlResponse) => {
-        if (response.status != 200) {
-          throw new Error(response.json);
-        }
-
-        console.log(response.json);
-        const b64 = response.json[settings.provider]['audio'];
-        const url = `data:audio/mp3;base64,${b64}`;
-        console.log(url);
-        const audio = new Audio(url);
-        return audio;
-      })
-      .catch((error: Error) => {
-        console.log(error.message);
-        throw error;
-      });
+    }).then((response: RequestUrlResponse) => {
+      // A EdenAI error
+      if (response.status != 200) {
+        return Promise.reject(
+          new Error(
+            `Request failed with status ${response.status}: ${response.text}`
+          )
+        );
+      }
+      // A provider error
+      if (response.json[settings.provider]['status'] == 'fail') {
+        const errorMessage =
+          response.json[settings.provider]['error']['message'];
+        console.log(errorMessage);
+        return Promise.reject(new Error(errorMessage));
+      }
+      // Everything is good
+      const b64 = response.json[settings.provider]['audio'];
+      const url = `data:audio/mp3;base64,${b64}`;
+      console.log(url);
+      const audio = new Audio(url);
+      return audio;
+    });
     return audio;
   }
 }
