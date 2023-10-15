@@ -22,13 +22,7 @@ import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 import { merge } from 'src/include/Functional';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
-  private arcana: ArcanaPlugin;
   private setting: { folder: string };
-
-  public constructor(arcana: ArcanaPlugin) {
-    super();
-    this.arcana = arcana;
-  }
 
   private ensureFolderExists() {
     if (!this.arcana.app.vault.getAbstractFileByPath(this.setting.folder)) {

@@ -13,6 +13,7 @@ import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
 import { EdenTextToSpeechParams } from './include/TextToSpeech';
+import FordPlugin from './plugins/Ford/Ford';
 
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
@@ -48,6 +49,7 @@ export default class ArcanaPlugin extends Plugin {
     new ChristiePlugin(this),
     new FeynmanPlugin(this),
     new DarwinPlugin(this),
+    new FordPlugin(this),
   ];
 
   async onload() {

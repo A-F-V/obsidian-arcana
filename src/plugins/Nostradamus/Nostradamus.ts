@@ -9,12 +9,6 @@ import { StructuredOutputParser } from 'langchain/output_parsers';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 
 export default class NostradamusPlugin extends ArcanaPluginBase {
-  private arcana: ArcanaPlugin;
-  public constructor(arcana: ArcanaPlugin) {
-    super();
-    this.arcana = arcana;
-  }
-
   public async onload() {
     // Register the nostradamus command
     this.arcana.addCommand({

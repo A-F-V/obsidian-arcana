@@ -4,7 +4,6 @@ import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
 
 export default abstract class ViewPluginBase extends ArcanaPluginBase {
-  protected arcana: ArcanaPlugin;
   private viewType: string;
   private viewFactory: (leaf: WorkspaceLeaf) => View;
 
@@ -15,8 +14,7 @@ export default abstract class ViewPluginBase extends ArcanaPluginBase {
     displayText: string,
     view: () => JSX.Element
   ) {
-    super();
-    this.arcana = arcana;
+    super(arcana);
     this.viewType = viewType;
     this.viewFactory = (leaf: WorkspaceLeaf) => {
       return new ObsidianView(leaf, arcana, viewType, icon, displayText, view);

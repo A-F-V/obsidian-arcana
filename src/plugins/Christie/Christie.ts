@@ -11,13 +11,7 @@ import { moveToEndOfLine } from 'src/include/CursorMover';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 
 export default class ChristiePlugin extends ArcanaPluginBase {
-  private arcana: ArcanaPlugin;
   private priorInstruction = '';
-
-  public constructor(arcana: ArcanaPlugin) {
-    super();
-    this.arcana = arcana;
-  }
 
   public async onload() {
     this.priorInstruction =

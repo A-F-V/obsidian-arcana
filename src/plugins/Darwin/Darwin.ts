@@ -38,14 +38,8 @@ const DEFAULT_SETTINGS: DarwinSettings = {
   tag_style: TagStyle.None,
 };
 export default class DarwinPlugin extends ArcanaPluginBase {
-  private arcana: ArcanaPlugin;
   private setting: DarwinSettings = DEFAULT_SETTINGS;
   private tagCountCache: [string, number][] | null = null;
-
-  public constructor(arcana: ArcanaPlugin) {
-    super();
-    this.arcana = arcana;
-  }
 
   private async getTagsForFile(file: TFile): Promise<string[]> {
     const fmm = new FrontMatterManager(this.arcana);
