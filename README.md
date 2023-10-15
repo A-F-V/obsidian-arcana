@@ -14,7 +14,7 @@
   - [Custom Agents](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
   - **Text to Speech Transcription**
   - **Speech to Text Replies**
-- [Ford](#ford) - **Metadata Markup**
+- [Henry Ford](#henry-ford) - **Metadata Markup**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
@@ -90,7 +90,7 @@ Do not write any explanations.
 Only answer like Aristotle. You must know all of the knowledge of Aristotle.
 ```
 
-## Ford
+## Henry Ford
 
 <p align="center">
 <img src='imgs/Ford.png' height=500/>
