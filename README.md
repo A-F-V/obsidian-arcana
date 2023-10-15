@@ -43,6 +43,7 @@
 - Exchange in dialogue with Socrates.
 - Ask questions specific to the note currently open.
 - Use OpenAI's Whisper Text to Speech transcription.
+- Use EdenAI Speech to Text for AI replies.
 
 ![](gifs/Socrates.gif)
 
