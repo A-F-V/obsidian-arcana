@@ -12,6 +12,7 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import FrontMatterManager from 'src/include/FrontMatterManager';
+import { merge } from 'src/include/Functional';
 
 enum TagStyle {
   None = 'None',
@@ -205,8 +206,10 @@ export default class DarwinPlugin extends ArcanaPluginBase {
   }
 
   public async onload() {
-    this.setting =
-      this.arcana.settings.PluginSettings['Darwin'] ?? DEFAULT_SETTINGS;
+    this.setting = merge(
+      this.arcana.settings.PluginSettings['Darwin'],
+      DEFAULT_SETTINGS
+    );
 
     // Get lists of all tags periodically
     // TODO: Just add tags heuristicly after initial load

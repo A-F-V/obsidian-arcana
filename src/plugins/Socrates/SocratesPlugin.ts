@@ -10,6 +10,7 @@ import {
   EdenTextToSpeechParams,
   TextToSpeechProvider,
 } from 'src/include/TextToSpeech';
+import { merge } from 'src/include/Functional';
 
 interface SocratesSettings {
   priorInstruction: string;
@@ -53,9 +54,10 @@ export default class SocratesPlugin extends ViewPluginBase {
   public async onload(): Promise<void> {
     await super.onload();
 
-    this.settings =
-      this.arcana.settings.PluginSettings['Socrates'] ??
-      defaultSocratesSettings;
+    this.settings = merge(
+      this.arcana.settings.PluginSettings['Socrates'],
+      defaultSocratesSettings
+    );
 
     this.settings.ttsParams ??= defaultSocratesSettings.ttsParams;
   }
@@ -78,7 +80,15 @@ export default class SocratesPlugin extends ViewPluginBase {
       });
 
     containerEl.createEl('h3', { text: 'Socrates Agent Settings' });
-
+    const saveSocratesAgent = async () => {
+      this.arcana.settings.PluginSettings['Socrates'] = this.settings;
+      await this.arcana.saveSettings();
+      store.dispatch({
+        type: 'agent/update',
+        agent: this.getSocrates(),
+        old_name: 'Socrates',
+      });
+    };
     new Setting(containerEl)
       .setName("Socrates's System Message")
       .setDesc('The prior instruction given to Socrates')
@@ -88,14 +98,7 @@ export default class SocratesPlugin extends ViewPluginBase {
           .setValue(this.settings.priorInstruction)
           .onChange(async (value: string) => {
             this.settings.priorInstruction = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
-
-            store.dispatch({
-              type: 'agent/update',
-              agent: this.getSocrates(),
-              old_name: 'Socrates',
-            });
+            await saveSocratesAgent();
           });
       });
     // Speech to Text
@@ -114,8 +117,7 @@ export default class SocratesPlugin extends ViewPluginBase {
           )
           .onChange(async (value: boolean) => {
             this.settings.autoSendTranscription = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
+            await saveSocratesAgent();
           });
       });
     // Text to Speech
@@ -136,7 +138,7 @@ export default class SocratesPlugin extends ViewPluginBase {
           .onChange(async (value: TextToSpeechProvider) => {
             this.settings.ttsParams.provider = value;
             this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
+            await saveSocratesAgent();
           });
       });
 
