@@ -24,9 +24,9 @@ export function merge<T extends object>(reference_: T | null, default_: T): T {
     return default_;
   }
   // Print reference_ and default_ for debugging by stringifying them
-  console.log(
-    `Merging: ${JSON.stringify(reference_)} and ${JSON.stringify(default_)}`
-  );
+  //console.log(
+  //  `Merging: ${JSON.stringify(reference_)} and ${JSON.stringify(default_)}`
+  //);
 
   // Create a shallow copy of source to maintain the integrity of the original object.
   const result: T = { ...reference_ };

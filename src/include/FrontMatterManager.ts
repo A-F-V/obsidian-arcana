@@ -10,6 +10,7 @@ export default class FrontMatterManager {
 
   async set(file: TFile, key: string, value: any): Promise<void> {
     await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
+      console.log(key, frontMatter);
       frontMatter[key] = value;
     });
   }
