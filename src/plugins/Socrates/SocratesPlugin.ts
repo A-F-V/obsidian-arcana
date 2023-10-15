@@ -135,6 +135,13 @@ export default class SocratesPlugin extends ViewPluginBase {
       agentEmoji: '🤖',
       userEmoji: '😀',
       autoSendTranscription: this.getAutoSendTranscription(),
+      ttsParams: {
+        provider: 'google',
+        rate: 0,
+        pitch: 0,
+        model: 'en-GB-Neural2-D',
+        language: 'en-GB',
+      },
     };
   }
 

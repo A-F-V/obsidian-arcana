@@ -1,6 +1,12 @@
 import { requestUrl, RequestUrlResponse } from 'obsidian';
 
-export interface EdenTextToSpeechParams {}
+export interface EdenTextToSpeechParams {
+  provider: 'google'; // Just one provider for now
+  rate: number;
+  pitch: number;
+  model: string;
+  language: string;
+}
 
 export class EdenTextToSpeech {
   static async speak(
@@ -9,10 +15,12 @@ export class EdenTextToSpeech {
     settings: EdenTextToSpeechParams
   ): Promise<HTMLAudioElement> {
     const body = JSON.stringify({
-      providers: 'amazon',
-      language: 'en',
+      providers: settings.provider,
+      language: settings.language,
       text,
-      option: 'FEMALE',
+      rate: settings.rate,
+      pitch: settings.pitch,
+      settings: { [settings.provider]: settings.model },
     });
 
     console.log(body);
@@ -21,15 +29,20 @@ export class EdenTextToSpeech {
       url: 'https://api.edenai.run/v2/audio/text_to_speech',
       contentType: 'application/json',
       body,
-      throw: true,
+      throw: false,
       headers: {
         authorization: `Bearer ${api_key}`,
         Accept: 'application/json',
       },
     })
       .then((response: RequestUrlResponse) => {
+        if (response.status != 200) {
+          console.log(response);
+          throw new Error(response.status.toString());
+        }
+
         console.log(response.json);
-        const b64 = response.json['amazon']['audio'];
+        const b64 = response.json[settings.provider]['audio'];
         const url = `data:audio/mp3;base64,${b64}`;
         console.log(url);
         const audio = new Audio(url);

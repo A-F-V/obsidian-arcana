@@ -140,13 +140,16 @@ export function ConversationDialogue({
     [agentName, agent, sendMessage, userAreaRef]
   );
 
-  const onSpeak = (text: string) => {
-    console.log('Speak: ' + text);
-    const settings: EdenTextToSpeechParams = {};
-    arcana.speak(text, settings).then((audio: HTMLAudioElement) => {
-      audio.play();
-    });
-  };
+  const onSpeak = React.useCallback(
+    (text: string) => {
+      console.log('Speak: ' + text);
+      const settings: EdenTextToSpeechParams = agent.ttsParams;
+      arcana.speak(text, settings).then((audio: HTMLAudioElement) => {
+        audio.play();
+      });
+    },
+    [agent]
+  );
 
   return (
     <div className="conversation">
