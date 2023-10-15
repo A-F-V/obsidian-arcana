@@ -14,10 +14,11 @@ export type AgentData = {
   initialMessage: string;
   agentEmoji: string;
   userEmoji: string;
-  autoSendTranscription?: boolean;
+  autoSendTranscription: boolean;
 
   // Text to speech settings
   ttsParams: EdenTextToSpeechParams;
+  autoSpeakReply: boolean;
 };
 
 export class AgentDataLoader {
@@ -31,6 +32,7 @@ export class AgentDataLoader {
     pitch: 0,
     model: 'en-US-Neural2-J',
   };
+  private static defaultAutoSpeakReply = false;
 
   public static async fromFile(
     arcana: ArcanaPlugin,
@@ -78,6 +80,10 @@ export class AgentDataLoader {
         this.defaultTTSParams.language,
     };
 
+    const autoSpeakReply =
+      (await fmm.get<boolean>(file, 'arcana-auto-speak-reply')) ??
+      this.defaultAutoSpeakReply;
+
     // initial message is the contents of the file
     const initialMessage = removeFrontMatter(await arcana.app.vault.read(file));
 
@@ -88,6 +94,7 @@ export class AgentDataLoader {
       userEmoji,
       autoSendTranscription,
       ttsParams,
+      autoSpeakReply,
     };
   }
 }

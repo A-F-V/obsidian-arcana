@@ -237,6 +237,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       userEmoji: '😀',
       autoSendTranscription: this.getSocratesAutoSendTranscription(),
       ttsParams: this.getSocratesTTSParams(),
+      autoSpeakReply: false,
     };
   }
 

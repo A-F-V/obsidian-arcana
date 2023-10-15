@@ -12,10 +12,8 @@ import {
   WhisperButton,
 } from '../../components/MicrophoneButton';
 
-import {
-  EdenTextToSpeech,
-  EdenTextToSpeechParams,
-} from '../../include/TextToSpeech';
+import { EdenTextToSpeechParams } from '../../include/TextToSpeech';
+import { Message } from './Message';
 
 export function ConversationDialogue({
   current_file,
@@ -77,12 +75,33 @@ export function ConversationDialogue({
     });
   };
 
-  const askQuestion = (question: string) => {
-    if (aiFeed) {
-      createAIMessage();
-      aiFeed.askQuestion(question, addToAIMessage);
-    }
-  };
+  const getAgentToSpeak = React.useCallback(
+    (text: string) => {
+      console.log('Speaking with agent ' + JSON.stringify(agent));
+      const settings: EdenTextToSpeechParams = agent.ttsParams;
+      arcana
+        .speak(text, settings)
+        .then((audio: HTMLAudioElement) => {
+          audio.play();
+        })
+        .catch((error: any) => {
+          new Notice(`Error with Text to Speech:\n${error}`);
+        });
+    },
+    [agent]
+  );
+
+  const askQuestion = React.useCallback(
+    (question: string) => {
+      if (aiFeed) {
+        createAIMessage();
+        aiFeed.askQuestion(question, addToAIMessage).then((text: string) => {
+          if (agent.autoSpeakReply) getAgentToSpeak(text);
+        });
+      }
+    },
+    [agent]
+  );
 
   const createUserMessage = (message: string) => {
     dispatch({
@@ -140,22 +159,6 @@ export function ConversationDialogue({
     [agentName, agent, sendMessage, userAreaRef]
   );
 
-  const onSpeak = React.useCallback(
-    (text: string) => {
-      console.log('Speaking with agent ' + JSON.stringify(agent));
-      const settings: EdenTextToSpeechParams = agent.ttsParams;
-      arcana
-        .speak(text, settings)
-        .then((audio: HTMLAudioElement) => {
-          audio.play();
-        })
-        .catch((error: any) => {
-          new Notice(`Error with Text to Speech:\n${error}`);
-        });
-    },
-    [agent]
-  );
-
   return (
     <div className="conversation">
       <div
@@ -199,7 +202,7 @@ export function ConversationDialogue({
                     else mdView.editor.replaceSelection(message.text);
                   }
                 }}
-                onSpeak={onSpeak}
+                onSpeak={getAgentToSpeak}
               />
             </div>
           ))}
