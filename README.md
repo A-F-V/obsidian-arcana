@@ -14,6 +14,7 @@
   - [Custom Agents](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
   - **Text to Speech Transcription**
   - **Speech to Text Replies**
+- [Ford](#ford) - **Metadata Markup**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
@@ -87,6 +88,41 @@ I want you to act like Aristotle.
 I want you to respond and answer like Aristotle using the tone, manner and vocabulary Aristotle would use.
 Do not write any explanations.
 Only answer like Aristotle. You must know all of the knowledge of Aristotle.
+```
+
+## Ford
+
+<p align="center">
+<img src='imgs/Ford.png' height=500/>
+</p>
+
+**Frontmatter Metadata Automated Workflows**
+
+- Can define a template for updating properties in note's front matter based on user defined instruction
+- Can apply template to individual notes or an entire folder
+
+![](gifs/Ford.gif)
+
+1. Set the folder that contains your templates in the settings
+2. Templates are markdown notes with the following format: - Each property rule is a section (header + body) - The header contains the name of the property and optionally the type of the field from: `string`,`string[]`,`number`,`boolean`
+   For example:
+
+```markdown
+# part-of-speech:string
+
+For the word being defined, what is its part of speech? Select from: "verb"|"noun"|"adjective"|"other".
+
+# country-of-origin:string
+
+For the word being defined, what country or region can the word's etymology be traced back to. Give your answer in lower kebab case.
+
+# frequency:number
+
+For the word being defined, give a score from 1 to 10 for how often the word typically is used in modern discourse.
+
+# length:boolean
+
+Is the word longer than 7 characters? Just say true or false without explanation.
 ```
 
 ## Agatha Christie

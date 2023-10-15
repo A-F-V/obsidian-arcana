@@ -172,7 +172,7 @@ export default class FordPlugin extends ArcanaPluginBase {
     const template = headers.map((header, index) => {
       // Parse the header
       const headerReg = new RegExp(
-        /#+\s*(?<name>[^:\n]*)(:(?<type>(number|string|bool|string\[\])))?$/gm
+        /#+\s*(?<name>[^:\n]*)(:(?<type>(number|string|boolean|string\[\])))?$/gm
       );
       const hmatches = headerReg.exec(header);
       if (!hmatches) {
@@ -183,6 +183,16 @@ export default class FordPlugin extends ArcanaPluginBase {
         throw new Error(`Could not parse header ${header}`);
       }
       const type = 'type' in groups ? groups.type : 'string';
+      if (
+        type !== 'string' &&
+        type !== 'number' &&
+        type !== 'boolean' &&
+        type !== 'string[]'
+      ) {
+        throw new Error(
+          `Could not parse header ${header} as type was not string, number, boolean, or string[]`
+        );
+      }
       const name = groups.name.trim();
 
       // Parse the body
