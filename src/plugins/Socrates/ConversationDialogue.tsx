@@ -120,7 +120,7 @@ export function ConversationDialogue({
         askQuestion(question);
       }
     },
-    [agentName, aiFeed]
+    [agentName, aiFeed, agent]
   );
 
   const onSubmitMessage = (e: any) => {

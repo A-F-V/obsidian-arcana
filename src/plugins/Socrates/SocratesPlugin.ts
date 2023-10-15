@@ -19,6 +19,7 @@ interface SocratesSettings {
   autoSendTranscription: boolean;
   // Text to Speech
   ttsParams: EdenTextToSpeechParams;
+  autoSpeakReply: boolean;
 }
 
 const defaultSocratesSettings: SocratesSettings = {
@@ -32,6 +33,7 @@ const defaultSocratesSettings: SocratesSettings = {
     model: 'en-GB-Neural2-D',
     language: 'en-GB',
   },
+  autoSpeakReply: false,
 };
 export default class SocratesPlugin extends ViewPluginBase {
   private settings: SocratesSettings = defaultSocratesSettings;
@@ -45,6 +47,10 @@ export default class SocratesPlugin extends ViewPluginBase {
 
   private getSocratesTTSParams(): EdenTextToSpeechParams {
     return this.settings.ttsParams;
+  }
+
+  private getSocratesAutoSpeakReply(): boolean {
+    return this.settings.autoSpeakReply;
   }
 
   private getAgentFolder(): string {
@@ -199,6 +205,20 @@ export default class SocratesPlugin extends ViewPluginBase {
           });
       });
 
+    new Setting(containerEl)
+      .setName('TTS Auto Speak Reply')
+      .setDesc(
+        'Whether to automatically speak the reply once Socrates has finished replying'
+      )
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.settings.autoSpeakReply)
+          .onChange(async (value: boolean) => {
+            this.settings.autoSpeakReply = value;
+            await saveSocratesAgent();
+          });
+      });
+
     /*
     new Setting(containerEl)
       .setName('With Web Search')
@@ -237,7 +257,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       userEmoji: '😀',
       autoSendTranscription: this.getSocratesAutoSendTranscription(),
       ttsParams: this.getSocratesTTSParams(),
-      autoSpeakReply: false,
+      autoSpeakReply: this.getSocratesAutoSpeakReply(),
     };
   }
 
