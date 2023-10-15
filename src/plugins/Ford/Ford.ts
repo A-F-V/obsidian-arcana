@@ -1,4 +1,12 @@
-import { Editor, MarkdownView, Notice, Setting, TFile } from 'obsidian';
+import {
+  Editor,
+  MarkdownView,
+  Notice,
+  Setting,
+  TAbstractFile,
+  TFile,
+  TFolder,
+} from 'obsidian';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import { merge } from 'src/include/Functional';
@@ -35,6 +43,7 @@ export default class FordPlugin extends ArcanaPluginBase {
           this.arcana.app,
           this.setting.folder,
           async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
+            new Notice('Asking Ford...');
             this.askFord(file, templateFile).catch((error: Error) => {
               new Notice(error.message);
             });
@@ -42,6 +51,76 @@ export default class FordPlugin extends ArcanaPluginBase {
         ).open();
       },
     });
+
+    // So you can apply a template to a file or folder
+
+    this.arcana.registerEvent(
+      this.arcana.app.workspace.on(
+        'file-menu',
+        async (menu, tfile: TAbstractFile) => {
+          if (tfile instanceof TFile) {
+            menu.addItem(item => {
+              item.setTitle('Ford: Apply template to file');
+              item.setIcon('layout-template');
+              item.onClick(async () => {
+                new FordTemplateSuggestModal(
+                  this.arcana.app,
+                  this.setting.folder,
+                  async (
+                    templateFile: TFile,
+                    evt: MouseEvent | KeyboardEvent
+                  ) => {
+                    new Notice('Asking Ford...');
+                    this.askFord(tfile, templateFile)
+                      .catch((error: Error) => {
+                        new Notice(error.message);
+                      })
+                      .then(() => {
+                        new Notice(
+                          `Done updating ${tfile.basename} with ${templateFile.basename}`
+                        );
+                      });
+                  }
+                ).open();
+              });
+            });
+          } else if (tfile instanceof TFolder) {
+            menu.addItem(item => {
+              item.setTitle('Ford: Apply template to folder');
+              item.setIcon('layout-template');
+              item.onClick(async () => {
+                new FordTemplateSuggestModal(
+                  this.arcana.app,
+                  this.setting.folder,
+                  async (
+                    templateFile: TFile,
+                    evt: MouseEvent | KeyboardEvent
+                  ) => {
+                    new Notice('Asking Ford...');
+                    for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                      if (file.parent && file.parent.path == tfile.path) {
+                        // Need to these synchronously to avoid rate limit
+                        // Do a 1 second pause between each
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        await this.askFord(file, templateFile)
+                          .catch((error: Error) => {
+                            new Notice(error.message);
+                          })
+                          .then(() => {
+                            new Notice(
+                              `Done updating ${file.basename} with ${templateFile.basename}`
+                            );
+                          });
+                      }
+                    }
+                  }
+                ).open();
+              });
+            });
+          }
+        }
+      )
+    );
   }
 
   public addSettings(containerEl: HTMLElement) {
@@ -69,7 +148,6 @@ export default class FordPlugin extends ArcanaPluginBase {
     // Split it by sections
     // Find all the headers
     // Skip to the first header
-    console.log(text);
     // Find location of first header
     const firstHeader = text.match(/#+\s*(.*)/gms);
     if (!firstHeader) {
@@ -121,13 +199,21 @@ export default class FordPlugin extends ArcanaPluginBase {
     result.map(async (property: PropertyResult) => {
       const { name, type, result } = property;
       if (type === 'string') {
-        await fmm.set(file, name, result);
+        await fmm.set(file, name, result.replace(/"/g, ''));
       } else if (type === 'string[]') {
         //replace all
         await fmm.set(file, name, result.replace(/"/g, '').split(','));
       } else if (type === 'number') {
+        // Check if it is a number
+        if (isNaN(Number(result))) {
+          throw new Error(`Could not parse ${result} as a number`);
+        }
         await fmm.set(file, name, Number(result));
       } else if (type === 'boolean') {
+        // Check if it is a boolean
+        if (result !== 'true' && result !== 'false') {
+          throw new Error(`Could not parse ${result} as a boolean`);
+        }
         await fmm.set(file, name, result === 'true');
       }
     });
@@ -136,7 +222,6 @@ export default class FordPlugin extends ArcanaPluginBase {
   private async askFord(file: TFile, templateFile: TFile) {
     const template = await this.loadTemplate(templateFile);
     const fileContent = await this.arcana.app.vault.read(file);
-    console.log(template);
     // Form query for each fields in template
     const getPropertyResult = async (
       propertyName: string,
@@ -166,7 +251,6 @@ export default class FordPlugin extends ArcanaPluginBase {
           property.type,
           property.query
         );
-        console.log(result);
         return {
           name: property.name,
           type: property.type,
@@ -174,8 +258,6 @@ export default class FordPlugin extends ArcanaPluginBase {
         };
       })
     )) as PropertyResult[];
-
-    console.log(results);
 
     await this.applyTemplateResult(file, results);
   }
