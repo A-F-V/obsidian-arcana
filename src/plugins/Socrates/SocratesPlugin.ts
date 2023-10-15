@@ -80,6 +80,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       });
 
     containerEl.createEl('h3', { text: 'Socrates Agent Settings' });
+
     const saveSocratesAgent = async () => {
       this.arcana.settings.PluginSettings['Socrates'] = this.settings;
       await this.arcana.saveSettings();
@@ -121,9 +122,10 @@ export default class SocratesPlugin extends ViewPluginBase {
           });
       });
     // Text to Speech
-    containerEl.createEl('h4', { text: 'Text to Speech' });
+    containerEl.createEl('h4', { text: 'Text to Speech (TTS)' });
+
     new Setting(containerEl)
-      .setName('Text to Speech Provider')
+      .setName('TTS Provider')
       .setDesc('The provider to use for text to speech service')
       .addDropdown(dropdown => {
         dropdown
@@ -131,13 +133,68 @@ export default class SocratesPlugin extends ViewPluginBase {
           .addOption('amazon', 'Amazon')
           .addOption('microsoft', 'Microsoft')
           .addOption('ibm', 'IBM')
-          .setValue(
-            this.settings.ttsParams?.provider ??
-              defaultSocratesSettings.ttsParams.provider
-          )
+          .setValue(this.settings.ttsParams.provider)
           .onChange(async (value: TextToSpeechProvider) => {
             this.settings.ttsParams.provider = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
+            await saveSocratesAgent();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('TTS Language')
+      .setDesc('The language to use for text to speech service')
+      .addDropdown(dropdown => {
+        dropdown
+          .addOption('en-GB', 'English (GB)')
+          .addOption('en-US', 'English (US)')
+          .setValue(this.settings.ttsParams.language)
+          .onChange(async (value: string) => {
+            this.settings.ttsParams.language = value;
+            await saveSocratesAgent();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('TTS Voice')
+      .setDesc(
+        'The model to use for text to speech service. Look at `Supported Models` on https://docs.edenai.co/reference/audio_text_to_speech_create for supported models.'
+      )
+      .addText(text => {
+        text
+          .setPlaceholder('en-GB-Neural2-D')
+          .setValue(this.settings.ttsParams.model)
+          .onChange(async (value: string) => {
+            this.settings.ttsParams.model = value;
+            await saveSocratesAgent();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('TTS Speed Modifier')
+      .setDesc(
+        'The speed modifier to use for text to speech service from -100% to 100% of normal'
+      )
+      .addSlider(slider => {
+        slider
+          .setLimits(-100, 100, 1)
+          .setValue(this.settings.ttsParams.rate)
+          .onChange(async (value: number) => {
+            this.settings.ttsParams.rate = value;
+            await saveSocratesAgent();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('TTS Pitch Modifier')
+      .setDesc(
+        'The pitch modifier to use for text to speech service from -100% to 100% of normal'
+      )
+      .addSlider(slider => {
+        slider
+          .setLimits(-100, 100, 1)
+          .setValue(this.settings.ttsParams.pitch)
+          .onChange(async (value: number) => {
+            this.settings.ttsParams.pitch = value;
             await saveSocratesAgent();
           });
       });
