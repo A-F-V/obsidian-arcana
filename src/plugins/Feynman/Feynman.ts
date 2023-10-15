@@ -19,6 +19,7 @@ import FrontMatterManager from 'src/include/FrontMatterManager';
 import { moveToEndOfFile } from 'src/include/CursorMover';
 import SerializableAborter from 'src/include/Aborter';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
+import { merge } from 'src/include/Functional';
 
 export default class FeynmanPlugin extends ArcanaPluginBase {
   private arcana: ArcanaPlugin;
@@ -35,9 +36,9 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
     }
   }
   public async onload() {
-    this.setting = this.arcana.settings.PluginSettings['Feynman'] ?? {
+    this.setting = merge(this.arcana.settings.PluginSettings['Feynman'], {
       folder: 'FeynmanFlashcards', // The default setting
-    };
+    });
 
     // Register the nostradamus command
     this.arcana.addCommand({
@@ -125,7 +126,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
   }
 
   public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h2', { text: 'Feynman' });
+    containerEl.createEl('h1', { text: 'Feynman' });
     new Setting(containerEl)
       .setName('Feynman flashcard folder')
       .setDesc('The folder where the flashcards will be stored')
