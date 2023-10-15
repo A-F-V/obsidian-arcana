@@ -1,7 +1,10 @@
 import { TFile } from 'obsidian';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import { isEmoji } from 'src/include/TextPostProcesssing';
-import { EdenTextToSpeechParams } from 'src/include/TextToSpeech';
+import {
+  EdenTextToSpeechParams,
+  TextToSpeechProvider,
+} from 'src/include/TextToSpeech';
 import ArcanaPlugin from 'src/main';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
@@ -56,18 +59,11 @@ export class AgentDataLoader {
       this.defaultAutoSendTranscription;
 
     // Text to speech settings
-    // Provider is same for now
-    const convertToModel = (model: string | null): string | null => {
-      if (model == null) return null;
-      // If its a single letter between A and J, then append it to 	en-US-Neural2-
-      model = model.toLowerCase();
-      if (model.length == 1 && model >= 'A' && model <= 'J')
-        return `en-US-Neural2-${model}`;
-      else return null;
-    };
 
     const ttsParams: EdenTextToSpeechParams = {
-      provider: 'google',
+      provider:
+        (await fmm.get<TextToSpeechProvider>(file, 'arcana-tts-provider')) ??
+        this.defaultTTSParams.provider,
       rate:
         (await fmm.get<number>(file, 'arcana-tts-rate')) ??
         this.defaultTTSParams.rate,
@@ -75,7 +71,7 @@ export class AgentDataLoader {
         (await fmm.get<number>(file, 'arcana-tts-pitch')) ??
         this.defaultTTSParams.pitch,
       model:
-        convertToModel(await fmm.get<string>(file, 'arcana-tts-model')) ??
+        (await fmm.get<string>(file, 'arcana-tts-model')) ??
         this.defaultTTSParams.model,
       language:
         (await fmm.get<string>(file, 'arcana-tts-language')) ??

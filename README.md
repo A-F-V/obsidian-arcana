@@ -57,11 +57,16 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 2. The agent's **initial message** is the body of the file.
 3. For additional agent settings, you can add the following fields to the file's YAML frontmatter:
 
-| Setting ID                       | Setting Type | Description                                                       |
-| -------------------------------- | ------------ | ----------------------------------------------------------------- |
-| `arcana-agent-emoji`             | Emoji        | The emoji the agent will use for the conversation                 |
-| `arcana-user-emoji`              | Emoji        | The emoji the user will use for the conversation                  |
-| `arcana-auto-send-transcription` | Boolean      | Whether to send a transcribed message immediately after recording |
+| Setting ID                       | Setting Type                                 | Description                                                                                                  |
+| -------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `arcana-agent-emoji`             | Emoji                                        | The emoji the agent will use for the conversation                                                            |
+| `arcana-user-emoji`              | Emoji                                        | The emoji the user will use for the conversation                                                             |
+| `arcana-auto-send-transcription` | Boolean                                      | Whether to send a transcribed message immediately after recording                                            |
+| `arcana-tts-provider`            | 'google' or 'amazon' or 'microsoft' or 'ibm' | The Text to Speech model provider                                                                            |
+| `arcana-tts-model`               | String                                       | The Text to Speech model. See Support Models at https://docs.edenai.co/reference/audio_text_to_speech_create |
+| `arcana-tts-rate`                | Number between -100 to 100                   | The speed modifier as a percentage of normal                                                                 |
+| `arcana-tts-pitch`               | Number between -100 to 100                   | The pitch modifier as a percentage of normal                                                                 |
+| `arcana-tts-language`            | String                                       | The language to use for Text to Speech                                                                       |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
 
