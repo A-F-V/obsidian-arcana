@@ -13,6 +13,7 @@
 - [Socrates](#socrates) - **Conversation**
   - [Custom Agents](#adding-custom-chat-agents) - **Create Conversation Agents from Templates**
   - **Text to Speech Transcription**
+  - **Speech to Text Replies**
 - [Agatha Christie](#agatha-christie) - **Text Generation**
 - [Richard Feynman](#richard-feynman) - **Flashcard Generation**
 - [Charles Darwin](#charles-darwin) - **Auto Tagging**
