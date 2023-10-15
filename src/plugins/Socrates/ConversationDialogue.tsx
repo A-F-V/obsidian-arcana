@@ -142,11 +142,16 @@ export function ConversationDialogue({
 
   const onSpeak = React.useCallback(
     (text: string) => {
-      console.log('Speak: ' + text);
+      console.log('Speaking with agent ' + JSON.stringify(agent));
       const settings: EdenTextToSpeechParams = agent.ttsParams;
-      arcana.speak(text, settings).then((audio: HTMLAudioElement) => {
-        audio.play();
-      });
+      arcana
+        .speak(text, settings)
+        .then((audio: HTMLAudioElement) => {
+          audio.play();
+        })
+        .catch((error: any) => {
+          new Notice(`Error with Text to Speech:\n${error}`);
+        });
     },
     [agent]
   );

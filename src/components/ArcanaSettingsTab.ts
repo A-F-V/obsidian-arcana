@@ -14,7 +14,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl('h3', { text: 'Arcana' });
+    containerEl.createEl('h1', { text: 'Arcana' });
 
     new Setting(containerEl)
       .setName('OpenAI API key')
@@ -72,8 +72,8 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
           .setDynamicTooltip()
           .showTooltip()
       );
-    // Create h2 for Text to Speech
-    containerEl.createEl('h2', { text: 'Text to Speech' });
+    // Create h3 for Text to Speech
+    containerEl.createEl('h3', { text: 'Text to Speech' });
 
     new Setting(containerEl)
       .setName('Eden AI API key')

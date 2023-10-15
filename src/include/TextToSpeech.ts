@@ -1,7 +1,9 @@
 import { requestUrl, RequestUrlResponse } from 'obsidian';
 
+// Provider Typedef
+export type TextToSpeechProvider = 'google' | 'microsoft' | 'ibm' | 'amazon';
 export interface EdenTextToSpeechParams {
-  provider: 'google'; // Just one provider for now
+  provider: TextToSpeechProvider;
   rate: number;
   pitch: number;
   model: string;
@@ -37,8 +39,7 @@ export class EdenTextToSpeech {
     })
       .then((response: RequestUrlResponse) => {
         if (response.status != 200) {
-          console.log(response);
-          throw new Error(response.status.toString());
+          throw new Error(response.json);
         }
 
         console.log(response.json);
