@@ -187,7 +187,7 @@ Is the word longer than 7 characters? Just say true or false without explanation
 ### Collaborating:
 
 **Actively Looking for Collaborators**
-If you would like to contribute or collaborate, message me directly on twitter [@AFV_7](https://twitter.com/AFV_7) and we can talk :).
+If you would like to contribute or collaborate, message me directly on discord @A-F-V (afv_) and we can talk :).
 
 ---
 
