@@ -36,7 +36,7 @@
 ## Socrates
 
 <p align="center">
-<img src='imgs/Socrates.png' height=500/>
+<img src='imgs/Socrates2.png' height=500/>
 </p>
 
 **The Socratic Method with Socrates**
@@ -187,7 +187,7 @@ Is the word longer than 7 characters? Just say true or false without explanation
 ### Collaborating:
 
 **Actively Looking for Collaborators**
-If you would like to contribute or collaborate, message me directly on discord @A-F-V (afv_) and we can talk :).
+If you would like to contribute or collaborate, message me directly on discord @A-F-V (afv\_) and we can talk :).
 
 ---
 
