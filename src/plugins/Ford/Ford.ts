@@ -212,7 +212,14 @@ export default class FordPlugin extends ArcanaPluginBase {
         await fmm.set(file, name, result.replace(/"/g, ''));
       } else if (type === 'string[]') {
         //replace all
-        await fmm.set(file, name, result.replace(/"/g, '').split(','));
+        await fmm.set(
+          file,
+          name,
+          result
+            .replace(/"/g, '')
+            .split(',')
+            .map(s => s.trim())
+        );
       } else if (type === 'number') {
         // Check if it is a number
         if (isNaN(Number(result))) {
