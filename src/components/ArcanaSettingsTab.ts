@@ -35,7 +35,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
       .addDropdown(dropdown => {
         dropdown
           .addOption('gpt-3.5-turbo', 'GPT3.5')
-          .addOption('gpt-4', 'GPT4')
+          .addOption('gpt-4-1106-preview', 'GPT4')
           .setValue(this.plugin.settings.MODEL_TYPE)
           .onChange(async value => {
             this.plugin.settings.MODEL_TYPE = value;
