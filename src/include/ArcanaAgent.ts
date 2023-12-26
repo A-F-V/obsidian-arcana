@@ -2,7 +2,7 @@ import ArcanaPlugin from 'src/main';
 import Conversation from 'src/AIFeed';
 import OpenAI from 'openai';
 import { OpenAIWhisperAudio } from 'langchain/document_loaders/fs/openai_whisper_audio';
-import { EdenTextToSpeechParams, EdenTextToSpeech } from './TextToSpeech';
+import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
 
 export class ArcanaAgent {
   private arcana: ArcanaPlugin;
@@ -40,11 +40,11 @@ export class ArcanaAgent {
 
   public async speak(
     text: string,
-    settings: EdenTextToSpeechParams
+    settings: OpenAITextToSpeechParams
   ): Promise<HTMLAudioElement> {
-    return EdenTextToSpeech.speak(
+    return OpenAITextToSpeech.speak(
       text,
-      this.arcana.settings.EDEN_AI_API_KEY,
+      this.arcana.settings.OPEN_AI_API_KEY,
       settings
     );
   }

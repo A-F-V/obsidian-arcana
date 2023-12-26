@@ -1,14 +1,12 @@
-import { Setting, TFile } from 'obsidian';
-import AIFeed from 'src/AIFeed';
+import { Setting } from 'obsidian';
 import ViewPluginBase from 'src/components/ViewPluginBase';
 import ArcanaPlugin from 'src/main';
 import { SocratesView } from 'src/plugins/Socrates/SocratesView';
-import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import store from './AgentState';
 import { AgentData } from './ConversationAgent';
 import {
-  EdenTextToSpeechParams,
-  TextToSpeechProvider,
+  OpenAITextToSpeechParams,
+  OpenAIVoice,
 } from 'src/include/TextToSpeech';
 import { merge } from 'src/include/Functional';
 
@@ -18,7 +16,7 @@ interface SocratesSettings {
   // Speech to Text
   autoSendTranscription: boolean;
   // Text to Speech
-  ttsParams: EdenTextToSpeechParams;
+  ttsParams: OpenAITextToSpeechParams;
   autoSpeakReply: boolean;
 }
 
@@ -27,11 +25,8 @@ const defaultSocratesSettings: SocratesSettings = {
   agent_folder: 'Arcana/Agents',
   autoSendTranscription: false,
   ttsParams: {
-    provider: 'google',
-    rate: 0,
-    pitch: 0,
-    model: 'en-GB-Neural2-D',
-    language: 'en-GB',
+    voice: 'alloy',
+    rate: 1,
   },
   autoSpeakReply: false,
 };
@@ -45,7 +40,7 @@ export default class SocratesPlugin extends ViewPluginBase {
     return this.settings.autoSendTranscription;
   }
 
-  private getSocratesTTSParams(): EdenTextToSpeechParams {
+  private getSocratesTTSParams(): OpenAITextToSpeechParams {
     return this.settings.ttsParams;
   }
 
@@ -131,46 +126,19 @@ export default class SocratesPlugin extends ViewPluginBase {
     containerEl.createEl('h4', { text: 'Text to Speech (TTS)' });
 
     new Setting(containerEl)
-      .setName('TTS Provider')
-      .setDesc('The provider to use for text to speech service')
-      .addDropdown(dropdown => {
-        dropdown
-          .addOption('google', 'Google')
-          .addOption('amazon', 'Amazon')
-          .addOption('microsoft', 'Microsoft')
-          .addOption('ibm', 'IBM')
-          .setValue(this.settings.ttsParams.provider)
-          .onChange(async (value: TextToSpeechProvider) => {
-            this.settings.ttsParams.provider = value;
-            await saveSocratesAgent();
-          });
-      });
-
-    new Setting(containerEl)
-      .setName('TTS Language')
-      .setDesc('The language to use for text to speech service')
-      .addDropdown(dropdown => {
-        dropdown
-          .addOption('en-GB', 'English (GB)')
-          .addOption('en-US', 'English (US)')
-          .setValue(this.settings.ttsParams.language)
-          .onChange(async (value: string) => {
-            this.settings.ttsParams.language = value;
-            await saveSocratesAgent();
-          });
-      });
-
-    new Setting(containerEl)
       .setName('TTS Voice')
-      .setDesc(
-        'The model to use for text to speech service. Look at `Supported Models` on https://docs.edenai.co/reference/audio_text_to_speech_create for supported models.'
-      )
-      .addText(text => {
-        text
-          .setPlaceholder('en-GB-Neural2-D')
-          .setValue(this.settings.ttsParams.model)
-          .onChange(async (value: string) => {
-            this.settings.ttsParams.model = value;
+      .setDesc('The voice to use for text to speech')
+      .addDropdown(dropdown => {
+        dropdown
+          .addOption('alloy', 'Alloy')
+          .addOption('echo', 'Echo')
+          .addOption('fable', 'Fable')
+          .addOption('onyx', 'Onyx')
+          .addOption('nova', 'Nova')
+          .addOption('shimmer', 'Shimmer')
+          .setValue(this.settings.ttsParams.voice)
+          .onChange(async (value: OpenAIVoice) => {
+            this.settings.ttsParams.voice = value;
             await saveSocratesAgent();
           });
       });
@@ -178,33 +146,35 @@ export default class SocratesPlugin extends ViewPluginBase {
     new Setting(containerEl)
       .setName('TTS Speed Modifier')
       .setDesc(
-        'The speed modifier to use for text to speech service from -100% to 100% of normal'
+        'The speed modifier to use for text to speech from 0.25x to 4x normal'
       )
-      .addSlider(slider => {
-        slider
-          .setLimits(-100, 100, 1)
-          .setValue(this.settings.ttsParams.rate)
-          .onChange(async (value: number) => {
-            this.settings.ttsParams.rate = value;
+      .addDropdown(dropdown => {
+        dropdown
+          .addOptions({
+            '0.25': '0.25x',
+            '0.5': '0.5x',
+            '0.75': '0.75x',
+            '1': '1x',
+            '1.25': '1.25x',
+            '1.5': '1.5x',
+            '1.75': '1.75x',
+            '2': '2x',
+            '2.25': '2.25x',
+            '2.5': '2.5x',
+            '2.75': '2.75x',
+            '3': '3x',
+            '3.25': '3.25x',
+            '3.5': '3.5x',
+            '3.75': '3.75x',
+            '4': '4x',
+          })
+          .setValue(String(this.settings.ttsParams.rate))
+          .onChange(async (value: string) => {
+            // Parse the value
+            this.settings.ttsParams.rate = Number(value);
             await saveSocratesAgent();
           });
       });
-
-    new Setting(containerEl)
-      .setName('TTS Pitch Modifier')
-      .setDesc(
-        'The pitch modifier to use for text to speech service from -100% to 100% of normal'
-      )
-      .addSlider(slider => {
-        slider
-          .setLimits(-100, 100, 1)
-          .setValue(this.settings.ttsParams.pitch)
-          .onChange(async (value: number) => {
-            this.settings.ttsParams.pitch = value;
-            await saveSocratesAgent();
-          });
-      });
-
     new Setting(containerEl)
       .setName('TTS Auto Speak Reply')
       .setDesc(

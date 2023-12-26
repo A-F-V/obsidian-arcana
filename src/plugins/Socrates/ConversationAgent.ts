@@ -2,8 +2,8 @@ import { TFile } from 'obsidian';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import { isEmoji } from 'src/include/TextPostProcesssing';
 import {
-  EdenTextToSpeechParams,
-  TextToSpeechProvider,
+  OpenAITextToSpeechParams,
+  OpenAIVoice,
 } from 'src/include/TextToSpeech';
 import ArcanaPlugin from 'src/main';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
@@ -17,7 +17,7 @@ export type AgentData = {
   autoSendTranscription: boolean;
 
   // Text to speech settings
-  ttsParams: EdenTextToSpeechParams;
+  ttsParams: OpenAITextToSpeechParams;
   autoSpeakReply: boolean;
 };
 
@@ -25,12 +25,9 @@ export class AgentDataLoader {
   private static defaultAgentEmoji = '🤖';
   private static defaultUserEmoji = '😀';
   private static defaultAutoSendTranscription = false;
-  private static defaultTTSParams: EdenTextToSpeechParams = {
-    provider: 'google',
-    language: 'en-US',
-    rate: 0,
-    pitch: 0,
-    model: 'en-US-Neural2-J',
+  private static defaultTTSParams: OpenAITextToSpeechParams = {
+    voice: 'alloy',
+    rate: 1,
   };
   private static defaultAutoSpeakReply = false;
 
@@ -62,22 +59,13 @@ export class AgentDataLoader {
 
     // Text to speech settings
 
-    const ttsParams: EdenTextToSpeechParams = {
-      provider:
-        (await fmm.get<TextToSpeechProvider>(file, 'arcana-tts-provider')) ??
-        this.defaultTTSParams.provider,
+    const ttsParams: OpenAITextToSpeechParams = {
+      voice:
+        (await fmm.get<OpenAIVoice>(file, 'arcana-tts-voice')) ??
+        this.defaultTTSParams.voice,
       rate:
         (await fmm.get<number>(file, 'arcana-tts-rate')) ??
         this.defaultTTSParams.rate,
-      pitch:
-        (await fmm.get<number>(file, 'arcana-tts-pitch')) ??
-        this.defaultTTSParams.pitch,
-      model:
-        (await fmm.get<string>(file, 'arcana-tts-model')) ??
-        this.defaultTTSParams.model,
-      language:
-        (await fmm.get<string>(file, 'arcana-tts-language')) ??
-        this.defaultTTSParams.language,
     };
 
     const autoSpeakReply =

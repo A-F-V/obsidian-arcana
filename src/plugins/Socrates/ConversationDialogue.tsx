@@ -12,7 +12,7 @@ import {
   WhisperButton,
 } from '../../components/MicrophoneButton';
 
-import { EdenTextToSpeechParams } from '../../include/TextToSpeech';
+import { OpenAITextToSpeechParams } from '../../include/TextToSpeech';
 
 export function ConversationDialogue({
   current_file,
@@ -78,7 +78,7 @@ export function ConversationDialogue({
   const getAgentToSpeak = React.useCallback(
     (text: string) => {
       console.log('Speaking with agent ' + JSON.stringify(agent));
-      const settings: EdenTextToSpeechParams = agent.ttsParams;
+      const settings: OpenAITextToSpeechParams = agent.ttsParams;
       arcana
         .speak(text, settings)
         .then((audio: HTMLAudioElement) => {
