@@ -23,8 +23,9 @@ export function ConversationDialogue({
 }) {
   const arcana = useArcana();
   // TODO: Whenever the messages change, even in a tiny way, an effect is triggered by redux, which is wasteful. So avoid retriggering when a message is changed
-  const { agent, messages } = useSelector((state: ChatAgentState) => {
-  });
+  const { agent, messages } = useSelector(
+    (state: ChatAgentState) => state.agents[agentName]
+  );
   const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
   const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
   const dispatch = useDispatch<StoreDispatch>();
