@@ -72,24 +72,5 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
           .setDynamicTooltip()
           .showTooltip()
       );
-    // Create h3 for Text to Speech
-    containerEl.createEl('h3', { text: 'Text to Speech' });
-
-    new Setting(containerEl)
-      .setName('Eden AI API key')
-      .setDesc('Your Eden AI API key')
-      .addText(text =>
-        text
-          .setPlaceholder('Eden AI API Key')
-          .setValue(this.plugin.settings.EDEN_AI_API_KEY)
-          .onChange(async value => {
-            this.plugin.settings.EDEN_AI_API_KEY = value;
-            await this.plugin.saveSettings();
-          })
-      );
-    // Add the settings for each plugin
-    for (const plugin of this.plugin.plugins) {
-      plugin.addSettings(containerEl);
-    }
   }
 }
