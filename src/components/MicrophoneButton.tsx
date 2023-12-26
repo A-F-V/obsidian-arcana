@@ -52,9 +52,9 @@ class Recorder {
       this.gumStream = stream;
 
       const options = {
-        audioBitsPerSecond: 256000,
-        videoBitsPerSecond: 2500000,
-        bitsPerSecond: 2628000,
+        audioBitsPerSecond: 96000, // 96kbps
+        videoBitsPerSecond: 0, // No video
+        bitsPerSecond: 96000,
         mimeType: 'audio/' + this.extension + ';codecs=opus',
       };
 
@@ -82,9 +82,9 @@ class Recorder {
         this.onError(RecordingError.FAILED_TO_RECORD);
       }).bind(this);
 
-      //start recording using 1 second chunks
       //Chrome and Firefox will record one long chunk if you do not specify the chunck length
-      this.recorder.start(1000);
+      // Creates one long audio file (single chunck)
+      this.recorder.start();
 
       //recorder.start();
       //   recorder = null;
