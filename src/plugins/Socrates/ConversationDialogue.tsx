@@ -13,7 +13,6 @@ import {
 } from '../../components/MicrophoneButton';
 
 import { EdenTextToSpeechParams } from '../../include/TextToSpeech';
-import { Message } from './Message';
 
 export function ConversationDialogue({
   current_file,
@@ -23,9 +22,9 @@ export function ConversationDialogue({
   agentName: string;
 }) {
   const arcana = useArcana();
-  const { agent, messages } = useSelector(
-    (state: ChatAgentState) => state.agents[agentName]
-  );
+  // TODO: Whenever the messages change, even in a tiny way, an effect is triggered by redux, which is wasteful. So avoid retriggering when a message is changed
+  const { agent, messages } = useSelector((state: ChatAgentState) => {
+  });
   const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
   const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
   const dispatch = useDispatch<StoreDispatch>();
@@ -34,12 +33,12 @@ export function ConversationDialogue({
     new Notice(`Agent ${agentName} selected`);
     // Load the AI Feed
 
-    const aiFeed = AIFeedRegistery.getFeed(agentName);
-    if (!aiFeed) {
+    const feed = AIFeedRegistery.getFeed(agentName);
+    if (!feed) {
       new Notice(`No AI Feed for ${agentName}`);
       return;
     }
-    setAIFeed(aiFeed);
+    setAIFeed(feed);
   }, [agentName]);
 
   // Sets the initial message whenever it changes
@@ -48,7 +47,7 @@ export function ConversationDialogue({
     if (aiFeed) {
       aiFeed.setContext(agent.initialMessage);
     }
-  }, [agentName]);
+  }, [agentName, aiFeed]);
 
   const resetConversation = () => {
     dispatch({
@@ -100,16 +99,19 @@ export function ConversationDialogue({
         });
       }
     },
-    [agent]
+    [agent, aiFeed]
   );
 
-  const createUserMessage = (message: string) => {
-    dispatch({
-      type: ChatActionTypes.CREATE_USER_MESSAGE,
-      agentName,
-      text: message,
-    });
-  };
+  const createUserMessage = React.useCallback(
+    (message: string) => {
+      dispatch({
+        type: ChatActionTypes.CREATE_USER_MESSAGE,
+        agentName,
+        text: message,
+      });
+    },
+    [agentName]
+  );
 
   const sendMessage = React.useCallback(
     (textArea: HTMLTextAreaElement) => {
@@ -120,14 +122,14 @@ export function ConversationDialogue({
         askQuestion(question);
       }
     },
-    [agentName, aiFeed, agent]
+    [agentName, aiFeed, agent, askQuestion, createUserMessage]
   );
 
   const onSubmitMessage = (e: any) => {
     if (e.key === 'Enter') sendMessage(e.currentTarget);
   };
 
-  const sendFileMessage = () => {
+  const sendFileMessage = React.useCallback(() => {
     if (aiFeed) {
       // Load the current_file
       if (!current_file) {
@@ -143,7 +145,7 @@ export function ConversationDialogue({
         askQuestion(message);
       });
     }
-  };
+  }, [aiFeed, current_file, askQuestion, createUserMessage]);
 
   const onTranscription = React.useCallback(
     (text: string) => {
