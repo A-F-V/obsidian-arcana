@@ -12,7 +12,7 @@ import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
-import { EdenTextToSpeechParams } from './include/TextToSpeech';
+import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 
 const DEFAULT_SETTINGS: ArcanaSettings = {
@@ -37,7 +37,7 @@ export default class ArcanaPlugin extends Plugin {
   public transcribe: (file: File) => Promise<string>;
   public speak: (
     text: string,
-    settings: EdenTextToSpeechParams
+    settings: OpenAITextToSpeech
   ) => Promise<HTMLAudioElement>;
 
   fs: StorageManager;
