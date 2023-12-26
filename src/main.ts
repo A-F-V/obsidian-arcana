@@ -20,7 +20,6 @@ const DEFAULT_SETTINGS: ArcanaSettings = {
   MODEL_TYPE: 'gpt-3.5-turbo',
   TEMPERATURE: 0.7,
   TOP_P: 1,
-  EDEN_AI_API_KEY: '',
   PluginSettings: {},
 };
 
