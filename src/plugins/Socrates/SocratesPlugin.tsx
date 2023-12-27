@@ -28,7 +28,7 @@ const defaultSocratesSettings: SocratesSettings = {
   autoSendTranscription: false,
   ttsParams: {
     voice: 'alloy',
-    rate: 1,
+    rate: 1.0,
   },
   autoSpeakReply: false,
 };
@@ -161,29 +161,28 @@ export default class SocratesPlugin extends ViewPluginBase {
     new Setting(containerEl)
       .setName('TTS Speed Modifier')
       .setDesc(
-        'The speed modifier to use for text to speech from 0.25x to 4x normal'
+        'The speed modifier to use for text to speech relative to normal'
       )
       .addDropdown(dropdown => {
         dropdown
           .addOptions({
-            '0.25': '0.25x',
-            '0.5': '0.5x',
-            '0.75': '0.75x',
-            '1': '1x',
-            '1.25': '1.25x',
-            '1.5': '1.5x',
-            '1.75': '1.75x',
-            '2': '2x',
-            '2.25': '2.25x',
-            '2.5': '2.5x',
-            '2.75': '2.75x',
-            '3': '3x',
-            '3.25': '3.25x',
-            '3.5': '3.5x',
-            '3.75': '3.75x',
-            '4': '4x',
+            [(0.25).toFixed(2)]: '0.25x',
+            [(0.5).toFixed(2)]: '0.5x',
+            [(0.75).toFixed(2)]: '0.75x',
+            [(1.0).toFixed(2)]: '1.0x',
+            [(1.25).toFixed(2)]: '1.25x',
+            [(1.5).toFixed(2)]: '1.5x',
+            [(1.75).toFixed(2)]: '1.75x',
+            [(2.0).toFixed(2)]: '2.0x',
+            [(2.25).toFixed(2)]: '2.25x',
+            [(2.5).toFixed(2)]: '2.5x',
+            [(2.75).toFixed(2)]: '2.75x',
+            [(3.0).toFixed(2)]: '3.0x',
           })
-          .setValue(String(this.settings.ttsParams.rate))
+          .setValue(
+            // Take number and convert to strin
+            this.settings.ttsParams.rate.toFixed(2)
+          )
           .onChange(async (value: string) => {
             // Parse the value
             this.settings.ttsParams.rate = Number(value);
