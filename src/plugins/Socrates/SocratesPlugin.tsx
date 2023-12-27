@@ -70,12 +70,9 @@ export default class SocratesPlugin extends ViewPluginBase {
     this.arcana.addCommand({
       id: 'activate-transcription',
       name: 'Toggle Microphone',
+      // Alt + R
+      hotkeys: [{ modifiers: ['Alt'], key: 'r' }],
       callback: () => {
-        console.debug(
-          `activate-transcription command triggered\nCurrent microphone info is ${JSON.stringify(
-            this.currentMicrophone
-          )}`
-        );
         this.currentMicrophone.toggleMicrophone();
       },
     });
