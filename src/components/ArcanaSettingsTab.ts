@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import ArcanaPlugin from '../main';
 
 export default class ArcanaSettingsTab extends PluginSettingTab {
@@ -27,7 +27,20 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
             this.plugin.settings.OPEN_AI_API_KEY = value;
             await this.plugin.saveSettings();
           })
-      );
+      )
+      .addButton(button => {
+        button.setButtonText('Test Key').onClick(() => {
+          this.plugin
+            .complete('Ping (you say "Pong")')
+            .then((result: string) => {
+              if (result === 'Pong') {
+                new Notice('Key is valid');
+              } else {
+                new Notice('Key is valid but API is not responding correctly');
+              }
+            }); // The catch case is handled by the complete failing
+        });
+      });
 
     new Setting(containerEl)
       .setName('Model type')
