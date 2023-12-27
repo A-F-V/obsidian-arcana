@@ -72,5 +72,9 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
           .setDynamicTooltip()
           .showTooltip()
       );
+    // Add the settings for each plugin
+    for (const plugin of this.plugin.plugins) {
+      plugin.addSettings(containerEl);
+    }
   }
 }
