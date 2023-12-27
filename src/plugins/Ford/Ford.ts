@@ -127,7 +127,7 @@ export default class FordPlugin extends ArcanaPluginBase {
     containerEl.createEl('h1', { text: 'Ford' });
     new Setting(containerEl)
       .setName('Ford template folder')
-      .setDesc('The folder where the flashcards will be stored')
+      .setDesc('The folder where templates are stored.')
       .addText(text => {
         text
           .setPlaceholder(DEFAULT_SETTINGS.folder)
