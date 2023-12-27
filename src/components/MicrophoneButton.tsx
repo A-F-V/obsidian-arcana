@@ -2,7 +2,14 @@
 A voice record button that uses OpenAI's Whispher model
 */
 import { useArcana } from '../hooks/hooks';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 
 // An enum of recording errors
 export enum RecordingError {
@@ -111,81 +118,111 @@ class Recorder {
   }
 }
 
-export function MicrophoneButton({
-  onRecordingEnd,
-  onRecordingError,
-}: {
-  onRecordingEnd: (blob: Blob) => void;
-  onRecordingError: (e: RecordingError) => void;
-}) {
-  // A stylish button that goes red when pressed
-  const [recording, setRecording] = useState(false);
-  // Use a ref to keep a consistent reference to the recorder across renders
-  const recorderRef = useRef(new Recorder(onRecordingEnd, onRecordingError));
+export const MicrophoneButton = forwardRef(
+  (
+    {
+      onRecordingEnd,
+      onRecordingError,
+    }: {
+      onRecordingEnd: (blob: Blob) => void;
+      onRecordingError: (e: RecordingError) => void;
+    },
+    ref // A ref to this microhpone
+  ) => {
+    // A stylish button that goes red when pressed
+    const [recording, setRecording] = useState(false);
+    // Use a ref to keep a consistent reference to the recorder across renders
+    const recorderRef = useRef(new Recorder(onRecordingEnd, onRecordingError));
 
-  useEffect(() => {
-    recorderRef.current = new Recorder(onRecordingEnd, onRecordingError);
-  }, [onRecordingEnd, onRecordingError]);
+    useEffect(() => {
+      recorderRef.current = new Recorder(onRecordingEnd, onRecordingError);
+    }, [onRecordingEnd, onRecordingError]);
 
-  const beginRecording = () => {
-    recorderRef.current.beginRecording();
-  };
+    const beginRecording = () => {
+      recorderRef.current.beginRecording();
+    };
 
-  const endRecording = () => {
-    recorderRef.current.stopRecording();
-  };
+    const endRecording = () => {
+      recorderRef.current.stopRecording();
+    };
 
-  useEffect(() => {
-    if (recording) {
-      beginRecording();
-    } else {
-      endRecording();
-    }
-  }, [recording]);
+    const toggleRecording = React.useCallback(() => {
+      setRecording(!recording);
+      console.debug('toggling recording');
+    }, [recording]);
 
-  return (
-    <div>
-      <button
-        onClick={() => setRecording(!recording)}
-        className={`recording-button ${recording ? 'active' : ''}`}
-      >
-        {recording ? '🎙️' : '🎤'}
-      </button>
-    </div>
-  );
-}
+    useImperativeHandle(ref, () => ({
+      toggleRecording,
+    }));
+
+    useEffect(() => {
+      if (recording) {
+        beginRecording();
+      } else {
+        endRecording();
+      }
+    }, [recording]);
+
+    return (
+      <div>
+        <button
+          onClick={toggleRecording}
+          className={`recording-button ${recording ? 'active' : ''}`}
+        >
+          {recording ? '🎙️' : '🎤'}
+        </button>
+      </div>
+    );
+  }
+);
 
 export enum TranslationError {
   FAILED_TO_TRANSLATE = 'FAILED_TO_TRANSLATE',
 }
 
-export function WhisperButton({
-  onTranscription,
-  onFailedTranscription,
-}: {
-  onTranscription: (text: string) => void;
-  onFailedTranscription: (error: TranslationError | RecordingError) => void;
-}) {
-  const arcana = useArcana();
-
-  const onRecordingEnd = useCallback(
-    (blob: Blob) => {
-      arcana
-        .transcribe(new File([blob], 'recording.webm'))
-        .then(text => {
-          onTranscription(text);
-        })
-        .catch(error => {
-          console.log(error);
-          onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
-        });
+export const WhisperButton = forwardRef(
+  (
+    {
+      onTranscription,
+      onFailedTranscription,
+    }: {
+      onTranscription: (text: string) => void;
+      onFailedTranscription: (error: TranslationError | RecordingError) => void;
     },
-    [onTranscription, onFailedTranscription]
-  );
-  return (
-    <MicrophoneButton
-      onRecordingEnd={onRecordingEnd}
-      onRecordingError={onFailedTranscription}
-    />
-  );
-}
+    ref
+  ) => {
+    const arcana = useArcana();
+    const microphoneRef = useRef(null);
+
+    const onRecordingEnd = useCallback(
+      (blob: Blob) => {
+        arcana
+          .transcribe(new File([blob], 'recording.webm'))
+          .then(text => {
+            onTranscription(text);
+          })
+          .catch(error => {
+            console.log(error);
+            onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
+          });
+      },
+      [onTranscription, onFailedTranscription]
+    );
+
+    useImperativeHandle(ref, () => ({
+      toggleRecording: () => {
+        // @ts-ignore
+        microphoneRef.current?.toggleRecording();
+        // @ts-ignore
+      },
+    }));
+
+    return (
+      <MicrophoneButton
+        ref={microphoneRef}
+        onRecordingEnd={onRecordingEnd}
+        onRecordingError={onFailedTranscription}
+      />
+    );
+  }
+);
