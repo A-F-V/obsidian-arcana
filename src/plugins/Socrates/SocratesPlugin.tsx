@@ -9,6 +9,8 @@ import {
   OpenAIVoice,
 } from 'src/include/TextToSpeech';
 import { merge } from 'src/include/Functional';
+import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
+import React from 'react';
 
 interface SocratesSettings {
   priorInstruction: string;
@@ -32,6 +34,9 @@ const defaultSocratesSettings: SocratesSettings = {
 };
 export default class SocratesPlugin extends ViewPluginBase {
   private settings: SocratesSettings = defaultSocratesSettings;
+  private currentMicrophone: MicrophoneContextInfo = {
+    toggleMicrophone: () => {},
+  };
 
   private getSocratesPriorInstruction(): string {
     return this.settings.priorInstruction;
@@ -61,6 +66,19 @@ export default class SocratesPlugin extends ViewPluginBase {
     );
 
     this.settings.ttsParams ??= defaultSocratesSettings.ttsParams;
+
+    this.arcana.addCommand({
+      id: 'activate-transcription',
+      name: 'Toggle Microphone',
+      callback: () => {
+        console.debug(
+          `activate-transcription command triggered\nCurrent microphone info is ${JSON.stringify(
+            this.currentMicrophone
+          )}`
+        );
+        this.currentMicrophone.toggleMicrophone();
+      },
+    });
   }
 
   public addSettings(containerEl: HTMLElement) {
@@ -232,12 +250,18 @@ export default class SocratesPlugin extends ViewPluginBase {
   }
 
   constructor(arcana: ArcanaPlugin) {
-    super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () =>
-      SocratesView(
-        arcana,
-        this.getAgentFolder.bind(this),
-        this.getSocrates.bind(this)
-      )
-    );
+    super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () => {
+      return (
+        <React.StrictMode>
+          <MicrophoneContext.Provider value={this.currentMicrophone}>
+            {SocratesView(
+              arcana,
+              this.getAgentFolder.bind(this),
+              this.getSocrates.bind(this)
+            )}
+          </MicrophoneContext.Provider>
+        </React.StrictMode>
+      );
+    });
   }
 }

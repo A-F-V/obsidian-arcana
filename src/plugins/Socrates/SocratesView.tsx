@@ -1,19 +1,22 @@
 import * as React from 'react';
-import { MarkdownEditView, TFile, TFolder, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 import { useArcana } from 'src/hooks/hooks';
 import { ConversationDialogue } from './ConversationDialogue';
 import ArcanaPlugin from 'src/main';
 import { Provider } from 'react-redux';
-import store, { ChatAgentAction, ChatAgentState } from './AgentState';
-import { useSelector, useDispatch } from 'react-redux';
+import store from './AgentState';
 import { AgentData, AgentDataLoader } from './ConversationAgent';
 import AgentSelector from './AgentSelector';
 import { getBaseName } from 'src/include/TextPostProcesssing';
 import { AIFeedRegistery } from 'src/AIFeed';
+import { MicrophoneContext } from 'src/hooks/context';
 
 function SocratesInnerView() {
   const [currentAgent, setCurrentAgent] = React.useState<string | null>(null);
   const [currentFile, setCurrentFile] = React.useState<TFile | null>(null);
+  const microphoneContext = React.useContext(MicrophoneContext);
+  const dialogueRef = React.useRef(null);
+
   const arcana = useArcana();
 
   const setCurrentFileFromLeaf = () => {
@@ -32,6 +35,18 @@ function SocratesInnerView() {
     };
   }, []);
 
+  // Whenever the dialogue changes, set the toggle microphone
+  React.useEffect(() => {
+    if (dialogueRef.current) {
+      microphoneContext.toggleMicrophone = () => {
+        // @ts-ignore
+        dialogueRef.current?.toggleMicrophone();
+      };
+    } else {
+      microphoneContext.toggleMicrophone = () => {};
+    }
+  }, [currentAgent]);
+
   return (
     <div
       style={{
@@ -48,6 +63,7 @@ function SocratesInnerView() {
         <>
           <h1>{currentAgent}</h1>
           <ConversationDialogue
+            ref={dialogueRef}
             agentName={currentAgent}
             current_file={currentFile}
           />
