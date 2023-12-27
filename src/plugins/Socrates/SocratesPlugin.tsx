@@ -69,7 +69,7 @@ export default class SocratesPlugin extends ViewPluginBase {
 
     this.arcana.addCommand({
       id: 'activate-transcription',
-      name: 'Toggle Microphone',
+      name: 'Toggle Chat Agent Microphone',
       // Alt + R
       hotkeys: [{ modifiers: ['Alt'], key: 'r' }],
       callback: () => {
