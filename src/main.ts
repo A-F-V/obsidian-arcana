@@ -15,6 +15,8 @@ import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 
+import { FSTraverser, FSTraversalNode } from './include/FileSystemCrawler';
+
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
   MODEL_TYPE: 'gpt-3.5-turbo',
@@ -67,6 +69,12 @@ export default class ArcanaPlugin extends Plugin {
     for (const plugin of this.plugins) {
       await plugin.onload();
     }
+
+    // Print files
+    // const traverser = new FSTraverser(this.app.vault);
+    // traverser.traverse().prefixTraverse((node: ) => {
+    //   console.log(node.value.path);
+    // });
   }
 
   async onunload() {

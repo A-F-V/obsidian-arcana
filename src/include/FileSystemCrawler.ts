@@ -1,0 +1,104 @@
+import { TAbstractFile, TFolder, Vault } from 'obsidian';
+
+export class FSTraversalNode {
+  // A TAbstractFile tree
+  value: TAbstractFile;
+  private children: FSTraversalNode[];
+  constructor(node_: TAbstractFile) {
+    this.value = node_;
+    this.children = [];
+  }
+
+  public add(child: TAbstractFile) {
+    // if the child is the node, do nothing
+    if (this.value === child) {
+      return;
+    }
+    // Ensure that the child is a descendant of the node
+    if (!FSTraversalNode.isDescendant(this.value, child)) {
+      throw new Error(
+        `Child ${child.path} is not a descendant of ${this.value.path}`
+      );
+    }
+    for (const node of this.children) {
+      if (FSTraversalNode.isDescendant(node.value, child)) {
+        node.add(child);
+        return;
+      }
+    }
+    // Otherwise, we need to add a new child
+    this.addNewChild(child);
+  }
+
+  public prefixTraverse(f: (node: TAbstractFile) => void): void {
+    f(this.value);
+    this.children.forEach((child: FSTraversalNode) => {
+      child.prefixTraverse(f);
+    });
+  }
+
+  // The child is a descendant of the node and none of its current children are ancestors of the child
+  private addNewChild(child: TAbstractFile): void {
+    // Get the next generation of child from file to child, add that, then add the child
+    console.debug(`Adding ${child.path} to ${this.value.path}`);
+    const nextGen = FSTraversalNode.getNextGeneration(this.value, child);
+    const nextGenNode = new FSTraversalNode(nextGen);
+    this.children.push(nextGenNode);
+    nextGenNode.add(child);
+  }
+
+  private static getNextGeneration(
+    ancestor: TAbstractFile,
+    child: TAbstractFile
+  ): TAbstractFile {
+    if (ancestor === child) {
+      throw new Error(`Ancestor and child are the same: ${ancestor.path}`);
+    } else if (!FSTraversalNode.isDescendant(ancestor, child)) {
+      throw new Error(
+        `Child ${child.path} is not a descendant of ${ancestor.path}`
+      );
+    }
+    if (child.parent === ancestor) {
+      return child;
+    } else {
+      if (child.parent) {
+        return FSTraversalNode.getNextGeneration(ancestor, child.parent);
+      } else {
+        throw new Error(`Child ${child.path} has no parent`);
+      }
+    }
+  }
+  private static isDescendant(
+    ancestor: TAbstractFile,
+    child: TAbstractFile
+  ): boolean {
+    // If the ancestor is root, then the child is a descendant
+    if (ancestor.path === '/') {
+      return true;
+    }
+    if (ancestor === child.parent) {
+      return true;
+    }
+    if (child.parent) {
+      return FSTraversalNode.isDescendant(ancestor, child.parent);
+    } else {
+      return false;
+    }
+  }
+}
+
+// Goes through the obsidian vault and linerizes the folder structure
+export class FSTraverser {
+  private vault: Vault;
+  constructor(vault: Vault) {
+    this.vault = vault;
+  }
+
+  public traverse(): FSTraversalNode {
+    const root = new FSTraversalNode(this.vault.getRoot());
+    this.vault.getAllLoadedFiles().forEach((file: TAbstractFile) => {
+      root.add(file);
+    });
+    return root;
+  }
+}
