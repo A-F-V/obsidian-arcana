@@ -1,4 +1,4 @@
-import { TAbstractFile, TFolder, Vault } from 'obsidian';
+import { TAbstractFile, TFile, TFolder, Vault } from 'obsidian';
 
 export class FSTraversalNode {
   // A TAbstractFile tree
@@ -9,7 +9,10 @@ export class FSTraversalNode {
     this.children = [];
   }
 
-  public add(child: TAbstractFile) {
+  public applyAtParentOf(
+    child: TAbstractFile,
+    f: (parent: FSTraversalNode, child: TAbstractFile) => void
+  ): void {
     // if the child is the node, do nothing
     if (this.value === child) {
       return;
@@ -22,18 +25,70 @@ export class FSTraversalNode {
     }
     for (const node of this.children) {
       if (FSTraversalNode.isDescendant(node.value, child)) {
-        node.add(child);
+        node.applyAtParentOf(child, f);
         return;
       }
     }
-    // Otherwise, we need to add a new child
-    this.addNewChild(child);
+    f(this, child);
+  }
+
+  public add(child: TAbstractFile) {
+    this.applyAtParentOf(
+      child,
+      (parent: FSTraversalNode, child: TAbstractFile) => {
+        parent.addNewChild(child);
+      }
+    );
+  }
+
+  public remove(child: TAbstractFile) {
+    this.applyAtParentOf(
+      child,
+      (parent: FSTraversalNode, child: TAbstractFile) => {
+        parent.removeChild(child);
+      }
+    );
+  }
+
+  public removeIf(pred: (node: TAbstractFile) => boolean) {
+    this.applyAll(
+      (node: TAbstractFile) => {
+        return pred(node);
+      },
+      (node: FSTraversalNode) => {
+        this.remove(node.value);
+      }
+    );
+  }
+
+  public applyAll(
+    pred: (node: TAbstractFile) => boolean,
+    f: (node: FSTraversalNode) => void
+  ) {
+    if (pred(this.value)) {
+      f(this);
+    }
+    this.children.forEach((child: FSTraversalNode) => {
+      child.applyAll(pred, f);
+    });
   }
 
   public prefixTraverse(f: (node: TAbstractFile) => void): void {
     f(this.value);
     this.children.forEach((child: FSTraversalNode) => {
       child.prefixTraverse(f);
+    });
+  }
+
+  private removeChild(child: TAbstractFile): void {
+    if (child.parent !== this.value) {
+      throw new Error(
+        `Child ${child.path} is not a child of ${this.value.path}`
+      );
+    }
+    // Remove the child
+    this.children = this.children.filter((node: FSTraversalNode) => {
+      return node.value !== child;
     });
   }
 
@@ -100,5 +155,14 @@ export class FSTraverser {
       root.add(file);
     });
     return root;
+  }
+}
+
+export class FSTraversalOperators {
+  public static filterFiles(node: FSTraversalNode): FSTraversalNode {
+    node.removeIf((node: TAbstractFile) => {
+      return node instanceof TFile;
+    });
+    return node;
   }
 }
