@@ -13,6 +13,7 @@ import ArcanaPlugin from './main';
 import ArcanaSettings from './include/ArcanaSettings';
 import SerializableAborter from './include/Aborter';
 import { escapeCurlyBraces } from './include/TextPostProcesssing';
+import { TokenTextSplitter } from 'langchain/text_splitter';
 
 class ConvState {
   connected = false;
@@ -124,6 +125,50 @@ export default class AIFeed {
     return this.currentQuestionState !== null;
   }
 
+  public async generateRawInputMessage(input: string): Promise<string> {
+    const history = await this.chain!.memory!.loadMemoryVariables([
+      'history',
+    ]).then(vars => vars['history']);
+
+    return (
+      this.conversationContext +
+      '\n' +
+      history.map((msg: any) => msg.text).join('\n') +
+      '\n' +
+      input
+    );
+  }
+
+  private async tokenize(input: string): Promise<string[]> {
+    const tokenSplitter = new TokenTextSplitter({
+      encodingName: 'cl100k_base',
+      chunkOverlap: 0,
+      chunkSize: 1,
+    });
+    return await tokenSplitter.splitText(input);
+  }
+
+  public async logCost(input: string, output: string) {
+    const inputPrice =
+      this.settings.MODEL_TYPE == 'gpt-4-1106-preview' ? 0.01 : 0.001;
+    const outputPrice =
+      this.settings.MODEL_TYPE == 'gpt-4-1106-preview' ? 0.03 : 0.002;
+
+    const inputTokens = await this.tokenize(input);
+    const outputTokens = await this.tokenize(output);
+
+    const inputCost = (inputTokens.length / 1000) * inputPrice;
+    const outputCost = (outputTokens.length / 1000) * outputPrice;
+
+    const totalCost = inputCost + outputCost;
+    const message = `Cost: $${totalCost.toFixed(4)}`;
+    // TODO make this threshold a setting
+    if (totalCost > 0.05) {
+      new Notice(message);
+    }
+    console.log(message);
+  }
+
   async askQuestion(
     question: string,
     onToken?: (token: string) => void,
@@ -149,6 +194,8 @@ export default class AIFeed {
       this.currentQuestionState = null;
     }).bind(this);
 
+    const inputMessage = await this.generateRawInputMessage(question);
+
     const response = await this.chain!.call(
       {
         input: question,
@@ -173,8 +220,12 @@ export default class AIFeed {
         },
       ]
     );
+
     // If the answer was not prematurely stopped, then the question is now done
     if (!state.abortAcknowledged) this.currentQuestionState = null;
+
+    // Log cost
+    await this.logCost(inputMessage, response.response);
     return response.response;
   }
 
