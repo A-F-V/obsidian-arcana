@@ -15,32 +15,76 @@ import {
 } from 'src/include/FileSystemCrawler';
 
 import PoloApprovalModal from './PoloApprovalModal';
+import { merge } from 'src/include/Functional';
+import FrontMatterManager from 'src/include/FrontMatterManager';
+
+type PoloSettings = {
+  priorInstruction: string;
+  showFilesInFolderStructure: boolean;
+  showFileContent: boolean;
+};
+
+const DEFAULT_SETTINGS: PoloSettings = {
+  priorInstruction: '',
+  showFilesInFolderStructure: false,
+  showFileContent: false,
+};
 
 export default class PoloPlugin extends ArcanaPluginBase {
-  private priorInstruction = '';
+  private settings: PoloSettings = DEFAULT_SETTINGS;
 
   public addSettings(containerEl: HTMLElement) {
     containerEl.createEl('h1', { text: 'Polo' });
+
+    const saveSettings = async () => {
+      this.arcana.settings.PluginSettings['Polo'] = this.settings;
+      await this.arcana.saveSettings();
+    };
     new Setting(containerEl)
       .setName("Polo's additional context")
       .setDesc('The prior instruction given to Polo')
       .addTextArea(text => {
         text
           .setPlaceholder('')
-          .setValue(this.priorInstruction)
+          .setValue(this.settings.priorInstruction)
           .onChange(async (value: string) => {
-            this.priorInstruction = value;
-            this.arcana.settings.PluginSettings['Polo'] = {
-              priorInstruction: value,
-            };
-            await this.arcana.saveSettings();
+            this.settings.priorInstruction = value;
+            await saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('Show files in folder structure')
+      .setDesc(
+        'Whether to show files in the folder structure (costs more tokens)'
+      )
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.settings.showFilesInFolderStructure)
+          .onChange(async (value: boolean) => {
+            this.settings.showFilesInFolderStructure = value;
+            await saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName('Show file content')
+      .setDesc('Whether to show the contents of files (costs more tokens)')
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.settings.showFileContent)
+          .onChange(async (value: boolean) => {
+            this.settings.showFileContent = value;
+            await saveSettings();
           });
       });
   }
 
   public async onload() {
-    this.priorInstruction =
-      this.arcana.settings.PluginSettings['Polo']?.priorInstruction ?? '';
+    this.settings = merge(
+      this.arcana.settings.PluginSettings['Polo'] as PoloSettings,
+      DEFAULT_SETTINGS
+    );
     // TODO: Logic is very similar to DarwinPlugin so refactor
     // Register the Polo command
     this.arcana.addCommand({
@@ -163,11 +207,11 @@ export default class PoloPlugin extends ArcanaPluginBase {
       'You are an AI assistant that helps suggest file locations to move files to based on an existing folder structure.';
 
     const instructions = `
-    - You will be given a list of file names. Each file will have a title and content shown to you.
+    - You will be given a list of file names. 
     - Below is the "File System" section. It shows you the current folder structure of the vault.
     - You must suggest a new folder to move each file to. Your decision should take into consideration:
-      - The title and contents of the file.
-      - The purpose of each folder tree based on its name as well as the files it contains.
+      - The title, tags, and contents (if provided) of the file.
+      - The purpose of the folders in the folder structure (and the files inside each folder if provided).
     - Your answers should be in the following format:
     ''
     [Old File Path] [New Folder]\\n
@@ -185,17 +229,19 @@ export default class PoloPlugin extends ArcanaPluginBase {
     const traverser = new FSTraverser(this.arcana.app.vault);
     const traversal = traverser.traverse();
     // Only consider .md files and folders.
-    //traversal = FSTraversalOperators.filterFiles(traversal);
+    if (!this.settings.showFilesInFolderStructure) {
+      FSTraversalOperators.filterFiles(traversal);
+    }
     const fs = FSTraversalOperators.prettyPrint(traversal);
 
     const context = `
-    [Purpose]
+    <Purpose>
     ${purpose}
-    [Primary Instructions]
+    <Primary Instructions>
     ${instructions}
-    [Additional Instructions]
-    ${this.priorInstruction}
-    [File System]
+    <Additional Instructions>
+    ${this.settings.priorInstruction}
+    <File System>
     ${fs}
     `;
 
@@ -207,13 +253,21 @@ export default class PoloPlugin extends ArcanaPluginBase {
     for (const file of files) {
       const path = file.path;
       const content = await this.arcana.app.vault.read(file);
+      const tags = await new FrontMatterManager(this.arcana).getTags(file);
       details += `
-      [New File]
-      [Old File Path]
+      <New File>
+      <Old File Path>
       ${path}
-      [File Content]
+      <Tags>
+      ${tags.join(', ')}
+      `;
+      if (this.settings.showFileContent) {
+        details += `
+      <File Content>
       ${content}
-      [End of File]`;
+      `;
+      }
+      details += `<End of File>`;
     }
 
     const context = this.getPoloContext();
