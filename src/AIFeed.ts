@@ -30,6 +30,7 @@ export default class AIFeed {
   private convState: ConvState = new ConvState();
   private currentQuestionState: QuestionState | null = null;
   private conversationContext: string;
+  private memorySize: number = 6;
 
   private chain: ConversationChain | null = null;
 
@@ -82,7 +83,7 @@ export default class AIFeed {
         memory: new BufferWindowMemory({
           returnMessages: true,
           memoryKey: 'history',
-          k: 12,
+          k: this.memorySize,
         }),
         prompt: chatPrompt,
         llm: this.getLLM(true),
@@ -115,6 +116,9 @@ export default class AIFeed {
 
   public setContext(context: string) {
     this.conversationContext = escapeCurlyBraces(context);
+  }
+  public setMemorySize(size: number) {
+    this.memorySize = size;
   }
 
   public abortCurrentQuestion() {

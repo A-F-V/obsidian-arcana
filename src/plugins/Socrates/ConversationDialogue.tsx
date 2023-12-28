@@ -55,10 +55,11 @@ export const ConversationDialogue = forwardRef(
       setAIFeed(feed);
     }, [agentName]);
 
-    // Sets the initial message whenever it changes
+    // Update settings whenever agent changes
     React.useEffect(() => {
       if (aiFeed) {
         aiFeed.setContext(agent.initialMessage);
+        aiFeed.setMemorySize(agent.memorySize);
       }
     }, [agentName, aiFeed]);
 
