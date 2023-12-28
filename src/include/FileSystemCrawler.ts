@@ -95,7 +95,7 @@ export class FSTraversalNode {
   // The child is a descendant of the node and none of its current children are ancestors of the child
   private addNewChild(child: TAbstractFile): void {
     // Get the next generation of child from file to child, add that, then add the child
-    console.debug(`Adding ${child.path} to ${this.value.path}`);
+    //console.debug(`Adding ${child.path} to ${this.value.path}`);
     const nextGen = FSTraversalNode.getNextGeneration(this.value, child);
     const nextGenNode = new FSTraversalNode(nextGen);
     this.children.push(nextGenNode);
@@ -164,5 +164,37 @@ export class FSTraversalOperators {
       return node instanceof TFile;
     });
     return node;
+  }
+
+  public static filter(
+    node: FSTraversalNode,
+    pred: (node: TAbstractFile) => boolean
+  ): FSTraversalNode {
+    node.removeIf((node: TAbstractFile) => !pred(node));
+    return node;
+  }
+
+  public static prettyPrintWithTabs(node: FSTraversalNode): string {
+    let output = '';
+    node.prefixTraverse((node: TAbstractFile) => {
+      // Get the depth of the node
+      const depth = node.path.split('/').length;
+      // Add the appropriate number of tabs
+      output += '\t'.repeat(depth);
+      // Add the node name
+      output += node.name;
+      // Add a newline
+      output += '\n';
+    });
+    return output;
+  }
+
+  public static prettyPrint(node: FSTraversalNode): string {
+    let output = '';
+    node.prefixTraverse((node: TAbstractFile) => {
+      output += node instanceof TFolder ? node.path : `\t${node.name}`;
+      output += '\n';
+    });
+    return output;
   }
 }

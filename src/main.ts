@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, TAbstractFile } from 'obsidian';
 
 import ArcanaSettings, { availableModels } from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
@@ -15,7 +15,12 @@ import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 
-import { FSTraverser, FSTraversalNode } from './include/FileSystemCrawler';
+import {
+  FSTraverser,
+  FSTraversalNode,
+  FSTraversalOperators,
+} from './include/FileSystemCrawler';
+import PoloPlugin from './plugins/Polo/Polo';
 
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
@@ -51,6 +56,7 @@ export default class ArcanaPlugin extends Plugin {
     new FeynmanPlugin(this),
     new DarwinPlugin(this),
     new FordPlugin(this),
+    new PoloPlugin(this),
   ];
 
   async onload() {
@@ -69,12 +75,6 @@ export default class ArcanaPlugin extends Plugin {
     for (const plugin of this.plugins) {
       await plugin.onload();
     }
-
-    // Print files
-    // const traverser = new FSTraverser(this.app.vault);
-    // traverser.traverse().prefixTraverse((node: ) => {
-    //   console.log(node.value.path);
-    // });
   }
 
   async onunload() {
