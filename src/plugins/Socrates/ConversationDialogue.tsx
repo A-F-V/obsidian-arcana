@@ -55,11 +55,11 @@ export const ConversationDialogue = forwardRef(
       setAIFeed(feed);
     }, [agentName]);
 
-    // Sets the initial message whenever it changes
+    // Update settings whenever agent changes
     React.useEffect(() => {
-      console.log('Agent changed to ' + agentName);
       if (aiFeed) {
         aiFeed.setContext(agent.initialMessage);
+        aiFeed.setMemorySize(agent.memorySize);
       }
     }, [agentName, aiFeed]);
 
@@ -90,7 +90,6 @@ export const ConversationDialogue = forwardRef(
 
     const getAgentToSpeak = React.useCallback(
       (text: string) => {
-        console.log('Speaking with agent ' + JSON.stringify(agent));
         const settings: OpenAITextToSpeechParams = agent.ttsParams;
         arcana
           .speak(text, settings)
