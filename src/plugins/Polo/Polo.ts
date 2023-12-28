@@ -14,6 +14,8 @@ import {
   FSTraverser,
 } from 'src/include/FileSystemCrawler';
 
+import PoloApprovalModal from './PoloApprovalModal';
+
 export default class PoloPlugin extends ArcanaPluginBase {
   private priorInstruction = '';
 
@@ -50,9 +52,17 @@ export default class PoloPlugin extends ArcanaPluginBase {
           new Notice('Darwin: No file selected');
           return;
         }
-        await this.requestNewFileLocations([file]);
+        this.runPolo([file]);
       },
     });
+  }
+
+  private runPolo(files: TFile[]): void {
+    this.requestNewFileLocations(files).then(
+      (suggestions: Record<string, TFolder | null>) => {
+        new PoloApprovalModal(this.arcana.app, suggestions).open();
+      }
+    );
   }
 
   private async requestNewFileLocations(

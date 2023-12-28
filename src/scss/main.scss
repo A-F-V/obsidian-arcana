@@ -50,6 +50,15 @@ $success: #28a745;
   background-color: $primary;
   box-shadow: none;
 }
+// Wide Input
+// Any input elements grow to fit their text
+.wide-input {
+  input {
+    width: 100%;
+    display: inline-block;
+    box-sizing: border-box;
+  }
+}
 
 // Chat styles
 %last-at-bottom {
