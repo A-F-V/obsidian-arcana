@@ -55,12 +55,64 @@ export default class PoloPlugin extends ArcanaPluginBase {
         this.runPolo([file]);
       },
     });
+
+    this.arcana.registerEvent(
+      this.arcana.app.workspace.on(
+        'file-menu',
+        async (menu, tfile: TAbstractFile) => {
+          if (tfile instanceof TFile) {
+            menu.addItem(item => {
+              item.setTitle('Polo: Move File');
+              item.setIcon('hand');
+              item.onClick(async () => {
+                await this.runPolo([tfile]);
+              });
+            });
+          } else if (tfile instanceof TFolder) {
+            menu.addItem(item => {
+              item.setTitle('Polo: Move all files in folder');
+              item.setIcon('hand');
+              item.onClick(async () => {
+                const folderToMove = tfile;
+                const filesToMove: TFile[] = [];
+                for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                  if (file.parent && file.parent.path == folderToMove.path) {
+                    filesToMove.push(file);
+                  }
+                }
+                this.runPolo(filesToMove);
+              });
+            });
+          }
+        }
+      )
+    );
+  }
+
+  private moveFile(oldPath: string, newFolderPath: string) {
+    const oldFile = this.arcana.app.vault.getAbstractFileByPath(
+      oldPath
+    ) as TFile;
+    const newFolder = this.arcana.app.vault.getAbstractFileByPath(
+      newFolderPath
+    ) as TFolder;
+    if (oldFile === null || newFolder === null) {
+      new Notice(`Failed to move ${oldFile} to ${newFolder}`);
+    }
+
+    const newName = `${newFolder.path}/${oldFile.name}`;
+    this.arcana.app.fileManager.renameFile(oldFile, newName);
   }
 
   private runPolo(files: TFile[]): void {
+    new Notice('Asking for new file location suggestions');
     this.requestNewFileLocations(files).then(
       (suggestions: Record<string, TFolder | null>) => {
-        new PoloApprovalModal(this.arcana.app, suggestions).open();
+        new PoloApprovalModal(
+          this.arcana.app,
+          suggestions,
+          this.moveFile.bind(this)
+        ).open();
       }
     );
   }

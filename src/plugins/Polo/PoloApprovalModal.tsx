@@ -1,12 +1,18 @@
-import { App, Modal, Setting, TFolder } from 'obsidian';
+import { App, Modal, Notice, Setting, TFolder } from 'obsidian';
 
 export default class PoloApprovalModal extends Modal {
   private suggestions: Record<string, string>;
+  private moveFile: (oldPath: string, newFolder: string) => void;
 
-  constructor(app: App, suggestions: Record<string, TFolder | null>) {
+  constructor(
+    app: App,
+    suggestions: Record<string, TFolder | null>,
+    moveFile: (oldPath: string, newFolder: string) => void
+  ) {
     super(app);
 
     this.suggestions = {};
+    this.moveFile = moveFile;
     for (const oldPath in suggestions) {
       this.suggestions[oldPath] = suggestions[oldPath]?.path ?? '';
     }
@@ -40,6 +46,14 @@ export default class PoloApprovalModal extends Modal {
         .setCta()
         .onClick(() => {
           this.close();
+          for (const oldPath in this.suggestions) {
+            const newFolder = this.suggestions[oldPath];
+            if (newFolder === '') {
+              new Notice(`No good folder was found for ${oldPath}`);
+            } else {
+              this.moveFile(oldPath, newFolder);
+            }
+          }
           console.log(this.suggestions);
         })
     );
