@@ -2,6 +2,8 @@ import { App, Modal, Notice, Setting, TFolder } from 'obsidian';
 
 export default class PoloApprovalModal extends Modal {
   private suggestions: Record<string, string>;
+  private moveList: Record<string, boolean> = {};
+
   private moveFile: (oldPath: string, newFolder: string) => void;
 
   constructor(
@@ -31,26 +33,43 @@ export default class PoloApprovalModal extends Modal {
 
     for (const oldpath in this.suggestions) {
       const fileName = PoloApprovalModal.getFileName(oldpath);
-      // A css class that makes input fill the width of their input.
-      new Setting(contentEl)
-        .setName(fileName)
-        .addText(text =>
-          text.setDisabled(true).setValue(this.suggestions[oldpath])
-        )
-        .setClass('wide-input');
+      const newFolder = this.suggestions[oldpath];
+      const canMove = newFolder !== '';
+      const cont = contentEl.createEl('div');
+
+      // Make flow vertical
+      cont.style.display = 'flex';
+      cont.style.flexDirection = 'column';
+      cont.style.marginBottom = '1em';
+      cont.style.borderBottom = '1px solid var(--background-secondary)';
+
+      this.moveList[oldpath] = canMove;
+      new Setting(cont).setName(fileName).addToggle(toggle =>
+        toggle
+          .setDisabled(!canMove)
+          .onChange(value => {
+            this.moveList[oldpath] = value;
+          })
+          .setValue(canMove)
+      );
+
+      if (!canMove) {
+        cont.createEl('strong', { text: `No good folder` });
+      } else {
+        cont.createEl('span', { text: ` ->  ${newFolder}` });
+      }
     }
 
     new Setting(contentEl).addButton(btn =>
       btn
-        .setButtonText('Submit')
+        .setButtonText('Move All Selected')
         .setCta()
         .onClick(() => {
           this.close();
           for (const oldPath in this.suggestions) {
             const newFolder = this.suggestions[oldPath];
-            if (newFolder === '') {
-              new Notice(`No good folder was found for ${oldPath}`);
-            } else {
+            const onMoveList = this.moveList[oldPath];
+            if (onMoveList) {
               this.moveFile(oldPath, newFolder);
             }
           }
