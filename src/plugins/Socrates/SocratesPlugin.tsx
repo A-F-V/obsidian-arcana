@@ -15,6 +15,7 @@ import React from 'react';
 interface SocratesSettings {
   priorInstruction: string;
   agent_folder: string;
+  socratesMemorySize: number;
   // Speech to Text
   autoSendTranscription: boolean;
   // Text to Speech
@@ -26,6 +27,7 @@ const defaultSocratesSettings: SocratesSettings = {
   priorInstruction: '',
   agent_folder: 'Arcana/Agents',
   autoSendTranscription: false,
+  socratesMemorySize: 10,
   ttsParams: {
     voice: 'alloy',
     rate: 1.0,
@@ -43,6 +45,10 @@ export default class SocratesPlugin extends ViewPluginBase {
   }
   private getSocratesAutoSendTranscription(): boolean {
     return this.settings.autoSendTranscription;
+  }
+
+  private getSocratesMemorySize(): number {
+    return this.settings.socratesMemorySize;
   }
 
   private getSocratesTTSParams(): OpenAITextToSpeechParams {
@@ -117,6 +123,23 @@ export default class SocratesPlugin extends ViewPluginBase {
             this.settings.priorInstruction = value;
             await saveSocratesAgent();
           });
+      });
+
+    new Setting(containerEl)
+      .setName("Socrates's Memory Size")
+      .setDesc(
+        'The most recent number of messages to remember. Fewer is faster and cheaper but less accurate.'
+      )
+      .addSlider(slider => {
+        slider
+          .setLimits(0, 100, 1)
+          .setValue(this.settings.socratesMemorySize)
+          .onChange(async (value: number) => {
+            this.settings.socratesMemorySize = value;
+            await saveSocratesAgent();
+          })
+          .setDynamicTooltip()
+          .showTooltip();
       });
     // Speech to Text
     containerEl.createEl('h4', { text: 'Speech to Text' });
@@ -239,6 +262,7 @@ export default class SocratesPlugin extends ViewPluginBase {
       initialMessage: this.getSocratesPriorInstruction(),
       agentEmoji: '🤖',
       userEmoji: '😀',
+      memorySize: this.getSocratesMemorySize(),
       autoSendTranscription: this.getSocratesAutoSendTranscription(),
       ttsParams: this.getSocratesTTSParams(),
       autoSpeakReply: this.getSocratesAutoSpeakReply(),

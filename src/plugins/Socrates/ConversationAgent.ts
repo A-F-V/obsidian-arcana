@@ -15,6 +15,7 @@ export type AgentData = {
   agentEmoji: string;
   userEmoji: string;
   autoSendTranscription: boolean;
+  memorySize: number;
 
   // Text to speech settings
   ttsParams: OpenAITextToSpeechParams;
@@ -25,6 +26,7 @@ export class AgentDataLoader {
   private static defaultAgentEmoji = '🤖';
   private static defaultUserEmoji = '😀';
   private static defaultAutoSendTranscription = false;
+  private static defaultMemorySize = 6;
   private static defaultTTSParams: OpenAITextToSpeechParams = {
     voice: 'alloy',
     rate: 1,
@@ -51,6 +53,11 @@ export class AgentDataLoader {
       (await fmm.get<string>(file, 'arcana-user-emoji')) ??
       this.defaultUserEmoji;
     if (!isEmoji(userEmoji)) userEmoji = this.defaultUserEmoji;
+
+    // Memory size
+    const memorySize =
+      (await fmm.get<number>(file, 'arcana-memory-size')) ??
+      this.defaultMemorySize;
 
     // Auto send transcription
     const autoSendTranscription =
@@ -80,6 +87,7 @@ export class AgentDataLoader {
       initialMessage,
       agentEmoji,
       userEmoji,
+      memorySize,
       autoSendTranscription,
       ttsParams,
       autoSpeakReply,
