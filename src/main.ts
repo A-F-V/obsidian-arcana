@@ -1,6 +1,9 @@
 import { Plugin } from 'obsidian';
 
-import ArcanaSettings, { availableModels } from './include/ArcanaSettings';
+import ArcanaSettings, {
+  AvailableModels,
+  isAvailableModel,
+} from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import { ArcanaAgent } from './include/ArcanaAgent';
 //import CarterPlugin from './plugins/Carter/Carter';
@@ -83,8 +86,8 @@ export default class ArcanaPlugin extends Plugin {
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     // Update any settings which look old
-    if (!availableModels.contains(this.settings.MODEL_TYPE)) {
-      this.settings.MODEL_TYPE = 'gpt-4-1106-preview';
+    if (!isAvailableModel(this.settings.MODEL_TYPE)) {
+      this.settings.MODEL_TYPE = DEFAULT_SETTINGS.MODEL_TYPE;
     }
   }
 

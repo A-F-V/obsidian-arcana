@@ -116,7 +116,6 @@ export class EdenTextToSpeech {
       // Everything is good
       const b64 = response.json[settings.provider]['audio'];
       const url = `data:audio/mp3;base64,${b64}`;
-      console.log(url);
       const audio = new Audio(url);
       return audio;
     });

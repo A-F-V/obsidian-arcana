@@ -1,5 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import ArcanaPlugin from '../main';
+import { AvailableModels } from 'src/include/ArcanaSettings';
 
 export default class ArcanaSettingsTab extends PluginSettingTab {
   plugin: ArcanaPlugin;
@@ -51,7 +52,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
           .addOption('gpt-4-1106-preview', 'GPT4')
           .setValue(this.plugin.settings.MODEL_TYPE)
           .onChange(async value => {
-            this.plugin.settings.MODEL_TYPE = value;
+            this.plugin.settings.MODEL_TYPE = value as AvailableModels;
             await this.plugin.saveSettings();
           });
       });
