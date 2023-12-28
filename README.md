@@ -60,13 +60,14 @@ To create a new agent, add a new file to the `Conversation Agent Folder` specifi
 2. The agent's **initial message** is the body of the file.
 3. For additional agent settings, you can add the following fields to the file's YAML frontmatter:
 
-| Setting ID                       | Setting Type                                          | Description                                                       |
-| -------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- |
-| `arcana-agent-emoji`             | Emoji                                                 | The emoji the agent will use for the conversation                 |
-| `arcana-user-emoji`              | Emoji                                                 | The emoji the user will use for the conversation                  |
-| `arcana-auto-send-transcription` | Boolean                                               | Whether to send a transcribed message immediately after recording |
-| `arcana-tts-voice`               | 'alloy', 'echo', 'fable', 'onyx', 'nova' or 'shimmer' | The OpenAI Voice preset to use                                    |
-| `arcana-tts-rate`                | Number between '0.25' to '4'                          | The speaking speed multiplier                                     |
+| Setting ID                       | Setting Type                                          | Description                                                                                                         |
+| -------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `arcana-agent-emoji`             | Emoji                                                 | The emoji the agent will use for the conversation                                                                   |
+| `arcana-user-emoji`              | Emoji                                                 | The emoji the user will use for the conversation                                                                    |
+| `arcana-auto-send-transcription` | Boolean                                               | Whether to send a transcribed message immediately after recording                                                   |
+| `arcana-memory-size`             | Whole number greater than or equal to 0               | The number of previous messages for the agent to remember when answering your request (exclusing the prior message) |
+| `arcana-tts-voice`               | 'alloy', 'echo', 'fable', 'onyx', 'nova' or 'shimmer' | The OpenAI Voice preset to use                                                                                      |
+| `arcana-tts-rate`                | Number between '0.25' to '4'                          | The speaking speed multiplier                                                                                       |
 
 [This website](https://flowgpt.com/) provides some good prompts for making agents.
 
