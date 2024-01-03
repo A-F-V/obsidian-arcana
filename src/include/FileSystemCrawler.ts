@@ -197,4 +197,16 @@ export class FSTraversalOperators {
     });
     return output;
   }
+
+  public static prettyPrintCustom(
+    node: FSTraversalNode,
+    f: (node: TAbstractFile) => string
+  ): string {
+    let output = '';
+    node.prefixTraverse((node: TAbstractFile) => {
+      output += f(node);
+      output += '\n';
+    });
+    return output;
+  }
 }
