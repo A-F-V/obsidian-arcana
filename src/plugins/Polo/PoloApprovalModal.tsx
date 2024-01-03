@@ -27,37 +27,34 @@ export default class PoloApprovalModal extends Modal {
     contentEl.createEl('h1', {
       text: 'Suggestion for New Folder Destinations',
     });
-    contentEl.createEl('p', {
-      text: 'All empty destinations leave file unmoved.',
-    });
 
     for (const oldpath in this.suggestions) {
       const fileName = PoloApprovalModal.getFileName(oldpath);
       const newFolder = this.suggestions[oldpath];
       const canMove = newFolder !== '';
-      const cont = contentEl.createEl('div');
 
-      // Make flow vertical
-      cont.style.display = 'flex';
-      cont.style.flexDirection = 'column';
-      cont.style.marginBottom = '1em';
-      cont.style.borderBottom = '1px solid var(--background-secondary)';
+      const dest = canMove ? `-> ${newFolder}` : `No good folder`;
 
       this.moveList[oldpath] = canMove;
-      new Setting(cont).setName(fileName).addToggle(toggle =>
-        toggle
-          .setDisabled(!canMove)
-          .onChange(value => {
-            this.moveList[oldpath] = value;
-          })
-          .setValue(canMove)
-      );
+      new Setting(contentEl)
+        .setName(fileName)
+        .addToggle(toggle =>
+          toggle
+            .setDisabled(!canMove)
+            .onChange(value => {
+              this.moveList[oldpath] = value;
+            })
+            .setValue(canMove)
+        )
+        .setDesc(dest);
 
+      /*
       if (!canMove) {
         cont.createEl('strong', { text: `No good folder` });
       } else {
         cont.createEl('span', { text: ` ->  ${newFolder}` });
       }
+      */
     }
 
     new Setting(contentEl).addButton(btn =>
