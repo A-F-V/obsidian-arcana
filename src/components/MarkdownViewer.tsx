@@ -9,8 +9,6 @@ import React from 'react';
 export default function MarkdownViewer({ markdown }: { markdown: string }) {
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkMath, remarkGfm]}
-      rehypePlugins={[rehypeKatex]}
       components={{
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '');
@@ -42,6 +40,8 @@ export default function MarkdownViewer({ markdown }: { markdown: string }) {
           );
         },
       }}
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeKatex]}
     >
       {markdown}
     </ReactMarkdown>
