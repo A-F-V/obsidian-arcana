@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, TAbstractFile } from 'obsidian';
 
 import ArcanaSettings, {
   AvailableModels,
@@ -17,6 +17,13 @@ import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
+
+import {
+  FSTraverser,
+  FSTraversalNode,
+  FSTraversalOperators,
+} from './include/FileSystemCrawler';
+import PoloPlugin from './plugins/Polo/Polo';
 
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
@@ -52,6 +59,7 @@ export default class ArcanaPlugin extends Plugin {
     new FeynmanPlugin(this),
     new DarwinPlugin(this),
     new FordPlugin(this),
+    new PoloPlugin(this),
   ];
 
   async onload() {

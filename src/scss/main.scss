@@ -51,6 +51,11 @@ $success: #28a745;
   box-shadow: none;
 }
 
+.file-move-suggestions {
+  // Bold text
+  font-weight: 900;
+}
+
 // Chat styles
 %last-at-bottom {
   display: flex;

@@ -136,6 +136,20 @@ Is the word longer than 7 characters? Just say true or false without explanation
 
 ![](gifs/Christie.gif)
 
+## Marco Polo
+
+<p align="center">
+<img src='imgs/Polo.png' height=500/>
+</p>
+
+**Suggest New Locations for Notes**
+
+- Ask Polo to suggest a new location for a note or all notes within a folder.
+- Give rules governing suggestions in settings.
+- Can accept and reject suggestions.
+
+![](gifs/Polo.gif)
+
 ## Richard Feynman
 
 <p align="center">
