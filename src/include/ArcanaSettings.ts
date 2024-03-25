@@ -7,6 +7,7 @@ export function isAvailableModel(model: string): model is AvailableModels {
 export default interface ArcanaSettings {
   OPEN_AI_API_KEY: string;
   MODEL_TYPE: AvailableModels;
+  INPUT_LANGUAGE: string;
   TEMPERATURE: number;
   TOP_P: number;
   //Plugins

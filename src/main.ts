@@ -28,6 +28,7 @@ import PoloPlugin from './plugins/Polo/Polo';
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
   MODEL_TYPE: 'gpt-3.5-turbo',
+  INPUT_LANGUAGE: 'en',
   TEMPERATURE: 0.7,
   TOP_P: 1,
   PluginSettings: {},
