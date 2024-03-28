@@ -59,7 +59,7 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
 
 	new Setting(containerEl)
       .setName('Text to Speech Language')
-      .setDesc('The language used in AI's speech recognition')
+      .setDesc('The language used in AI\'s speech recognition')
       .addDropdown(dropdown => {
         dropdown
 			.addOption ('en', 'english')
