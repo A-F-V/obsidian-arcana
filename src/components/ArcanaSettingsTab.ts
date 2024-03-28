@@ -58,8 +58,8 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
       });
 
 	new Setting(containerEl)
-      .setName('Input language')
-      .setDesc('If you use a language other than English to prompt, you need need to set it up otherwise the speech recognition will not work properly. Although, you probably also can use English without the need to change this setting again.')
+      .setName('Text to Speech Language')
+      .setDesc('The language used in AI's speech recognition')
       .addDropdown(dropdown => {
         dropdown
 			.addOption ('en', 'english')
