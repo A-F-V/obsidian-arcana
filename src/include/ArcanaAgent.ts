@@ -33,7 +33,7 @@ export class ArcanaAgent {
     const transcription = await openai.audio.transcriptions.create({
       file: file,
       model: 'whisper-1',
-      language: 'en',
+      language: this.arcana.settings.INPUT_LANGUAGE,
     });
     return transcription.text;
   }
