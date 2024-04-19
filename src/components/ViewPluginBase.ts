@@ -42,7 +42,7 @@ export default abstract class ViewPluginBase extends ArcanaPluginBase {
     if (this.arcana.app.workspace.getLeavesOfType(this.viewType).length > 0)
       return;
     // Associate the view with a fresh left leaf
-    this.arcana.app.workspace.getLeftLeaf(false).setViewState({
+    this.arcana.app.workspace.getLeftLeaf(false)?.setViewState({
       type: this.viewType,
     });
   }
