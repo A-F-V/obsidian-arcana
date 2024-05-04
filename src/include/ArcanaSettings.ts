@@ -1,7 +1,7 @@
-export type AvailableModels = 'gpt-3.5-turbo' | 'gpt-4-1106-preview';
+export type AvailableModels = 'gpt-3.5-turbo' | 'gpt-4-turbo';
 
 export function isAvailableModel(model: string): model is AvailableModels {
-  return model == 'gpt-3.5-turbo' || model == 'gpt-4-1106-preview';
+  return model == 'gpt-3.5-turbo' || model == 'gpt-4-turbo';
 }
 
 export default interface ArcanaSettings {

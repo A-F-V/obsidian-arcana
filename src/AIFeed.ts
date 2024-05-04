@@ -154,9 +154,9 @@ export default class AIFeed {
 
   public async logCost(input: string, output: string) {
     const inputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-1106-preview' ? 0.01 : 0.001;
+      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
     const outputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-1106-preview' ? 0.03 : 0.002;
+      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
 
     const inputTokens = await this.tokenize(input);
     const outputTokens = await this.tokenize(output);
