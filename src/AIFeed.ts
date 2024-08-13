@@ -1,17 +1,17 @@
 import { ConversationChain } from 'langchain/chains';
-import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { HumanChatMessage } from 'langchain/schema';
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatAnthropic } from '@langchain/anthropic';
+import { HumanMessage } from '@langchain/core/messages';
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
   MessagesPlaceholder,
-} from 'langchain/prompts';
+} from '@langchain/core/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
 import ArcanaPlugin from './main';
-import ArcanaSettings from './include/ArcanaSettings';
-import SerializableAborter from './include/Aborter';
+import ArcanaSettings, { modelProvider } from './include/ArcanaSettings';
 import { escapeCurlyBraces } from './include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
@@ -57,19 +57,38 @@ export default class AIFeed {
     throw e;
   }
 
-  private getLLM(streaming = true): ChatOpenAI {
-    const apiKey = this.settings.OPEN_AI_API_KEY;
+  private getLLM(streaming = true) {
     const model = this.settings.MODEL_TYPE;
     const temperature = this.settings.TEMPERATURE;
     const topP = this.settings.TOP_P;
-    return new ChatOpenAI({
-      openAIApiKey: apiKey,
-      modelName: model,
-      temperature: temperature,
-      topP: topP,
-      streaming: streaming,
-      maxRetries: 0,
-    });
+    const provider = modelProvider(model);
+    if (provider == 'anthropic') {
+      const apiKey = this.settings.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        throw new Error('No API Key in Settings');
+      }
+      return new ChatAnthropic({
+        apiKey: apiKey,
+        model: model,
+        temperature: temperature,
+        topP: topP,
+        streaming: streaming,
+        maxRetries: 0,
+      });
+    } else {
+      const apiKey = this.settings.OPEN_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error('No API Key in Settings');
+      }
+      return new ChatOpenAI({
+        openAIApiKey: apiKey,
+        modelName: model,
+        temperature: temperature,
+        topP: topP,
+        streaming: streaming,
+        maxRetries: 0,
+      });
+    }
   }
   private async connect() {
     try {
@@ -110,7 +129,7 @@ export default class AIFeed {
 
   private async sendTestMessage() {
     this.getLLM(false).call([
-      new HumanChatMessage('This is a test of the API. Does it work?'),
+      new HumanMessage('This is a test of the API. Does it work?'),
     ]);
   }
 
@@ -153,6 +172,7 @@ export default class AIFeed {
   }
 
   public async logCost(input: string, output: string) {
+    // TODO log the cost correctly for anthropic
     const inputPrice =
       this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
     const outputPrice =

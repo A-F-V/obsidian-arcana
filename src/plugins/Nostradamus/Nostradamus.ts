@@ -4,7 +4,7 @@ import {
   removeFrontMatter,
   surroundWithMarkdown,
 } from 'src/utilities/DocumentCleaner';
-import { PromptTemplate } from 'langchain/prompts';
+import { PromptTemplate } from '@langchain/core/prompts';
 import { StructuredOutputParser } from 'langchain/output_parsers';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 
