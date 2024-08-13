@@ -18,15 +18,11 @@ import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 
-import {
-  FSTraverser,
-  FSTraversalNode,
-  FSTraversalOperators,
-} from './include/FileSystemCrawler';
 import PoloPlugin from './plugins/Polo/Polo';
 
 const DEFAULT_SETTINGS: ArcanaSettings = {
   OPEN_AI_API_KEY: '',
+  ANTHROPIC_API_KEY: '',
   MODEL_TYPE: 'gpt-3.5-turbo',
   INPUT_LANGUAGE: 'en',
   TEMPERATURE: 0.7,
