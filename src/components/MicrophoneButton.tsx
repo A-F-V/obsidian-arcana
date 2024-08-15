@@ -59,9 +59,9 @@ class Recorder {
       this.gumStream = stream;
 
       const options = {
-        audioBitsPerSecond: 50000, // 50kbps
+        audioBitsPerSecond: 96000, // 96kbps
         videoBitsPerSecond: 0, // No video
-        bitsPerSecond: 50000,
+        bitsPerSecond: 96000,
         mimeType: 'audio/' + this.extension + ';codecs=opus',
       };
 
