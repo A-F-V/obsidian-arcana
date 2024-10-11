@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Setting } from 'obsidian';
 import ViewPluginBase from 'src/components/ViewPluginBase';
 import ArcanaPlugin from 'src/main';
@@ -10,7 +11,6 @@ import {
 } from 'src/include/TextToSpeech';
 import { merge } from 'src/include/Functional';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
-import React from 'react';
 
 interface SocratesSettings {
   priorInstruction: string;
@@ -76,8 +76,6 @@ export default class SocratesPlugin extends ViewPluginBase {
     this.arcana.addCommand({
       id: 'activate-transcription',
       name: 'Toggle Chat Agent Microphone',
-      // Alt + R
-      hotkeys: [{ modifiers: ['Alt'], key: 'r' }],
       callback: () => {
         this.currentMicrophone.toggleMicrophone();
       },

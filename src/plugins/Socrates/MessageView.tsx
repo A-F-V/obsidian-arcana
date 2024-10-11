@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Author, Message } from './Message';
 import { AgentData } from './ConversationAgent';
 import MarkdownViewer from 'src/components/MarkdownViewer';

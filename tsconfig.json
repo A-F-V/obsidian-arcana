@@ -1,32 +1,35 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "sourceMap": true,
-        "inlineSources": true,
-        "outDir": "dist",
-        "target": "ESNext", // or higher
-        "module": "NodeNext",
-        "allowJs": true,
-        "noImplicitAny": true,
-        "moduleResolution": "node",
-        "importHelpers": true,
-        "isolatedModules": true,
-        "strictNullChecks": true,
-        "lib": [
-            "DOM",
-            "ES5",
-            "ES6",
-            "ES7"
-        ],
-        "jsx": "react"
-    },
-    "include": [
-        "**/*.ts",
-        "src/plugins/Carter/CarterObsidianView.tsx",
-        "src/components/QuestionModal.tsx",
-        "src/components/ObsidianViewBase.tsx",
-        "src/components/ObsidianView.tsx",
-        "src/components/Loader.tsx",
-        "src/plugins/Socrates/WhisperButton.tsx"
-, "src/plugins/Socrates/SocratesPlugin.tsx"    ]
+	"compilerOptions": {
+		"sourceMap": true,
+		"inlineSources": true,
+		"outDir": "dist",
+		"target": "ES6", // or higher
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"allowJs": true,
+		"noImplicitAny": true,
+		"importHelpers": true,
+		"isolatedModules": true,
+		"strictNullChecks": true,
+		"lib": [
+			"DOM",
+			"ES5",
+			"ES6",
+			"ES7"
+		],
+		"jsx": "react",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"src/*"
+			]
+		}
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	],
 }

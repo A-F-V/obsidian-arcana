@@ -1,5 +1,5 @@
 import { ArcanaContext } from './context';
-import React from 'react';
+import * as React from 'react';
 import ArcanaPlugin from 'src/main';
 
 export const useArcana = (): ArcanaPlugin => {

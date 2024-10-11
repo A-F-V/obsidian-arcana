@@ -2,7 +2,8 @@
 A voice record button that uses OpenAI's Whispher model
 */
 import { useArcana } from '../hooks/hooks';
-import React, {
+import * as React from 'react';
+import {
   useState,
   useEffect,
   useRef,
@@ -103,7 +104,7 @@ class Recorder {
       .getUserMedia(constraints)
       .then(callback)
       .catch(
-        function (err: any) {
+        function (err: Error) {
           // I think this is correct
           console.log(err);
           this.onError(RecordingError.NO_MICROPHONE_FOUND);

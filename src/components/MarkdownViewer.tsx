@@ -4,8 +4,7 @@ import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
-import React from 'react';
-
+import * as React from 'react';
 export default function MarkdownViewer({ markdown }: { markdown: string }) {
   return (
     <ReactMarkdown

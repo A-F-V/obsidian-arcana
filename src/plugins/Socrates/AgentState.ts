@@ -1,9 +1,6 @@
 import { AgentData } from './ConversationAgent';
 import { Author, Message } from './Message';
-import SerializableAborter from 'src/include/Aborter';
 import { configureStore } from '@reduxjs/toolkit';
-import ArcanaPlugin from 'src/main';
-import { TFile } from 'obsidian';
 import { AnyAction, Reducer } from 'redux';
 import { findLastIndex } from 'src/include/Functional';
 
@@ -74,19 +71,7 @@ export type ChatAgentAction =
   | UpdateLastAIMessageAction
   | ResetAgentConversatinAction;
 
-function isSerializable(x: any) {
-  try {
-    JSON.stringify(x);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 function ChatAgentReducer(state = initialState, action: ChatAgentAction) {
-  //console.log('ChatAgentReducer', action, state);
-  //console.log('isSerializable action', isSerializable(action));
-  //console.log('isSerializable state', isSerializable(state));
   switch (action.type) {
     case 'agent/add': {
       const agent: AgentData = action.agent;

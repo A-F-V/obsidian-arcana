@@ -1,7 +1,7 @@
 {
   "name": "arcana",
   "version": "1.6.6",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs --platform=node",
@@ -11,7 +11,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^16.11.6",
     "@types/react": "^18.2.0",

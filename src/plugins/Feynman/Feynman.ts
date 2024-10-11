@@ -6,7 +6,6 @@ import {
   TFile,
   WorkspaceLeaf,
 } from 'obsidian';
-import ArcanaPlugin from 'src/main';
 import {
   removeFrontMatter,
   surroundWithMarkdown,

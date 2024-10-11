@@ -2,8 +2,6 @@ import * as React from 'react';
 import Select from 'react-select';
 import { useSelector } from 'react-redux';
 import { ChatAgentState } from './AgentState';
-import { TFile } from 'obsidian';
-import { AgentData } from './ConversationAgent';
 
 export default function AgentSelector({
   setCurrentAgent,

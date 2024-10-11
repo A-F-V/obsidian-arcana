@@ -8,7 +8,11 @@ export default class FrontMatterManager {
     this.arcana = arcana;
   }
 
-  async set(file: TFile, key: string, value: any): Promise<void> {
+  async set(
+    file: TFile,
+    key: string,
+    value: number | string | boolean | string[]
+  ): Promise<void> {
     await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
       console.log(key, frontMatter);
       frontMatter[key] = value;

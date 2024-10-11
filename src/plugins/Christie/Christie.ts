@@ -1,5 +1,4 @@
 import { Editor, MarkdownView, Setting, TFile } from 'obsidian';
-import ArcanaPlugin from 'src/main';
 import {
   removeFrontMatter,
   surroundWithMarkdown,

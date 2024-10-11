@@ -1,11 +1,5 @@
 import { Editor, MarkdownView, Notice, TFile, normalizePath } from 'obsidian';
-import ArcanaPlugin from 'src/main';
-import {
-  removeFrontMatter,
-  surroundWithMarkdown,
-} from 'src/utilities/DocumentCleaner';
-import { PromptTemplate } from '@langchain/core/prompts';
-import { StructuredOutputParser } from 'langchain/output_parsers';
+import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 
 export default class NostradamusPlugin extends ArcanaPluginBase {

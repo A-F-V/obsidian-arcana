@@ -1,13 +1,8 @@
-import { Plugin, TAbstractFile } from 'obsidian';
+import { Plugin } from 'obsidian';
 
-import ArcanaSettings, {
-  AvailableModels,
-  isAvailableModel,
-} from './include/ArcanaSettings';
+import ArcanaSettings, { isAvailableModel } from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import { ArcanaAgent } from './include/ArcanaAgent';
-//import CarterPlugin from './plugins/Carter/Carter';
-import StorageManager from './include/StorageManager';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
@@ -46,7 +41,6 @@ export default class ArcanaPlugin extends Plugin {
     settings: OpenAITextToSpeech
   ) => Promise<HTMLAudioElement>;
 
-  fs: StorageManager;
   settings: ArcanaSettings;
   plugins: ArcanaPluginBase[] = [
     //new CarterPlugin(this),

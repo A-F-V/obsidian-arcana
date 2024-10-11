@@ -1,6 +1,6 @@
 import { MarkdownView, Notice, TFile } from 'obsidian';
 import MessageView from './MessageView';
-import React, { forwardRef, useImperativeHandle } from 'react';
+import * as React from 'react';
 import { useArcana } from 'src/hooks/hooks';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,7 +14,7 @@ import {
 
 import { OpenAITextToSpeechParams } from '../../include/TextToSpeech';
 
-export const ConversationDialogue = forwardRef(
+export const ConversationDialogue = React.forwardRef(
   (
     {
       current_file,
@@ -36,7 +36,7 @@ export const ConversationDialogue = forwardRef(
 
     const dispatch = useDispatch<StoreDispatch>();
 
-    useImperativeHandle(ref, () => ({
+    React.useImperativeHandle(ref, () => ({
       toggleMicrophone: () => {
         // @ts-ignore
         buttonRef.current?.toggleRecording();
@@ -96,7 +96,7 @@ export const ConversationDialogue = forwardRef(
           .then((audio: HTMLAudioElement) => {
             audio.play();
           })
-          .catch((error: any) => {
+          .catch((error: Error) => {
             new Notice(`Error with Text to Speech:\n${error}`);
           });
       },
@@ -138,7 +138,7 @@ export const ConversationDialogue = forwardRef(
       [agentName, aiFeed, agent, askQuestion, createUserMessage]
     );
 
-    const onSubmitMessage = (e: any) => {
+    const onSubmitMessage = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter') sendMessage(e.currentTarget);
     };
 

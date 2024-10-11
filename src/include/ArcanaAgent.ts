@@ -1,7 +1,6 @@
 import ArcanaPlugin from 'src/main';
 import Conversation from 'src/AIFeed';
 import OpenAI from 'openai';
-import { OpenAIWhisperAudio } from 'langchain/document_loaders/fs/openai_whisper_audio';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
 
 export class ArcanaAgent {
@@ -22,7 +21,11 @@ export class ArcanaAgent {
     onAbort?: () => void
   ): Promise<string> {
     const conversation = this.startFeed(ctx);
-    return (await conversation.askQuestion(query, onToken, onAbort))!;
+    const result = await conversation.askQuestion(query, onToken, onAbort);
+    if (result === null) {
+      throw new Error('No result');
+    }
+    return result;
   }
 
   public async transcribe(file: File): Promise<string> {

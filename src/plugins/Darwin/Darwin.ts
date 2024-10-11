@@ -7,7 +7,6 @@ import {
   TFile,
   TFolder,
 } from 'obsidian';
-import ArcanaPlugin from 'src/main';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';

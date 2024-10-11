@@ -9,7 +9,6 @@ import {
 } from 'obsidian';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import {
-  FSTraversalNode,
   FSTraversalOperators,
   FSTraverser,
 } from 'src/include/FileSystemCrawler';
@@ -17,7 +16,6 @@ import {
 import PoloApprovalModal from './PoloApprovalModal';
 import { merge } from 'src/include/Functional';
 import FrontMatterManager from 'src/include/FrontMatterManager';
-import { assert } from 'console';
 import FileSystemIder from 'src/include/FileSystemIder';
 
 type PoloSettings = {

@@ -1,9 +1,8 @@
 import ArcanaPlugin from 'src/main';
-import { ItemView } from 'obsidian';
+import { ItemView, WorkspaceLeaf } from 'obsidian';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Root, createRoot } from 'react-dom/client';
-import { ArcanaContext } from 'src/hooks/context';
+import { ArcanaContext } from '@/hooks/context';
 
 // The general boiler plate for creating an obsidian view
 export class ObsidianView extends ItemView {
@@ -15,7 +14,7 @@ export class ObsidianView extends ItemView {
   private root: Root | null = null;
 
   constructor(
-    leaf: any,
+    leaf: WorkspaceLeaf,
     arcana: ArcanaPlugin,
     viewType: string,
     icon: string,

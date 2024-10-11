@@ -10,9 +10,9 @@ import {
 } from '@langchain/core/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
-import ArcanaPlugin from './main';
-import ArcanaSettings, { modelProvider } from './include/ArcanaSettings';
-import { escapeCurlyBraces } from './include/TextPostProcesssing';
+import ArcanaPlugin from '@/main';
+import ArcanaSettings, { modelProvider } from '@/include/ArcanaSettings';
+import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
 class ConvState {
@@ -30,7 +30,7 @@ export default class AIFeed {
   private convState: ConvState = new ConvState();
   private currentQuestionState: QuestionState | null = null;
   private conversationContext: string;
-  private memorySize: number = 6;
+  private memorySize = 6;
 
   private chain: ConversationChain | null = null;
 
@@ -149,13 +149,18 @@ export default class AIFeed {
   }
 
   public async generateRawInputMessage(input: string): Promise<string> {
-    const history = await this.chain!.memory!.loadMemoryVariables([
-      'history',
-    ]).then(vars => vars['history']);
+    const memory = this.chain?.memory;
+    if (!memory) {
+      throw new Error('No memory');
+    }
+    const history = await memory
+      .loadMemoryVariables(['history'])
+      .then(vars => vars['history']);
 
     return (
       this.conversationContext +
       '\n' +
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       history.map((msg: any) => msg.text).join('\n') +
       '\n' +
       input
@@ -220,7 +225,11 @@ export default class AIFeed {
 
     const inputMessage = await this.generateRawInputMessage(question);
 
-    const response = await this.chain!.call(
+    const chain = this.chain;
+    if (!chain) {
+      throw new Error('No chain');
+    }
+    const response = await chain.call(
       {
         input: question,
       },

@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import ArcanaPlugin from '../main';
 import { AvailableModels } from 'src/include/ArcanaSettings';
 
