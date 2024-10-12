@@ -11,7 +11,7 @@ import {
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
 import ArcanaPlugin from '@/main';
-import ArcanaSettings, { modelProvider } from '@/include/ArcanaSettings';
+import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
 import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
@@ -25,7 +25,7 @@ class QuestionState {
 }
 
 export default class AIFeed {
-  private settings: ArcanaSettings;
+  private settings: AgentSettings;
 
   private convState: ConvState = new ConvState();
   private currentQuestionState: QuestionState | null = null;
@@ -35,7 +35,7 @@ export default class AIFeed {
   private chain: ConversationChain | null = null;
 
   // Never fires exception
-  constructor(aiSettings: ArcanaSettings, conversationContext: string) {
+  constructor(aiSettings: AgentSettings, conversationContext: string) {
     this.settings = aiSettings;
     // Clean
     this.conversationContext = escapeCurlyBraces(conversationContext);

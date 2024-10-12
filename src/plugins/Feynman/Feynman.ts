@@ -18,21 +18,49 @@ import FrontMatterManager from 'src/include/FrontMatterManager';
 import { moveToEndOfFile } from 'src/include/CursorMover';
 import SerializableAborter from 'src/include/Aborter';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
-import { merge } from 'src/include/Functional';
+import SettingsSection from '@/components/SettingsSection';
 
-export default class FeynmanPlugin extends ArcanaPluginBase {
-  private setting: { folder: string };
+export interface FeynmanSettings {
+  folder: string;
+}
+
+export const defaultFeynmanSettings: FeynmanSettings = {
+  folder: 'FeynmanFlashcards',
+};
+
+export class FeynmanSettingsSection extends SettingsSection<FeynmanSettings> {
+  public sectionTitle = 'Feynman';
+  public display(containerEl: HTMLElement): void {
+    containerEl.createEl('h1', { text: 'Feynman' });
+    new Setting(containerEl)
+      .setName('Feynman flashcard folder')
+      .setDesc('The folder where the flashcards will be stored')
+      .addText(text => {
+        text
+          .setPlaceholder('Flashcards')
+          .setValue(this.settings.folder)
+          .onChange(async (value: string) => {
+            this.settings.folder = value;
+            await this.saveSettings();
+          });
+      });
+  }
+}
+
+export default class FeynmanPlugin extends ArcanaPluginBase<FeynmanSettings> {
+  public createSettingsSection(): SettingsSection<FeynmanSettings> {
+    return new FeynmanSettingsSection(
+      this.settings,
+      this.arcana.getSettingSaver()
+    );
+  }
 
   private ensureFolderExists() {
-    if (!this.arcana.app.vault.getAbstractFileByPath(this.setting.folder)) {
-      this.arcana.app.vault.createFolder(this.setting.folder);
+    if (!this.arcana.app.vault.getAbstractFileByPath(this.settings.folder)) {
+      this.arcana.app.vault.createFolder(this.settings.folder);
     }
   }
   public async onload() {
-    this.setting = merge(this.arcana.settings.PluginSettings['Feynman'], {
-      folder: 'FeynmanFlashcards', // The default setting
-    });
-
     // Register the nostradamus command
     this.arcana.addCommand({
       id: 'feynman',
@@ -55,7 +83,7 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
               return;
             }
             // Get current file name
-            const newFileName = `${this.setting.folder}/Flashcard - ${oldFile.basename}.md`;
+            const newFileName = `${this.settings.folder}/Flashcard - ${oldFile.basename}.md`;
             // Create a new file
             let newFile =
               this.arcana.app.vault.getAbstractFileByPath(newFileName);
@@ -118,22 +146,6 @@ export default class FeynmanPlugin extends ArcanaPluginBase {
     });
   }
 
-  public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h1', { text: 'Feynman' });
-    new Setting(containerEl)
-      .setName('Feynman flashcard folder')
-      .setDesc('The folder where the flashcards will be stored')
-      .addText(text => {
-        text
-          .setPlaceholder('Flashcards')
-          .setValue(this.setting.folder)
-          .onChange(async (value: string) => {
-            this.setting.folder = value;
-            this.arcana.settings.PluginSettings['Feynman'] = { folder: value };
-            await this.arcana.saveSettings();
-          });
-      });
-  }
   public async onunload() {}
 
   private async askFeynman(

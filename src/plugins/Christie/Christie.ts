@@ -8,13 +8,43 @@ import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import SerializableAborter from 'src/include/Aborter';
 import { moveToEndOfLine } from 'src/include/CursorMover';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
+import SettingsSection from '@/components/SettingsSection';
 
-export default class ChristiePlugin extends ArcanaPluginBase {
-  private priorInstruction = '';
+export interface ChristieSettings {
+  priorInstruction: string;
+}
+
+export class ChristieSettingsSection extends SettingsSection<ChristieSettings> {
+  public sectionTitle = 'Christie';
+  public display(containerEl: HTMLElement): void {
+    new Setting(containerEl)
+      .setName("Christie's system message")
+      .setDesc('The prior instruction given to Christie')
+      .addTextArea(text => {
+        text
+          .setPlaceholder('')
+          .setValue(this.settings.priorInstruction)
+          .onChange(async (value: string) => {
+            this.settings.priorInstruction = value;
+            await this.saveSettings();
+          });
+      });
+  }
+}
+
+export const defaultChristieSettings: ChristieSettings = {
+  priorInstruction: '',
+};
+
+export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
+  public createSettingsSection(): SettingsSection<ChristieSettings> {
+    return new ChristieSettingsSection(
+      this.settings,
+      this.arcana.getSettingSaver()
+    );
+  }
 
   public async onload() {
-    this.priorInstruction =
-      this.arcana.settings.PluginSettings['Christie']?.priorInstruction ?? '';
     // Register the nostradamus command
     this.arcana.addCommand({
       id: 'christie',
@@ -59,25 +89,6 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     });
   }
 
-  public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h1', { text: 'Christie' });
-    new Setting(containerEl)
-      .setName("Christie's system message")
-      .setDesc('The prior instruction given to Christie')
-      .addTextArea(text => {
-        text
-          .setPlaceholder('')
-          .setValue(this.priorInstruction)
-          .onChange(async (value: string) => {
-            this.priorInstruction = value;
-            this.arcana.settings.PluginSettings['Christie'] = {
-              priorInstruction: value,
-            };
-            await this.arcana.saveSettings();
-          });
-      });
-  }
-
   public async onunload() {}
 
   private async askChristie(
@@ -99,8 +110,8 @@ export default class ChristiePlugin extends ArcanaPluginBase {
     if (documentText.length > 0) {
       context += `The document is:\n${markdownText}\n`;
     }
-    if (this.priorInstruction.length > 0) {
-      context += `\n${this.priorInstruction}\n`;
+    if (this.settings.priorInstruction.length > 0) {
+      context += `\n${this.settings.priorInstruction}\n`;
     }
 
     question = `The following is either a question to answer or an instruction to complete: ${question.trim()}.`;

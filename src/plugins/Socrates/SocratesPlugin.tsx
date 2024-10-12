@@ -9,10 +9,10 @@ import {
   OpenAITextToSpeechParams,
   OpenAIVoice,
 } from 'src/include/TextToSpeech';
-import { merge } from 'src/include/Functional';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
+import SettingsSection from '@/components/SettingsSection';
 
-interface SocratesSettings {
+export interface SocratesSettings {
   priorInstruction: string;
   agent_folder: string;
   socratesMemorySize: number;
@@ -23,7 +23,7 @@ interface SocratesSettings {
   autoSpeakReply: boolean;
 }
 
-const defaultSocratesSettings: SocratesSettings = {
+export const defaultSocratesSettings: SocratesSettings = {
   priorInstruction: '',
   agent_folder: 'Arcana/Agents',
   autoSendTranscription: false,
@@ -34,57 +34,21 @@ const defaultSocratesSettings: SocratesSettings = {
   },
   autoSpeakReply: false,
 };
-export default class SocratesPlugin extends ViewPluginBase {
-  private settings: SocratesSettings = defaultSocratesSettings;
-  private currentMicrophone: MicrophoneContextInfo = {
-    toggleMicrophone: () => {},
-  };
 
-  private getSocratesPriorInstruction(): string {
-    return this.settings.priorInstruction;
-  }
-  private getSocratesAutoSendTranscription(): boolean {
-    return this.settings.autoSendTranscription;
-  }
+export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
+  public sectionTitle = 'Socrates';
+  private onSocratesChange: () => void;
 
-  private getSocratesMemorySize(): number {
-    return this.settings.socratesMemorySize;
+  constructor(
+    settings: SocratesSettings,
+    saveSettings: () => Promise<void>,
+    onSocratesChange: () => void
+  ) {
+    super(settings, saveSettings);
+    this.onSocratesChange = onSocratesChange;
   }
 
-  private getSocratesTTSParams(): OpenAITextToSpeechParams {
-    return this.settings.ttsParams;
-  }
-
-  private getSocratesAutoSpeakReply(): boolean {
-    return this.settings.autoSpeakReply;
-  }
-
-  private getAgentFolder(): string {
-    return this.settings.agent_folder;
-  }
-
-  public async onload(): Promise<void> {
-    await super.onload();
-
-    this.settings = merge(
-      this.arcana.settings.PluginSettings['Socrates'],
-      defaultSocratesSettings
-    );
-
-    this.settings.ttsParams ??= defaultSocratesSettings.ttsParams;
-
-    this.arcana.addCommand({
-      id: 'activate-transcription',
-      name: 'Toggle Chat Agent Microphone',
-      callback: () => {
-        this.currentMicrophone.toggleMicrophone();
-      },
-    });
-  }
-
-  public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h1', { text: 'Socrates' });
-
+  display(containerEl: HTMLElement): void {
     new Setting(containerEl)
       .setName('Conversation Agent Folder')
       .setDesc('The folder from which to load conversation agent templates.')
@@ -94,21 +58,15 @@ export default class SocratesPlugin extends ViewPluginBase {
           .setValue(this.settings.agent_folder)
           .onChange(async (value: string) => {
             this.settings.agent_folder = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
+            await this.saveSettings();
           });
       });
 
     containerEl.createEl('h3', { text: 'Socrates Agent Settings' });
 
     const saveSocratesAgent = async () => {
-      this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-      await this.arcana.saveSettings();
-      store.dispatch({
-        type: 'agent/update',
-        agent: this.getSocrates(),
-        old_name: 'Socrates',
-      });
+      await this.saveSettings();
+      this.onSocratesChange();
     };
     new Setting(containerEl)
       .setName("Socrates's System Message")
@@ -223,35 +181,64 @@ export default class SocratesPlugin extends ViewPluginBase {
             await saveSocratesAgent();
           });
       });
+  }
+}
 
-    /*
-    new Setting(containerEl)
-      .setName('With Web Search')
-      .setDesc('Whether to give Socrates access to the web')
-      .addToggle(toggle => {
-        toggle
-          .setValue(this.settings.usingWeb)
-          .onChange(async (value: boolean) => {
-            this.settings.usingWeb = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
-          });
+export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
+  public createSettingsSection(): SettingsSection<SocratesSettings> {
+    const onSocratesChange = () => {
+      store.dispatch({
+        type: 'agent/update',
+        agent: this.getSocrates(),
+        old_name: 'Socrates',
       });
+    };
+    return new SocratesSettingsSection(
+      this.settings,
+      this.arcana.getSettingSaver(),
+      onSocratesChange.bind(this)
+    );
+  }
 
-    new Setting(containerEl)
-      .setName('Serp API Token')
-      .setDesc('The Serp API Token to use for web searches')
-      .addText(text => {
-        text
-          .setValue(this.settings.serpApiToken)
-          .onChange(async (value: string) => {
-            this.settings.serpApiToken = value;
-            this.arcana.settings.PluginSettings['Socrates'] = this.settings;
-            await this.arcana.saveSettings();
-          });
-      });
-    //.setDisabled(!this.settings.usingWeb);
-    */
+  private currentMicrophone: MicrophoneContextInfo = {
+    toggleMicrophone: () => {},
+  };
+
+  private getSocratesPriorInstruction(): string {
+    return this.settings.priorInstruction;
+  }
+  private getSocratesAutoSendTranscription(): boolean {
+    return this.settings.autoSendTranscription;
+  }
+
+  private getSocratesMemorySize(): number {
+    return this.settings.socratesMemorySize;
+  }
+
+  private getSocratesTTSParams(): OpenAITextToSpeechParams {
+    return this.settings.ttsParams;
+  }
+
+  private getSocratesAutoSpeakReply(): boolean {
+    return this.settings.autoSpeakReply;
+  }
+
+  private getAgentFolder(): string {
+    return this.settings.agent_folder;
+  }
+
+  public async onload(): Promise<void> {
+    await super.onload();
+
+    this.settings.ttsParams ??= defaultSocratesSettings.ttsParams;
+
+    this.arcana.addCommand({
+      id: 'activate-transcription',
+      name: 'Toggle Chat Agent Microphone',
+      callback: () => {
+        this.currentMicrophone.toggleMicrophone();
+      },
+    });
   }
 
   private getSocrates(): AgentData {
@@ -267,8 +254,8 @@ export default class SocratesPlugin extends ViewPluginBase {
     };
   }
 
-  constructor(arcana: ArcanaPlugin) {
-    super(arcana, 'socrates-view', 'brain-cog', 'Socrates', () => {
+  constructor(arcana: ArcanaPlugin, settings: SocratesSettings) {
+    super(arcana, settings, 'socrates-view', 'brain-cog', 'Socrates', () => {
       return (
         <React.StrictMode>
           <MicrophoneContext.Provider value={this.currentMicrophone}>

@@ -3,26 +3,31 @@ import ArcanaPlugin from 'src/main';
 import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
 
-export default abstract class ViewPluginBase extends ArcanaPluginBase {
+export default abstract class ViewPluginBase<
+  SettingsType
+> extends ArcanaPluginBase<SettingsType> {
   private viewType: string;
   private viewFactory: (leaf: WorkspaceLeaf) => View;
 
   constructor(
     arcana: ArcanaPlugin,
+    settings: SettingsType,
     viewType: string,
     icon: string,
     displayText: string,
     view: () => JSX.Element
   ) {
-    super(arcana);
+    super(arcana, settings);
     this.viewType = viewType;
     this.viewFactory = (leaf: WorkspaceLeaf) => {
       return new ObsidianView(leaf, arcana, viewType, icon, displayText, view);
     };
   }
   async onload() {
-    // Register the View on load
-    this.arcana.registerView(this.viewType, leaf => this.viewFactory(leaf));
+    // Register the view if it's not already registered
+    if (!this.arcana.app.workspace.getLeavesOfType(this.viewType).length) {
+      this.arcana.registerView(this.viewType, leaf => this.viewFactory(leaf));
+    }
 
     // Render when the layout is ready
     this.arcana.app.workspace.onLayoutReady(() => {

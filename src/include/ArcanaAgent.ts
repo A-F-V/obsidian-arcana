@@ -1,17 +1,17 @@
-import ArcanaPlugin from 'src/main';
 import Conversation from 'src/AIFeed';
 import OpenAI from 'openai';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
+import { AgentSettings } from './ArcanaSettings';
 
 export class ArcanaAgent {
-  private arcana: ArcanaPlugin;
+  private settings: AgentSettings;
 
-  constructor(arcana: ArcanaPlugin) {
-    this.arcana = arcana;
+  constructor(settings: AgentSettings) {
+    this.settings = settings;
   }
 
   public startFeed(conversationContext: string): Conversation {
-    return new Conversation(this.arcana.settings, conversationContext);
+    return new Conversation(this.settings, conversationContext);
   }
 
   public async complete(
@@ -30,13 +30,13 @@ export class ArcanaAgent {
 
   public async transcribe(file: File): Promise<string> {
     const openai = new OpenAI({
-      apiKey: this.arcana.settings.OPEN_AI_API_KEY,
+      apiKey: this.settings.OPEN_AI_API_KEY,
       dangerouslyAllowBrowser: true,
     });
     const transcription = await openai.audio.transcriptions.create({
       file: file,
       model: 'whisper-1',
-      language: this.arcana.settings.INPUT_LANGUAGE,
+      language: this.settings.INPUT_LANGUAGE,
     });
     return transcription.text;
   }
@@ -47,7 +47,7 @@ export class ArcanaAgent {
   ): Promise<HTMLAudioElement> {
     return OpenAITextToSpeech.speak(
       text,
-      this.arcana.settings.OPEN_AI_API_KEY,
+      this.settings.OPEN_AI_API_KEY,
       settings
     );
   }

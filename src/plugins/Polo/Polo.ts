@@ -14,32 +14,26 @@ import {
 } from 'src/include/FileSystemCrawler';
 
 import PoloApprovalModal from './PoloApprovalModal';
-import { merge } from 'src/include/Functional';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import FileSystemIder from 'src/include/FileSystemIder';
+import SettingsSection from '@/components/SettingsSection';
 
-type PoloSettings = {
+export interface PoloSettings {
   priorInstruction: string;
   showFilesInFolderStructure: boolean;
   showFileContent: boolean;
-};
+}
 
-const DEFAULT_SETTINGS: PoloSettings = {
+export const defaultPoloSettings: PoloSettings = {
   priorInstruction: '',
   showFilesInFolderStructure: false,
   showFileContent: false,
 };
 
-export default class PoloPlugin extends ArcanaPluginBase {
-  private settings: PoloSettings = DEFAULT_SETTINGS;
+export class PoloSettingsSection extends SettingsSection<PoloSettings> {
+  public sectionTitle = 'Polo';
 
-  public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h1', { text: 'Polo' });
-
-    const saveSettings = async () => {
-      this.arcana.settings.PluginSettings['Polo'] = this.settings;
-      await this.arcana.saveSettings();
-    };
+  display(containerEl: HTMLElement): void {
     new Setting(containerEl)
       .setName("Polo's additional context")
       .setDesc('The prior instruction given to Polo')
@@ -49,7 +43,7 @@ export default class PoloPlugin extends ArcanaPluginBase {
           .setValue(this.settings.priorInstruction)
           .onChange(async (value: string) => {
             this.settings.priorInstruction = value;
-            await saveSettings();
+            await this.saveSettings();
           });
       });
 
@@ -63,7 +57,7 @@ export default class PoloPlugin extends ArcanaPluginBase {
           .setValue(this.settings.showFilesInFolderStructure)
           .onChange(async (value: boolean) => {
             this.settings.showFilesInFolderStructure = value;
-            await saveSettings();
+            await this.saveSettings();
           });
       });
 
@@ -75,16 +69,21 @@ export default class PoloPlugin extends ArcanaPluginBase {
           .setValue(this.settings.showFileContent)
           .onChange(async (value: boolean) => {
             this.settings.showFileContent = value;
-            await saveSettings();
+            await this.saveSettings();
           });
       });
   }
+}
+
+export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
+  public createSettingsSection(): SettingsSection<PoloSettings> {
+    return new PoloSettingsSection(
+      this.settings,
+      this.arcana.getSettingSaver()
+    );
+  }
 
   public async onload() {
-    this.settings = merge(
-      this.arcana.settings.PluginSettings['Polo'] as PoloSettings,
-      DEFAULT_SETTINGS
-    );
     // TODO: Logic is very similar to DarwinPlugin so refactor
     // Register the Polo command
     this.arcana.addCommand({

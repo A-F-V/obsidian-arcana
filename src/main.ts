@@ -1,6 +1,6 @@
 import { Plugin } from 'obsidian';
 
-import ArcanaSettings, { isAvailableModel } from './include/ArcanaSettings';
+import ArcanaSettings, { defaultAgentSettings } from './include/ArcanaSettings';
 import ArcanaSettingsTab from './components/ArcanaSettingsTab';
 import { ArcanaAgent } from './include/ArcanaAgent';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
@@ -12,18 +12,10 @@ import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
-
 import PoloPlugin from './plugins/Polo/Polo';
-
-const DEFAULT_SETTINGS: ArcanaSettings = {
-  OPEN_AI_API_KEY: '',
-  ANTHROPIC_API_KEY: '',
-  MODEL_TYPE: 'gpt-3.5-turbo',
-  INPUT_LANGUAGE: 'en',
-  TEMPERATURE: 0.7,
-  TOP_P: 1,
-  PluginSettings: {},
-};
+import SettingsSection from './components/SettingsSection';
+import AgentSettingsSection from './components/AgentSettingsSection';
+import { AvailablePlugins, defaultPluginSettings } from './plugins/AllPlugins';
 
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
@@ -42,38 +34,64 @@ export default class ArcanaPlugin extends Plugin {
   ) => Promise<HTMLAudioElement>;
 
   settings: ArcanaSettings;
-  plugins: ArcanaPluginBase[] = [
-    //new CarterPlugin(this),
-    new SocratesPlugin(this),
-    new NostradamusPlugin(this),
-    new ChristiePlugin(this),
-    new FeynmanPlugin(this),
-    new DarwinPlugin(this),
-    new FordPlugin(this),
-    new PoloPlugin(this),
-  ];
+  // TODO: Type this more narrowly
+  plugins: Record<AvailablePlugins, ArcanaPluginBase<any>>;
 
   async onload() {
+    // Set up the settings
+    await this.loadSettings();
+
     // Load the agent
-    this.agent = new ArcanaAgent(this);
+    this.agent = new ArcanaAgent(this.settings.agentSettings);
     this.startFeed = this.agent.startFeed.bind(this.agent);
     this.complete = this.agent.complete.bind(this.agent);
     this.transcribe = this.agent.transcribe.bind(this.agent);
     this.speak = this.agent.speak.bind(this.agent);
-    // Set up the settings
-    await this.loadSettings();
 
-    this.addSettingTab(new ArcanaSettingsTab(this.app, this));
-
+    // Create the plugins:
+    const ps = this.settings.pluginSettings;
+    this.plugins = {
+      christie: new ChristiePlugin(this, ps['christie']),
+      darwin: new DarwinPlugin(this, ps['darwin']),
+      feynman: new FeynmanPlugin(this, ps['feynman']),
+      ford: new FordPlugin(this, ps['ford']),
+      nostradamus: new NostradamusPlugin(this, ps['nostradamus']),
+      polo: new PoloPlugin(this, ps['polo']),
+      socrates: new SocratesPlugin(this, ps['socrates']),
+    };
+    // Setup the settings tab
+    this.setupSettingsTab();
     // Add plugins
-    for (const plugin of this.plugins) {
+    for (const plugin of Object.values(this.plugins)) {
       await plugin.onload();
     }
   }
 
+  private setupSettingsTab() {
+    const sections: SettingsSection<any>[] = [];
+
+    // Agent goes on top
+    sections.push(
+      new AgentSettingsSection(
+        this.settings.agentSettings,
+        this.getSettingSaver
+      )
+    );
+
+    // Plugins get added in order they are declared
+    for (const plugin of Object.values(this.plugins)) {
+      const section = plugin.createSettingsSection();
+      if (section) {
+        sections.push(section);
+      }
+    }
+
+    this.addSettingTab(new ArcanaSettingsTab(this.app, this, sections));
+  }
+
   async onunload() {
     // Unload plugins
-    for (const plugin of this.plugins) {
+    for (const plugin of Object.values(this.plugins)) {
       await plugin.onunload();
     }
     // Release resources
@@ -83,27 +101,31 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    // Update any settings which look old
-    if (!isAvailableModel(this.settings.MODEL_TYPE)) {
-      this.settings.MODEL_TYPE = DEFAULT_SETTINGS.MODEL_TYPE;
-    }
+    const defaultSettings: ArcanaSettings = {
+      agentSettings: defaultAgentSettings,
+      pluginSettings: defaultPluginSettings,
+    };
+
+    // Assign or Merge?
+    this.settings = Object.assign({}, defaultSettings, await this.loadData());
+
+    // TODO: Validate the settings
   }
 
   registerResource(releaseMethod: () => void) {
     this.openResource.push(releaseMethod);
   }
 
-  async saveSettings() {
+  getSettingSaver() {
     // Currently only settings are saved.
-    await this.saveData(this.settings);
+    return (async () => await this.saveData(this.settings)).bind(this);
   }
 
   getAPIKey(): string {
-    return this.settings.OPEN_AI_API_KEY;
+    return this.settings.agentSettings.OPEN_AI_API_KEY;
   }
 
   getAIModel(): string {
-    return this.settings.MODEL_TYPE;
+    return this.settings.agentSettings.MODEL_TYPE;
   }
 }

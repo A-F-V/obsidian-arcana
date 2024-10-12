@@ -31,7 +31,7 @@
 		"@typescript-eslint/no-empty-function": "off",
 		"@typescript-eslint/no-non-null-assertion": "off",
 		"import/no-cycle": [
-			2,
+			1,
 			{
 				"maxDepth": 2,
 				"ignoreExternal": true

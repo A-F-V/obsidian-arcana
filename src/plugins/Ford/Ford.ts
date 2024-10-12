@@ -9,11 +9,9 @@ import {
 } from 'obsidian';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
-import { merge } from 'src/include/Functional';
 import FordTemplateSuggestModal from './FordTemplateSuggestModal';
 import FrontMatterManager from 'src/include/FrontMatterManager';
-
-type FordSettings = { folder: string };
+import SettingsSection from '@/components/SettingsSection';
 
 type MetadataType = 'string' | 'number' | 'boolean' | 'string[]';
 type MetadataProperty = { name: string; type: MetadataType; query: string };
@@ -21,16 +19,39 @@ type MetadataTemplate = MetadataProperty[];
 type PropertyResult = { name: string; type: MetadataType; result: string };
 type TemplateResult = PropertyResult[];
 
-const DEFAULT_SETTINGS: FordSettings = { folder: 'FordTemplates' };
-export default class FordPlugin extends ArcanaPluginBase {
-  private setting: FordSettings = DEFAULT_SETTINGS;
+export interface FordSettings {
+  folder: string;
+}
+
+export const defaultFordSettings: FordSettings = { folder: 'FordTemplates' };
+
+export class FordSettingsSection extends SettingsSection<FordSettings> {
+  public sectionTitle = 'Ford';
+
+  display(containerEl: HTMLElement): void {
+    new Setting(containerEl)
+      .setName('Ford template folder')
+      .setDesc('The folder where templates are stored.')
+      .addText(text => {
+        text
+          .setPlaceholder(defaultFordSettings.folder)
+          .setValue(this.settings.folder)
+          .onChange(async (value: string) => {
+            this.settings.folder = value;
+            await this.saveSettings();
+          });
+      });
+  }
+}
+export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
+  public createSettingsSection(): SettingsSection<FordSettings> {
+    return new FordSettingsSection(
+      this.settings,
+      this.arcana.getSettingSaver()
+    );
+  }
 
   public async onload() {
-    this.setting = merge(
-      this.arcana.settings.PluginSettings['Ford'],
-      DEFAULT_SETTINGS
-    );
-
     this.arcana.addCommand({
       id: 'ford',
       name: 'Ford Template',
@@ -41,7 +62,7 @@ export default class FordPlugin extends ArcanaPluginBase {
         }
         new FordTemplateSuggestModal(
           this.arcana.app,
-          this.setting.folder,
+          this.settings.folder,
           async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
             new Notice('Asking Ford...');
             this.askFord(file, templateFile).catch((error: Error) => {
@@ -65,7 +86,7 @@ export default class FordPlugin extends ArcanaPluginBase {
               item.onClick(async () => {
                 new FordTemplateSuggestModal(
                   this.arcana.app,
-                  this.setting.folder,
+                  this.settings.folder,
                   async (
                     templateFile: TFile,
                     evt: MouseEvent | KeyboardEvent
@@ -91,7 +112,7 @@ export default class FordPlugin extends ArcanaPluginBase {
               item.onClick(async () => {
                 new FordTemplateSuggestModal(
                   this.arcana.app,
-                  this.setting.folder,
+                  this.settings.folder,
                   async (
                     templateFile: TFile,
                     evt: MouseEvent | KeyboardEvent
@@ -123,22 +144,7 @@ export default class FordPlugin extends ArcanaPluginBase {
     );
   }
 
-  public addSettings(containerEl: HTMLElement) {
-    containerEl.createEl('h1', { text: 'Ford' });
-    new Setting(containerEl)
-      .setName('Ford template folder')
-      .setDesc('The folder where templates are stored.')
-      .addText(text => {
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.folder)
-          .setValue(this.setting.folder)
-          .onChange(async (value: string) => {
-            this.setting.folder = value;
-            this.arcana.settings.PluginSettings['Ford'] = { folder: value };
-            await this.arcana.saveSettings();
-          });
-      });
-  }
+  public addSettings(containerEl: HTMLElement) {}
 
   public async onunload() {}
 
