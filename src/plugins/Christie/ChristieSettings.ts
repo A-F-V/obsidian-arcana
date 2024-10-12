@@ -1,6 +1,5 @@
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
-import { ChristieSettings } from './ChristieSettings';
 
 export interface ChristieSettings {
   priorInstruction: string;

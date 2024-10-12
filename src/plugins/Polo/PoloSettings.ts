@@ -1,6 +1,5 @@
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
-import { PoloSettings } from './PoloSettings';
 
 export interface PoloSettings {
   priorInstruction: string;

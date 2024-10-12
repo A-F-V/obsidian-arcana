@@ -1,5 +1,4 @@
 import { OpenAITextToSpeechParams, OpenAIVoice } from '@/include/TextToSpeech';
-import { SocratesSettings } from './SocratesSettings';
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
 

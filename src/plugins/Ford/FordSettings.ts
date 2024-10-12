@@ -1,6 +1,5 @@
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
-import { FordSettings } from './FordSettings';
 
 export interface FordSettings {
   folder: string;

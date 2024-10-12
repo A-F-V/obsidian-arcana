@@ -1,6 +1,5 @@
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
-import { FeynmanSettings } from './FeynmanSettings';
 
 export interface FeynmanSettings {
   folder: string;
