@@ -1,15 +1,9 @@
 import { Editor, MarkdownView, Notice, TFile, normalizePath } from 'obsidian';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
-
-export type NostradamusSettings = Record<string, never>;
-export const defaultNostradamusSettings: NostradamusSettings = {};
+import { NostradamusSettings } from './NostradamusSettings';
 
 export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSettings> {
-  public createSettingsSection(): null {
-    return null;
-  }
-
   public async onload() {
     // Register the nostradamus command
     this.arcana.addCommand({

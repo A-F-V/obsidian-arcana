@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Setting, TFile } from 'obsidian';
+import { Editor, MarkdownView, TFile } from 'obsidian';
 import {
   removeFrontMatter,
   surroundWithMarkdown,
@@ -9,32 +9,7 @@ import SerializableAborter from 'src/include/Aborter';
 import { moveToEndOfLine } from 'src/include/CursorMover';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 import SettingsSection from '@/components/SettingsSection';
-
-export interface ChristieSettings {
-  priorInstruction: string;
-}
-
-export class ChristieSettingsSection extends SettingsSection<ChristieSettings> {
-  public sectionTitle = 'Christie';
-  public display(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName("Christie's system message")
-      .setDesc('The prior instruction given to Christie')
-      .addTextArea(text => {
-        text
-          .setPlaceholder('')
-          .setValue(this.settings.priorInstruction)
-          .onChange(async (value: string) => {
-            this.settings.priorInstruction = value;
-            await this.saveSettings();
-          });
-      });
-  }
-}
-
-export const defaultChristieSettings: ChristieSettings = {
-  priorInstruction: '',
-};
+import { ChristieSettings, ChristieSettingsSection } from './ChristieSettings';
 
 export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
   public createSettingsSection(): SettingsSection<ChristieSettings> {

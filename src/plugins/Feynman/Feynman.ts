@@ -1,11 +1,4 @@
-import {
-  Editor,
-  MarkdownView,
-  Notice,
-  Setting,
-  TFile,
-  WorkspaceLeaf,
-} from 'obsidian';
+import { Editor, MarkdownView, Notice, TFile, WorkspaceLeaf } from 'obsidian';
 import {
   removeFrontMatter,
   surroundWithMarkdown,
@@ -19,33 +12,7 @@ import { moveToEndOfFile } from 'src/include/CursorMover';
 import SerializableAborter from 'src/include/Aborter';
 import { EditorAbortableTokenHandler } from 'src/include/AbortableTokenHandler';
 import SettingsSection from '@/components/SettingsSection';
-
-export interface FeynmanSettings {
-  folder: string;
-}
-
-export const defaultFeynmanSettings: FeynmanSettings = {
-  folder: 'FeynmanFlashcards',
-};
-
-export class FeynmanSettingsSection extends SettingsSection<FeynmanSettings> {
-  public sectionTitle = 'Feynman';
-  public display(containerEl: HTMLElement): void {
-    containerEl.createEl('h1', { text: 'Feynman' });
-    new Setting(containerEl)
-      .setName('Feynman flashcard folder')
-      .setDesc('The folder where the flashcards will be stored')
-      .addText(text => {
-        text
-          .setPlaceholder('Flashcards')
-          .setValue(this.settings.folder)
-          .onChange(async (value: string) => {
-            this.settings.folder = value;
-            await this.saveSettings();
-          });
-      });
-  }
-}
+import { FeynmanSettings, FeynmanSettingsSection } from './FeynmanSettings';
 
 export default class FeynmanPlugin extends ArcanaPluginBase<FeynmanSettings> {
   public createSettingsSection(): SettingsSection<FeynmanSettings> {

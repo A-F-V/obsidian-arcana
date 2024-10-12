@@ -1,16 +1,23 @@
-import { ChristieSettings, defaultChristieSettings } from './Christie/Christie';
-import { DarwinSettings, defaultDarwinSettings } from './Darwin/Darwin';
-import { defaultFeynmanSettings, FeynmanSettings } from './Feynman/Feynman';
-import { defaultFordSettings, FordSettings } from './Ford/Ford';
+import ArcanaPluginBase from '@/components/ArcanaPluginBase';
+import {
+  defaultChristieSettings,
+  ChristieSettings,
+} from './Christie/ChristieSettings';
+import { defaultDarwinSettings, DarwinSettings } from './Darwin/DarwinSettings';
+import {
+  defaultFeynmanSettings,
+  FeynmanSettings,
+} from './Feynman/FeynmanSettings';
+import { defaultFordSettings, FordSettings } from './Ford/FordSettings';
 import {
   defaultNostradamusSettings,
   NostradamusSettings,
-} from './Nostradamus/Nostradamus';
-import { defaultPoloSettings, PoloSettings } from './Polo/Polo';
+} from './Nostradamus/NostradamusSettings';
+import { defaultPoloSettings, PoloSettings } from './Polo/PoloSettings';
 import {
   defaultSocratesSettings,
   SocratesSettings,
-} from './Socrates/SocratesPlugin';
+} from './Socrates/SocratesSettings';
 
 export type AvailablePlugins =
   | 'christie'
@@ -30,6 +37,10 @@ export interface AvailablePluginSettings {
   polo: PoloSettings;
   socrates: SocratesSettings;
 }
+
+export type AvailablePluginTypes = ArcanaPluginBase<
+  AvailablePluginSettings[AvailablePlugins]
+>;
 
 export const defaultPluginSettings: AvailablePluginSettings = {
   christie: defaultChristieSettings,

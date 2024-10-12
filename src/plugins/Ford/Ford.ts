@@ -2,7 +2,6 @@ import {
   Editor,
   MarkdownView,
   Notice,
-  Setting,
   TAbstractFile,
   TFile,
   TFolder,
@@ -12,6 +11,7 @@ import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import FordTemplateSuggestModal from './FordTemplateSuggestModal';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import SettingsSection from '@/components/SettingsSection';
+import { FordSettings, FordSettingsSection } from './FordSettings';
 
 type MetadataType = 'string' | 'number' | 'boolean' | 'string[]';
 type MetadataProperty = { name: string; type: MetadataType; query: string };
@@ -19,30 +19,6 @@ type MetadataTemplate = MetadataProperty[];
 type PropertyResult = { name: string; type: MetadataType; result: string };
 type TemplateResult = PropertyResult[];
 
-export interface FordSettings {
-  folder: string;
-}
-
-export const defaultFordSettings: FordSettings = { folder: 'FordTemplates' };
-
-export class FordSettingsSection extends SettingsSection<FordSettings> {
-  public sectionTitle = 'Ford';
-
-  display(containerEl: HTMLElement): void {
-    new Setting(containerEl)
-      .setName('Ford template folder')
-      .setDesc('The folder where templates are stored.')
-      .addText(text => {
-        text
-          .setPlaceholder(defaultFordSettings.folder)
-          .setValue(this.settings.folder)
-          .onChange(async (value: string) => {
-            this.settings.folder = value;
-            await this.saveSettings();
-          });
-      });
-  }
-}
 export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
   public createSettingsSection(): SettingsSection<FordSettings> {
     return new FordSettingsSection(

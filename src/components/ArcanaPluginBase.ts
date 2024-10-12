@@ -9,7 +9,9 @@ export default abstract class ArcanaPluginBase<SettingsType> {
   protected settings: SettingsType;
   protected arcana: ArcanaPlugin;
 
-  abstract createSettingsSection(): SettingsSection<SettingsType> | null;
+  public createSettingsSection(): SettingsSection<SettingsType> | null {
+    return null;
+  }
   // Default constructor
   public constructor(arcana: ArcanaPlugin, settings: SettingsType) {
     this.arcana = arcana;

@@ -33,7 +33,7 @@
 		"import/no-cycle": [
 			1,
 			{
-				"maxDepth": 2,
+				"maxDepth": 4,
 				"ignoreExternal": true
 			}
 		]

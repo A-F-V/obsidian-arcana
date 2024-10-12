@@ -1,21 +1,25 @@
 import { Plugin } from 'obsidian';
 
 import ArcanaSettings, { defaultAgentSettings } from './include/ArcanaSettings';
-import ArcanaSettingsTab from './components/ArcanaSettingsTab';
+import ArcanaSettingsTab, {
+  AnyArcanaSettingSections as AnyArcanaSettingSections,
+} from './components/ArcanaSettingsTab';
 import { ArcanaAgent } from './include/ArcanaAgent';
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
 import FeynmanPlugin from './plugins/Feynman/Feynman';
-import ArcanaPluginBase from './components/ArcanaPluginBase';
 import SocratesPlugin from './plugins/Socrates/SocratesPlugin';
 import DarwinPlugin from './plugins/Darwin/Darwin';
 import AIFeed from './AIFeed';
 import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 import PoloPlugin from './plugins/Polo/Polo';
-import SettingsSection from './components/SettingsSection';
 import AgentSettingsSection from './components/AgentSettingsSection';
-import { AvailablePlugins, defaultPluginSettings } from './plugins/AllPlugins';
+import {
+  AvailablePlugins,
+  AvailablePluginTypes,
+  defaultPluginSettings,
+} from './plugins/AllPlugins';
 
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
@@ -35,7 +39,7 @@ export default class ArcanaPlugin extends Plugin {
 
   settings: ArcanaSettings;
   // TODO: Type this more narrowly
-  plugins: Record<AvailablePlugins, ArcanaPluginBase<any>>;
+  plugins: Record<AvailablePlugins, AvailablePluginTypes>;
 
   async onload() {
     // Set up the settings
@@ -68,7 +72,7 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   private setupSettingsTab() {
-    const sections: SettingsSection<any>[] = [];
+    const sections: AnyArcanaSettingSections[] = [];
 
     // Agent goes on top
     sections.push(
