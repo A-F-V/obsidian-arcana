@@ -5,12 +5,15 @@
 		"node": true
 	},
 	"plugins": [
-		"@typescript-eslint"
+		"@typescript-eslint",
+		"import"
 	],
-	"extends": [
+	"extends": [ //Setting default rules
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended"
+		"plugin:@typescript-eslint/recommended",
+		//"plugin:import/recommended",
+		"plugin:import/typescript"
 	],
 	"parserOptions": {
 		"sourceType": "module"
@@ -26,6 +29,13 @@
 		"@typescript-eslint/ban-ts-comment": "off",
 		"no-prototype-builtins": "off",
 		"@typescript-eslint/no-empty-function": "off",
-		"@typescript-eslint/no-non-null-assertion": "off"
+		"@typescript-eslint/no-non-null-assertion": "off",
+		"import/no-cycle": [
+			2,
+			{
+				"maxDepth": 2,
+				"ignoreExternal": true
+			}
+		]
 	}
 }
