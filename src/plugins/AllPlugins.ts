@@ -30,3 +30,5 @@ export const defaultPluginSettings: AvailablePluginSettings = {
   polo: defaultPoloSettings,
   socrates: defaultSocratesSettings,
 };
+
+export type AvailablePluginSettingsTypes = AvailablePluginSettings[AvailablePlugins];

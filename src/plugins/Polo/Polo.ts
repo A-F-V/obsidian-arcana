@@ -10,13 +10,13 @@ import { PoloSettings, PoloSettingsSection } from './PoloSettings';
 
 export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
   public createSettingsSection(): SettingsSection<PoloSettings> {
-    return new PoloSettingsSection(this.settings, this.arcana.getSettingSaver());
+    return new PoloSettingsSection(this.settings, this.saveSettings);
   }
 
   public async onload() {
     // TODO: Logic is very similar to DarwinPlugin so refactor
     // Register the Polo command
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'polo',
       name: 'Polo Move',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
@@ -29,8 +29,8 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
       },
     });
 
-    this.arcana.registerEvent(
-      this.arcana.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
+    this.plugin.registerEvent(
+      this.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
         if (tfile instanceof TFile) {
           menu.addItem(item => {
             item.setTitle('Polo: Move File');
@@ -46,7 +46,7 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
             item.onClick(async () => {
               const folderToMove = tfile;
               const filesToMove: TFile[] = [];
-              for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+              for (const file of this.app.vault.getMarkdownFiles()) {
                 if (file.parent && file.parent.path == folderToMove.path) {
                   filesToMove.push(file);
                 }
@@ -60,26 +60,26 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
   }
 
   private moveFile(oldPath: string, newFolderPath: string) {
-    const oldFile = this.arcana.app.vault.getAbstractFileByPath(oldPath) as TFile;
-    const newFolder = this.arcana.app.vault.getAbstractFileByPath(newFolderPath) as TFolder;
+    const oldFile = this.app.vault.getAbstractFileByPath(oldPath) as TFile;
+    const newFolder = this.app.vault.getAbstractFileByPath(newFolderPath) as TFolder;
     if (oldFile === null || newFolder === null) {
       new Notice(`Failed to move ${oldFile} to ${newFolder}`);
     }
 
     const newName = `${newFolder.path}/${oldFile.name}`;
-    this.arcana.app.fileManager.renameFile(oldFile, newName);
+    this.app.fileManager.renameFile(oldFile, newName);
   }
 
   private runPolo(files: TFile[]): void {
     new Notice('Asking for new file location suggestions');
     this.requestNewFileLocations(files).then((suggestions: Record<string, TFolder | null>) => {
-      new PoloApprovalModal(this.arcana.app, suggestions, this.moveFile.bind(this)).open();
+      new PoloApprovalModal(this.app, suggestions, this.moveFile.bind(this)).open();
     });
   }
 
   private async requestNewFileLocations(files: TFile[]): Promise<Record<string, TFolder | null>> {
     // ID the files and folders
-    const { idToFile, fileToId } = await FileSystemIder.id(this.arcana.app.vault);
+    const { idToFile, fileToId } = await FileSystemIder.id(this.app.vault);
     // Ask Polo for the new file locations
     const response = await this.askPolo(files, fileToId);
     console.log(response);
@@ -107,8 +107,8 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
         if (oldFilePath === undefined || newFolderPath === undefined) {
           continue;
         }
-        const oldFile = this.arcana.app.vault.getAbstractFileByPath(oldFilePath);
-        const newFolder = this.arcana.app.vault.getAbstractFileByPath(newFolderPath);
+        const oldFile = this.app.vault.getAbstractFileByPath(oldFilePath);
+        const newFolder = this.app.vault.getAbstractFileByPath(newFolderPath);
         if (oldFile === null || newFolderPath === null) {
           // Bad old Path or new Folder
           fileLocations[oldFilePath] = null;
@@ -125,7 +125,7 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
 
   private async printFSWithIds(filesToId: Map<string, number>): Promise<string> {
     // Get the folder structure
-    const traverser = new FSTraverser(this.arcana.app.vault);
+    const traverser = new FSTraverser(this.app.vault);
     const traversal = traverser.traverse();
     // Only consider .md files and folders.
     if (!this.settings.showFilesInFolderStructure) {
@@ -185,8 +185,8 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
 
     for (const file of files) {
       const path = file.path;
-      const content = await this.arcana.app.vault.read(file);
-      const tags = await new FrontMatterManager(this.arcana).getTags(file);
+      const content = await this.app.vault.read(file);
+      const tags = await new FrontMatterManager(this.app.fileManager).getTags(file);
       const id = fileToId.get(path);
       details += `
       <New File>
@@ -209,7 +209,7 @@ export default class PoloPlugin extends ArcanaPluginBase<PoloSettings> {
     const context = this.getPoloContext(fs);
     console.log(context);
     console.log(details);
-    const response = await this.arcana.complete(details, context);
+    const response = await this.agent.complete(details, context);
     return response;
   }
 }

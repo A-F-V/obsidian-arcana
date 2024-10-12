@@ -179,12 +179,12 @@ export const WhisperButton = forwardRef(
     },
     ref
   ) => {
-    const arcana = useArcana();
+    const { agent } = useArcana();
     const microphoneRef = useRef(null);
 
     const onRecordingEnd = useCallback(
       (blob: Blob) => {
-        arcana
+        agent
           .transcribe(new File([blob], 'recording.webm'))
           .then(text => {
             onTranscription(text);

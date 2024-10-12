@@ -1,6 +1,5 @@
 import * as React from 'react';
 import ViewPluginBase from 'src/components/ViewPluginBase';
-import ArcanaPlugin from 'src/main';
 import { SocratesView } from 'src/plugins/Socrates/SocratesView';
 import store from './AgentState';
 import { AgentData } from './ConversationAgent';
@@ -8,6 +7,8 @@ import { OpenAITextToSpeechParams } from 'src/include/TextToSpeech';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
 import SettingsSection from '@/components/SettingsSection';
 import { defaultSocratesSettings, SocratesSettings, SocratesSettingsSection } from './SocratesSettings';
+import { ArcanaAgent } from '@/include/ArcanaAgent';
+import { Plugin } from 'obsidian';
 
 export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
   public createSettingsSection(): SettingsSection<SocratesSettings> {
@@ -18,7 +19,7 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
         old_name: 'Socrates',
       });
     };
-    return new SocratesSettingsSection(this.settings, this.arcana.getSettingSaver(), onSocratesChange.bind(this));
+    return new SocratesSettingsSection(this.settings, this.saveSettings, onSocratesChange.bind(this));
   }
 
   private currentMicrophone: MicrophoneContextInfo = {
@@ -53,7 +54,7 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
 
     this.settings.ttsParams ??= defaultSocratesSettings.ttsParams;
 
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'activate-transcription',
       name: 'Toggle Chat Agent Microphone',
       callback: () => {
@@ -75,12 +76,12 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
     };
   }
 
-  constructor(arcana: ArcanaPlugin, settings: SocratesSettings) {
-    super(arcana, settings, 'socrates-view', 'brain-cog', 'Socrates', () => {
+  constructor(agent: ArcanaAgent, plugin: Plugin, settings: SocratesSettings, saveSettings: () => Promise<void>) {
+    super(agent, plugin, settings, saveSettings, 'socrates-view', 'brain-cog', 'Socrates', () => {
       return (
         <React.StrictMode>
           <MicrophoneContext.Provider value={this.currentMicrophone}>
-            {SocratesView(arcana, this.getAgentFolder.bind(this), this.getSocrates.bind(this))}
+            {SocratesView(this.getAgentFolder.bind(this), this.getSocrates.bind(this))}
           </MicrophoneContext.Provider>
         </React.StrictMode>
       );

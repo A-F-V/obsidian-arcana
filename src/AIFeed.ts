@@ -10,10 +10,10 @@ import {
 } from '@langchain/core/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
-import ArcanaPlugin from '@/main';
 import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
 import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
+import { ArcanaAgent } from './include/ArcanaAgent';
 
 class ConvState {
   connected = false;
@@ -263,10 +263,10 @@ export class AIFeedRegistery {
   // AgentName to Conversation
   private static feeds: Map<string, AIFeed> = new Map<string, AIFeed>();
 
-  public static createFeedIfDoesNotExist(arcana: ArcanaPlugin, name: string): AIFeed {
+  public static createFeedIfDoesNotExist(agent: ArcanaAgent, name: string): AIFeed {
     let conv = this.getFeed(name);
     if (conv) return conv;
-    conv = arcana.startFeed(name);
+    conv = agent.startFeed(name);
     this.feeds.set(name, conv);
     return conv;
   }

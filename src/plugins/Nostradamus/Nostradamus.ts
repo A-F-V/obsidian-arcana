@@ -6,7 +6,7 @@ import { NostradamusSettings } from './NostradamusSettings';
 export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSettings> {
   public async onload() {
     // Register the nostradamus command
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'nostradamus',
       name: 'Nostradamus Rename',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
@@ -25,7 +25,7 @@ export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSetti
         const newPath = normalizePath(`${parentName}/${betterName}`);
 
         // Rename the file
-        await this.arcana.app.fileManager.renameFile(file, newPath).catch(error => {
+        await this.app.fileManager.renameFile(file, newPath).catch(error => {
           new Notice(`Failed to rename file from ${file.basename} to ${betterName}: ${error}`);
         });
       },
@@ -36,7 +36,7 @@ export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSetti
 
   private async getBetterName(file: TFile): Promise<string> {
     // 1) Get the contents of the file
-    let contents = await this.arcana.app.vault.read(file);
+    let contents = await this.app.vault.read(file);
     // 2) Clean the contents
     contents = removeFrontMatter(contents);
 
@@ -45,7 +45,7 @@ export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSetti
 
     const question = `Old title - ${file.basename}\nNote contents:\n${contents}\n\nWhat is the new title?`;
 
-    return await this.arcana.complete(question, context);
+    return await this.agent.complete(question, context);
   }
 
   private normalizeTitle(title: string): string {

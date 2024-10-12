@@ -14,11 +14,11 @@ type TemplateResult = PropertyResult[];
 
 export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
   public createSettingsSection(): SettingsSection<FordSettings> {
-    return new FordSettingsSection(this.settings, this.arcana.getSettingSaver());
+    return new FordSettingsSection(this.settings, this.saveSettings);
   }
 
   public async onload() {
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'ford',
       name: 'Ford Template',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
@@ -27,7 +27,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
           return;
         }
         new FordTemplateSuggestModal(
-          this.arcana.app,
+          this.app,
           this.settings.folder,
           async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
             new Notice('Asking Ford...');
@@ -41,15 +41,15 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
 
     // So you can apply a template to a file or folder
 
-    this.arcana.registerEvent(
-      this.arcana.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
+    this.plugin.registerEvent(
+      this.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
         if (tfile instanceof TFile) {
           menu.addItem(item => {
             item.setTitle('Ford: Apply template to file');
             item.setIcon('layout-template');
             item.onClick(async () => {
               new FordTemplateSuggestModal(
-                this.arcana.app,
+                this.app,
                 this.settings.folder,
                 async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
                   new Notice('Asking Ford...');
@@ -70,11 +70,11 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
             item.setIcon('layout-template');
             item.onClick(async () => {
               new FordTemplateSuggestModal(
-                this.arcana.app,
+                this.app,
                 this.settings.folder,
                 async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
                   new Notice('Asking Ford...');
-                  for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                  for (const file of this.app.vault.getMarkdownFiles()) {
                     if (file.parent && file.parent.path == tfile.path) {
                       // Need to these synchronously to avoid rate limit
                       // Do a 1 second pause between each
@@ -103,7 +103,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
 
   private async loadTemplate(templateFile: TFile): Promise<MetadataTemplate> {
     // Load the markdown file
-    let text = await this.arcana.app.vault.read(templateFile);
+    let text = await this.app.vault.read(templateFile);
     // Split it by sections
     // Find all the headers
     // Skip to the first header
@@ -153,7 +153,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
 
   private async applyTemplateResult(file: TFile, result: TemplateResult) {
     // For each template result apply it to the file
-    const fmm = new FrontMatterManager(this.arcana);
+    const fmm = new FrontMatterManager(this.app.fileManager);
     result.map(async (property: PropertyResult) => {
       const { name, type, result } = property;
       if (type === 'string') {
@@ -186,7 +186,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
 
   private async askFord(file: TFile, templateFile: TFile) {
     const template = await this.loadTemplate(templateFile);
-    const fileContent = await this.arcana.app.vault.read(file);
+    const fileContent = await this.app.vault.read(file);
     // Form query for each fields in template
     const getPropertyResult = async (propertyName: string, propertyType: MetadataType, query: string) => {
       const context = `You are an AI that is helping to update metadata in a file. The file is titled '${file.basename}'. The metadata field you are updating is '${propertyName}'. The user wants you to do the following: '${query}'.`;
@@ -202,7 +202,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
       const fileText = `The file is:\n${fileContent}\n`;
       const question = `${context}\n${returnType}\n${fileText}\n`;
 
-      return await this.arcana.complete(question, context);
+      return await this.agent.complete(question, context);
     };
 
     const results = (await Promise.all(

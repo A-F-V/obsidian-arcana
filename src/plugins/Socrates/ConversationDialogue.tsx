@@ -21,7 +21,7 @@ export const ConversationDialogue = React.forwardRef(
     },
     ref
   ) => {
-    const arcana = useArcana();
+    const { agent: arcanaAgent, app } = useArcana();
     // TODO: Whenever the messages change, even in a tiny way, an effect is triggered by redux, which is wasteful. So avoid retriggering when a message is changed
     const { agent, messages } = useSelector((state: ChatAgentState) => state.agents[agentName]);
     const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
@@ -85,7 +85,7 @@ export const ConversationDialogue = React.forwardRef(
     const getAgentToSpeak = React.useCallback(
       (text: string) => {
         const settings: OpenAITextToSpeechParams = agent.ttsParams;
-        arcana
+        arcanaAgent
           .speak(text, settings)
           .then((audio: HTMLAudioElement) => {
             audio.play();
@@ -144,7 +144,7 @@ export const ConversationDialogue = React.forwardRef(
           return;
         }
 
-        arcana.app.vault.read(current_file).then(fileContents => {
+        app.vault.read(current_file).then(fileContents => {
           const message = `Below is a document the user wants you to read. Once you have read, reply with "All read 👍." .\nTitle:${
             current_file.basename
           }\n${removeFrontMatter(fileContents)}`;
@@ -196,7 +196,7 @@ export const ConversationDialogue = React.forwardRef(
                     // TODO: Clean up
                     // Write the message to the current_file
                     // Get the editor for the active current_file
-                    const mdView = arcana.app.workspace.getMostRecentLeaf()?.view as MarkdownView;
+                    const mdView = app.workspace.getMostRecentLeaf()?.view as MarkdownView;
                     if (mdView) {
                       // Get current selection
                       const selection = mdView.editor.getSelection();

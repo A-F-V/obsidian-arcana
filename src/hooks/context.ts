@@ -1,7 +1,13 @@
+import { ArcanaAgent } from '@/include/ArcanaAgent';
+import { App, Plugin } from 'obsidian';
 import * as React from 'react';
-import ArcanaPlugin from 'src/main';
 
-export const ArcanaContext = React.createContext<ArcanaPlugin | null>(null);
+export interface ArcanaContextInfo {
+  app: App;
+  plugin: Plugin;
+  agent: ArcanaAgent;
+}
+export const ArcanaContext = React.createContext<ArcanaContextInfo | null>(null);
 
 export type MicrophoneContextInfo = {
   toggleMicrophone: () => void;

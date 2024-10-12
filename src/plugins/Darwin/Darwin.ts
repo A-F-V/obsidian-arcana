@@ -8,17 +8,17 @@ import { DarwinSettings, DarwinSettingsSection, TagStyle } from './DarwinSetting
 
 export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   public createSettingsSection(): SettingsSection<DarwinSettings> {
-    return new DarwinSettingsSection(this.settings, this.arcana.getSettingSaver);
+    return new DarwinSettingsSection(this.settings, this.saveSettings);
   }
 
   private tagCountCache: [string, number][] | null = null;
 
   private async getTagsForFile(file: TFile): Promise<string[]> {
-    const fmm = new FrontMatterManager(this.arcana);
+    const fmm = new FrontMatterManager(this.app.fileManager);
     // Get the tags from the front matter
     const tagsFromFrontMatter = await fmm.getTags(file);
     // Get the tags from the contents of the file
-    const tagsFromContents = await this.arcana.app.vault.read(file).then(contents => {
+    const tagsFromContents = await this.app.vault.read(file).then(contents => {
       // Split on white space
       return contents
         .split(/\s+/)
@@ -34,7 +34,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
 
     const tagPromises: Promise<string[]>[] = [];
 
-    for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+    for (const file of this.app.vault.getMarkdownFiles()) {
       // Combine the tags
       tagPromises.push(this.getTagsForFile(file));
     }
@@ -157,7 +157,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   }
 
   private async fileHasTags(file: TFile): Promise<boolean> {
-    const fmm = new FrontMatterManager(this.arcana);
+    const fmm = new FrontMatterManager(this.app.fileManager);
     const tags = await fmm.getTags(file);
     return tags.length > 0;
   }
@@ -165,14 +165,14 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   public async onload() {
     // Get lists of all tags periodically
     // TODO: Just add tags heuristicly after initial load
-    this.arcana.registerInterval(
+    this.plugin.registerInterval(
       window.setInterval(async () => {
         await this.getAllTagsInVault();
       }, 1000 * 60)
     );
 
     await this.getAllTagsInVault().then(() => {
-      this.arcana.addCommand({
+      this.plugin.addCommand({
         id: 'darwin',
         name: 'Darwin Tag',
         editorCallback: async (editor: Editor, view: MarkdownView) => {
@@ -185,8 +185,8 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
         },
       });
 
-      this.arcana.registerEvent(
-        this.arcana.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
+      this.plugin.registerEvent(
+        this.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
           if (tfile instanceof TFile) {
             menu.addItem(item => {
               item.setTitle('Darwin: Tag File');
@@ -201,7 +201,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
               item.setIcon('tag');
               item.onClick(async () => {
                 const folderToTag = tfile;
-                for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                for (const file of this.app.vault.getMarkdownFiles()) {
                   if (file.parent && file.parent.path == folderToTag.path) {
                     // Need to these synchronously to avoid rate limit
                     if (await this.fileHasTags(file)) continue;
@@ -219,7 +219,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   public async onunload() {}
 
   private async autoTagFile(file: TFile) {
-    const fmm = new FrontMatterManager(this.arcana);
+    const fmm = new FrontMatterManager(this.app.fileManager);
     const tagsInFrontMatter = await fmm.getTags(file);
 
     const complexResponse = await this.askDarwin(file);
@@ -266,7 +266,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   private async askDarwin(file: TFile): Promise<string> {
     const title = file.basename;
     // Get the document text from the file
-    const documentText = await this.arcana.app.vault.read(file);
+    const documentText = await this.app.vault.read(file);
     // Remove the front matter
     const cleanedText = removeFrontMatter(documentText);
     // Get the tags in the file:
@@ -289,7 +289,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     `;
 
     const context = this.DarwinComplexContext();
-    const response = await this.arcana.complete(details, context);
+    const response = await this.agent.complete(details, context);
     return response;
   }
 }

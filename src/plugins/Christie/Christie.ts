@@ -10,17 +10,17 @@ import { ChristieSettings, ChristieSettingsSection } from './ChristieSettings';
 
 export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
   public createSettingsSection(): SettingsSection<ChristieSettings> {
-    return new ChristieSettingsSection(this.settings, this.arcana.getSettingSaver());
+    return new ChristieSettingsSection(this.settings, this.saveSettings);
   }
 
   public async onload() {
     // Register the nostradamus command
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'christie',
       name: 'Christie Write',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         // Create a modal
-        new QuestionModal(this.arcana.app, 'Ask a question or give an instruction', async (question: string) => {
+        new QuestionModal(this.app, 'Ask a question or give an instruction', async (question: string) => {
           // Get the current file
           const file = view.file;
           if (!file) {
@@ -40,7 +40,7 @@ export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
             aborter,
             editor.replaceSelection.bind(editor),
             editor,
-            this.arcana
+            this.plugin
           );
 
           await this.askChristie(
@@ -64,7 +64,7 @@ export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
   ) {
     const title = file.basename;
     // Get the document text from the file
-    const documentText = await this.arcana.app.vault.read(file);
+    const documentText = await this.app.vault.read(file);
     // Remove the front matter
     const cleanedText = removeFrontMatter(documentText);
     // Surround the text with markdown
@@ -83,6 +83,6 @@ export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
     if (selectedText.length > 0) {
       question += `\n*Note, the user has selected the following passage*:\n${selectedText}\n`;
     }
-    await this.arcana.complete(question, context, tokenHandler);
+    await this.agent.complete(question, context, tokenHandler);
   }
 }
