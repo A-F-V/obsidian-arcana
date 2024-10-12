@@ -27,8 +27,7 @@ export default function MarkdownViewer({ markdown }: { markdown: string }) {
                 customStyle={{
                   borderRadius: '0.5rem',
                   padding: '1rem',
-                  fontFamily:
-                    'Fira Code, Consolas, Menlo, Monaco, source-code-pro, Courier New, monospace',
+                  fontFamily: 'Fira Code, Consolas, Menlo, Monaco, source-code-pro, Courier New, monospace',
                 }}
               />
             </div>

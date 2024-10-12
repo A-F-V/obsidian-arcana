@@ -1,8 +1,5 @@
 import { Editor, MarkdownView, TFile } from 'obsidian';
-import {
-  removeFrontMatter,
-  surroundWithMarkdown,
-} from 'src/utilities/DocumentCleaner';
+import { removeFrontMatter, surroundWithMarkdown } from 'src/utilities/DocumentCleaner';
 import QuestionModal from 'src/components/QuestionModal';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import SerializableAborter from 'src/include/Aborter';
@@ -13,10 +10,7 @@ import { ChristieSettings, ChristieSettingsSection } from './ChristieSettings';
 
 export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
   public createSettingsSection(): SettingsSection<ChristieSettings> {
-    return new ChristieSettingsSection(
-      this.settings,
-      this.arcana.getSettingSaver()
-    );
+    return new ChristieSettingsSection(this.settings, this.arcana.getSettingSaver());
   }
 
   public async onload() {
@@ -26,40 +20,36 @@ export default class ChristiePlugin extends ArcanaPluginBase<ChristieSettings> {
       name: 'Christie Write',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         // Create a modal
-        new QuestionModal(
-          this.arcana.app,
-          'Ask a question or give an instruction',
-          async (question: string) => {
-            // Get the current file
-            const file = view.file;
-            if (!file) {
-              return;
-            }
-            // Get the current selected text
-            const selectedText = editor.getSelection();
-            // Decode the next section
-            if (selectedText.length > 0) {
-              moveToEndOfLine(editor);
-              editor.replaceSelection('\n');
-            }
-
-            const aborter = new SerializableAborter();
-
-            const abortableHandler = new EditorAbortableTokenHandler(
-              aborter,
-              editor.replaceSelection.bind(editor),
-              editor,
-              this.arcana
-            );
-
-            await this.askChristie(
-              question,
-              file,
-              selectedText,
-              abortableHandler.handleToken.bind(abortableHandler)
-            ).finally(abortableHandler.onDone.bind(abortableHandler));
+        new QuestionModal(this.arcana.app, 'Ask a question or give an instruction', async (question: string) => {
+          // Get the current file
+          const file = view.file;
+          if (!file) {
+            return;
           }
-        ).open();
+          // Get the current selected text
+          const selectedText = editor.getSelection();
+          // Decode the next section
+          if (selectedText.length > 0) {
+            moveToEndOfLine(editor);
+            editor.replaceSelection('\n');
+          }
+
+          const aborter = new SerializableAborter();
+
+          const abortableHandler = new EditorAbortableTokenHandler(
+            aborter,
+            editor.replaceSelection.bind(editor),
+            editor,
+            this.arcana
+          );
+
+          await this.askChristie(
+            question,
+            file,
+            selectedText,
+            abortableHandler.handleToken.bind(abortableHandler)
+          ).finally(abortableHandler.onDone.bind(abortableHandler));
+        }).open();
       },
     });
   }

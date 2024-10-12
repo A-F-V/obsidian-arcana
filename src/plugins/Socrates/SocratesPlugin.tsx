@@ -7,11 +7,7 @@ import { AgentData } from './ConversationAgent';
 import { OpenAITextToSpeechParams } from 'src/include/TextToSpeech';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
 import SettingsSection from '@/components/SettingsSection';
-import {
-  defaultSocratesSettings,
-  SocratesSettings,
-  SocratesSettingsSection,
-} from './SocratesSettings';
+import { defaultSocratesSettings, SocratesSettings, SocratesSettingsSection } from './SocratesSettings';
 
 export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
   public createSettingsSection(): SettingsSection<SocratesSettings> {
@@ -22,11 +18,7 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
         old_name: 'Socrates',
       });
     };
-    return new SocratesSettingsSection(
-      this.settings,
-      this.arcana.getSettingSaver(),
-      onSocratesChange.bind(this)
-    );
+    return new SocratesSettingsSection(this.settings, this.arcana.getSettingSaver(), onSocratesChange.bind(this));
   }
 
   private currentMicrophone: MicrophoneContextInfo = {
@@ -88,11 +80,7 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
       return (
         <React.StrictMode>
           <MicrophoneContext.Provider value={this.currentMicrophone}>
-            {SocratesView(
-              arcana,
-              this.getAgentFolder.bind(this),
-              this.getSocrates.bind(this)
-            )}
+            {SocratesView(arcana, this.getAgentFolder.bind(this), this.getSocrates.bind(this))}
           </MicrophoneContext.Provider>
         </React.StrictMode>
       );

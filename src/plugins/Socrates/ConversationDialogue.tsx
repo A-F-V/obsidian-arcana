@@ -6,11 +6,7 @@ import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
 import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
-import {
-  RecordingError,
-  TranslationError,
-  WhisperButton,
-} from '../../components/MicrophoneButton';
+import { RecordingError, TranslationError, WhisperButton } from '../../components/MicrophoneButton';
 
 import { OpenAITextToSpeechParams } from '../../include/TextToSpeech';
 
@@ -27,9 +23,7 @@ export const ConversationDialogue = React.forwardRef(
   ) => {
     const arcana = useArcana();
     // TODO: Whenever the messages change, even in a tiny way, an effect is triggered by redux, which is wasteful. So avoid retriggering when a message is changed
-    const { agent, messages } = useSelector(
-      (state: ChatAgentState) => state.agents[agentName]
-    );
+    const { agent, messages } = useSelector((state: ChatAgentState) => state.agents[agentName]);
     const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
     const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const buttonRef = React.useRef(null);
@@ -183,16 +177,10 @@ export const ConversationDialogue = React.forwardRef(
             alignItems: 'center',
           }}
         >
-          <button
-            className="beautiful-button"
-            onClick={() => sendFileMessage()}
-          >
+          <button className="beautiful-button" onClick={() => sendFileMessage()}>
             Send Note
           </button>
-          <button
-            className="beautiful-button"
-            onClick={() => resetConversation()}
-          >
+          <button className="beautiful-button" onClick={() => resetConversation()}>
             Reset
           </button>
         </div>
@@ -208,15 +196,11 @@ export const ConversationDialogue = React.forwardRef(
                     // TODO: Clean up
                     // Write the message to the current_file
                     // Get the editor for the active current_file
-                    const mdView = arcana.app.workspace.getMostRecentLeaf()
-                      ?.view as MarkdownView;
+                    const mdView = arcana.app.workspace.getMostRecentLeaf()?.view as MarkdownView;
                     if (mdView) {
                       // Get current selection
                       const selection = mdView.editor.getSelection();
-                      if (selection.length > 0)
-                        mdView.editor.replaceSelection(
-                          selection + ' ' + message.text
-                        );
+                      if (selection.length > 0) mdView.editor.replaceSelection(selection + ' ' + message.text);
                       else mdView.editor.replaceSelection(message.text);
                     }
                   }}
@@ -247,9 +231,7 @@ export const ConversationDialogue = React.forwardRef(
               <WhisperButton
                 ref={buttonRef}
                 onTranscription={onTranscription}
-                onFailedTranscription={(
-                  error: TranslationError | RecordingError
-                ) => {
+                onFailedTranscription={(error: TranslationError | RecordingError) => {
                   console.log(error);
                 }}
               />

@@ -31,28 +31,22 @@ export class PoloSettingsSection extends SettingsSection<PoloSettings> {
 
     new Setting(containerEl)
       .setName('Show files in folder structure')
-      .setDesc(
-        'Whether to show files in the folder structure (costs more tokens)'
-      )
+      .setDesc('Whether to show files in the folder structure (costs more tokens)')
       .addToggle(toggle => {
-        toggle
-          .setValue(this.settings.showFilesInFolderStructure)
-          .onChange(async (value: boolean) => {
-            this.settings.showFilesInFolderStructure = value;
-            await this.saveSettings();
-          });
+        toggle.setValue(this.settings.showFilesInFolderStructure).onChange(async (value: boolean) => {
+          this.settings.showFilesInFolderStructure = value;
+          await this.saveSettings();
+        });
       });
 
     new Setting(containerEl)
       .setName('Show file content')
       .setDesc('Whether to show the contents of files (costs more tokens)')
       .addToggle(toggle => {
-        toggle
-          .setValue(this.settings.showFileContent)
-          .onChange(async (value: boolean) => {
-            this.settings.showFileContent = value;
-            await this.saveSettings();
-          });
+        toggle.setValue(this.settings.showFileContent).onChange(async (value: boolean) => {
+          this.settings.showFileContent = value;
+          await this.saveSettings();
+        });
       });
   }
 }

@@ -27,7 +27,9 @@
 .beautiful-code {
   background-color: #282a36;
   border-radius: 0.5rem;
-  box-shadow: 0 20px 68px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 20px 68px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.15);
 }
 
 .katex-html {

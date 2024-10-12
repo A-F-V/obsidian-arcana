@@ -3,14 +3,7 @@ A voice record button that uses OpenAI's Whispher model
 */
 import { useArcana } from '../hooks/hooks';
 import * as React from 'react';
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-} from 'react';
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 
 // An enum of recording errors
 export enum RecordingError {
@@ -27,10 +20,7 @@ class Recorder {
   onFinish: (blob: Blob) => void;
   onError: (e: RecordingError) => void;
 
-  constructor(
-    onFinish: (blob: Blob) => void,
-    onError: (e: RecordingError) => void
-  ) {
+  constructor(onFinish: (blob: Blob) => void, onError: (e: RecordingError) => void) {
     this.gumStream = null;
     this.recorder = null;
     this.chunks = [];
@@ -166,10 +156,7 @@ export const MicrophoneButton = forwardRef(
 
     return (
       <div>
-        <button
-          onClick={toggleRecording}
-          className={`recording-button ${recording ? 'active' : ''}`}
-        >
+        <button onClick={toggleRecording} className={`recording-button ${recording ? 'active' : ''}`}>
           {recording ? '🎙️' : '🎤'}
         </button>
       </div>
@@ -219,11 +206,7 @@ export const WhisperButton = forwardRef(
     }));
 
     return (
-      <MicrophoneButton
-        ref={microphoneRef}
-        onRecordingEnd={onRecordingEnd}
-        onRecordingError={onFailedTranscription}
-      />
+      <MicrophoneButton ref={microphoneRef} onRecordingEnd={onRecordingEnd} onRecordingError={onFailedTranscription} />
     );
   }
 );

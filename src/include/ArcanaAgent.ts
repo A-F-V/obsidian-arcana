@@ -41,14 +41,7 @@ export class ArcanaAgent {
     return transcription.text;
   }
 
-  public async speak(
-    text: string,
-    settings: OpenAITextToSpeechParams
-  ): Promise<HTMLAudioElement> {
-    return OpenAITextToSpeech.speak(
-      text,
-      this.settings.OPEN_AI_API_KEY,
-      settings
-    );
+  public async speak(text: string, settings: OpenAITextToSpeechParams): Promise<HTMLAudioElement> {
+    return OpenAITextToSpeech.speak(text, this.settings.OPEN_AI_API_KEY, settings);
   }
 }

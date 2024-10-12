@@ -84,8 +84,7 @@ export class CursorMoveAbortRule extends TokenAbortRule {
     const currentPosition = this.editor.getCursor();
     if (this.lastEditorPosition == null) return;
     const moved =
-      currentPosition.line != this.lastEditorPosition.line ||
-      currentPosition.ch != this.lastEditorPosition.ch;
+      currentPosition.line != this.lastEditorPosition.line || currentPosition.ch != this.lastEditorPosition.ch;
     if (moved) this.aborter.abort();
   }
   postToken(token: string): void {
@@ -94,12 +93,7 @@ export class CursorMoveAbortRule extends TokenAbortRule {
 }
 
 export class EditorAbortableTokenHandler extends AbortableTokenHandler {
-  constructor(
-    aborter: SerializableAborter,
-    handler: (token: string) => void,
-    editor: Editor,
-    arcana: ArcanaPlugin
-  ) {
+  constructor(aborter: SerializableAborter, handler: (token: string) => void, editor: Editor, arcana: ArcanaPlugin) {
     super(aborter, handler);
     this.addAbortRule(new CursorMoveAbortRule(aborter, editor));
     this.addAbortRule(new EscAbortRule(aborter, arcana));

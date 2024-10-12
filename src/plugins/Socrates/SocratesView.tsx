@@ -26,9 +26,7 @@ function SocratesInnerView() {
   // Handles the current file changing
   React.useEffect(() => {
     // Activate
-    arcana.registerEvent(
-      arcana.app.workspace.on('active-leaf-change', setCurrentFileFromLeaf)
-    );
+    arcana.registerEvent(arcana.app.workspace.on('active-leaf-change', setCurrentFileFromLeaf));
     return () => {
       // Deactivate
       arcana.app.workspace.off('active-leaf-change', setCurrentFileFromLeaf);
@@ -62,11 +60,7 @@ function SocratesInnerView() {
       {currentAgent ? (
         <>
           <h1>{currentAgent}</h1>
-          <ConversationDialogue
-            ref={dialogueRef}
-            agentName={currentAgent}
-            current_file={currentFile}
-          />
+          <ConversationDialogue ref={dialogueRef} agentName={currentAgent} current_file={currentFile} />
         </>
       ) : (
         <h1>No Agent Selected</h1>
@@ -76,11 +70,7 @@ function SocratesInnerView() {
 }
 
 // A react component for the view
-export const SocratesView = (
-  arcana: ArcanaPlugin,
-  getAgentFolder: () => string,
-  getSocrates: () => AgentData
-) => {
+export const SocratesView = (arcana: ArcanaPlugin, getAgentFolder: () => string, getSocrates: () => AgentData) => {
   // arcana.registerEvent(
   //   arcana.app.vault.on('create', (file: TFile) => {
   //     console.log('a new file has entered the arena');
@@ -106,40 +96,36 @@ export const SocratesView = (
 
   const createAgent = (file: TFile) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then(
-        (agentData: AgentData | null) => {
-          if (agentData != null) {
-            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
+      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData | null) => {
+        if (agentData != null) {
+          AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
 
-            store.dispatch({
-              type: 'agent/add',
-              agent: agentData,
-            });
-          }
+          store.dispatch({
+            type: 'agent/add',
+            agent: agentData,
+          });
         }
-      );
+      });
     }
   };
 
   const onModify = (file: TFile) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then(
-        (agentData: AgentData | null) => {
-          if (agentData != null) {
-            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
+      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData | null) => {
+        if (agentData != null) {
+          AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
 
-            store.dispatch({
-              type: 'agent/update',
-              agent: agentData,
-              old_name: getBaseName(file.basename),
-            });
-          } else
-            store.dispatch({
-              type: 'agent/remove',
-              name: getBaseName(file.basename),
-            });
-        }
-      );
+          store.dispatch({
+            type: 'agent/update',
+            agent: agentData,
+            old_name: getBaseName(file.basename),
+          });
+        } else
+          store.dispatch({
+            type: 'agent/remove',
+            name: getBaseName(file.basename),
+          });
+      });
     }
   };
 
@@ -151,22 +137,20 @@ export const SocratesView = (
 
   const onRename = (file: TFile, oldPath: string) => {
     if (isAgentFile(file)) {
-      AgentDataLoader.fromFile(arcana, file).then(
-        (agentData: AgentData | null) => {
-          if (agentData != null) {
-            AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
-            store.dispatch({
-              type: 'agent/update',
-              agent: agentData,
-              old_name: getBaseName(oldPath),
-            });
-          } else
-            store.dispatch({
-              type: 'agent/remove',
-              name: getBaseName(oldPath),
-            });
-        }
-      );
+      AgentDataLoader.fromFile(arcana, file).then((agentData: AgentData | null) => {
+        if (agentData != null) {
+          AIFeedRegistery.createFeedIfDoesNotExist(arcana, agentData.name);
+          store.dispatch({
+            type: 'agent/update',
+            agent: agentData,
+            old_name: getBaseName(oldPath),
+          });
+        } else
+          store.dispatch({
+            type: 'agent/remove',
+            name: getBaseName(oldPath),
+          });
+      });
     }
   };
 

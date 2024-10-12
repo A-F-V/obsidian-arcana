@@ -3,9 +3,7 @@ import ArcanaPlugin from 'src/main';
 import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
 
-export default abstract class ViewPluginBase<
-  SettingsType
-> extends ArcanaPluginBase<SettingsType> {
+export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginBase<SettingsType> {
   private viewType: string;
   private viewFactory: (leaf: WorkspaceLeaf) => View;
 
@@ -44,8 +42,7 @@ export default abstract class ViewPluginBase<
     // First close the view
     await this.closeView();
     // If there are already views of this type, don't open a new one
-    if (this.arcana.app.workspace.getLeavesOfType(this.viewType).length > 0)
-      return;
+    if (this.arcana.app.workspace.getLeavesOfType(this.viewType).length > 0) return;
     // Associate the view with a fresh left leaf
     this.arcana.app.workspace.getLeftLeaf(false)?.setViewState({
       type: this.viewType,

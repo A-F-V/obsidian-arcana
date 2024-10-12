@@ -28,11 +28,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
   public sectionTitle = 'Socrates';
   private onSocratesChange: () => void;
 
-  constructor(
-    settings: SocratesSettings,
-    saveSettings: () => Promise<void>,
-    onSocratesChange: () => void
-  ) {
+  constructor(settings: SocratesSettings, saveSettings: () => Promise<void>, onSocratesChange: () => void) {
     super(settings, saveSettings);
     this.onSocratesChange = onSocratesChange;
   }
@@ -72,9 +68,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
 
     new Setting(containerEl)
       .setName("Socrates's Memory Size")
-      .setDesc(
-        'The most recent number of messages to remember. Fewer is faster and cheaper but less accurate.'
-      )
+      .setDesc('The most recent number of messages to remember. Fewer is faster and cheaper but less accurate.')
       .addSlider(slider => {
         slider
           .setLimits(0, 100, 1)
@@ -91,15 +85,10 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
 
     new Setting(containerEl)
       .setName("Automatically Send Socrates' transcription")
-      .setDesc(
-        "Whether to automatically send Socrates' transcription after recording"
-      )
+      .setDesc("Whether to automatically send Socrates' transcription after recording")
       .addToggle(toggle => {
         toggle
-          .setValue(
-            this.settings.autoSendTranscription ??
-              defaultSocratesSettings.autoSendTranscription
-          )
+          .setValue(this.settings.autoSendTranscription ?? defaultSocratesSettings.autoSendTranscription)
           .onChange(async (value: boolean) => {
             this.settings.autoSendTranscription = value;
             await saveSocratesAgent();
@@ -128,9 +117,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
 
     new Setting(containerEl)
       .setName('TTS Speed Modifier')
-      .setDesc(
-        'The speed modifier to use for text to speech relative to normal'
-      )
+      .setDesc('The speed modifier to use for text to speech relative to normal')
       .addDropdown(dropdown => {
         dropdown
           .addOptions({
@@ -159,16 +146,12 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
       });
     new Setting(containerEl)
       .setName('TTS Auto Speak Reply')
-      .setDesc(
-        'Whether to automatically speak the reply once Socrates has finished replying'
-      )
+      .setDesc('Whether to automatically speak the reply once Socrates has finished replying')
       .addToggle(toggle => {
-        toggle
-          .setValue(this.settings.autoSpeakReply)
-          .onChange(async (value: boolean) => {
-            this.settings.autoSpeakReply = value;
-            await saveSocratesAgent();
-          });
+        toggle.setValue(this.settings.autoSpeakReply).onChange(async (value: boolean) => {
+          this.settings.autoSpeakReply = value;
+          await saveSocratesAgent();
+        });
       });
   }
 }

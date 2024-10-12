@@ -48,15 +48,10 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
 
     new Setting(containerEl)
       .setName('Only Existing Tags')
-      .setDesc(
-        'If enabled, Darwin will only suggest tags that already exist in the vault'
-      )
+      .setDesc('If enabled, Darwin will only suggest tags that already exist in the vault')
       .addToggle(toggle => {
         toggle
-          .setValue(
-            this.settings.only_suggest_existing_tags ??
-              defaultDarwinSettings.only_suggest_existing_tags
-          )
+          .setValue(this.settings.only_suggest_existing_tags ?? defaultDarwinSettings.only_suggest_existing_tags)
           .onChange(async (value: boolean) => {
             this.settings.only_suggest_existing_tags = value;
             await this.saveSettings();
@@ -71,10 +66,7 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
       .addText(text => {
         text
           .setPlaceholder('tag tag-family/*')
-          .setValue(
-            this.settings.exclude_tags?.join(' ') ??
-              defaultDarwinSettings.exclude_tags.join(' ')
-          )
+          .setValue(this.settings.exclude_tags?.join(' ') ?? defaultDarwinSettings.exclude_tags.join(' '))
           .onChange(async (value: string) => {
             const prefixes = value.split(' ');
             this.settings.exclude_tags = prefixes;
@@ -94,9 +86,7 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
           .onChange(async (value: string) => {
             const limit = parseInt(value);
             if (isNaN(limit)) {
-              new Notice(
-                `Darwin: Invalid number ${value} as min tag count to show`
-              );
+              new Notice(`Darwin: Invalid number ${value} as min tag count to show`);
               return;
             }
             this.settings.minimum_tag_count_to_present = limit;

@@ -1,11 +1,4 @@
-import {
-  Editor,
-  MarkdownView,
-  Notice,
-  TAbstractFile,
-  TFile,
-  TFolder,
-} from 'obsidian';
+import { Editor, MarkdownView, Notice, TAbstractFile, TFile, TFolder } from 'obsidian';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import FordTemplateSuggestModal from './FordTemplateSuggestModal';
@@ -21,10 +14,7 @@ type TemplateResult = PropertyResult[];
 
 export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
   public createSettingsSection(): SettingsSection<FordSettings> {
-    return new FordSettingsSection(
-      this.settings,
-      this.arcana.getSettingSaver()
-    );
+    return new FordSettingsSection(this.settings, this.arcana.getSettingSaver());
   }
 
   public async onload() {
@@ -52,71 +42,58 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
     // So you can apply a template to a file or folder
 
     this.arcana.registerEvent(
-      this.arcana.app.workspace.on(
-        'file-menu',
-        async (menu, tfile: TAbstractFile) => {
-          if (tfile instanceof TFile) {
-            menu.addItem(item => {
-              item.setTitle('Ford: Apply template to file');
-              item.setIcon('layout-template');
-              item.onClick(async () => {
-                new FordTemplateSuggestModal(
-                  this.arcana.app,
-                  this.settings.folder,
-                  async (
-                    templateFile: TFile,
-                    evt: MouseEvent | KeyboardEvent
-                  ) => {
-                    new Notice('Asking Ford...');
-                    this.askFord(tfile, templateFile)
-                      .catch((error: Error) => {
-                        new Notice(error.message);
-                      })
-                      .then(() => {
-                        new Notice(
-                          `Done updating ${tfile.basename} with ${templateFile.basename}`
-                        );
-                      });
-                  }
-                ).open();
-              });
+      this.arcana.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
+        if (tfile instanceof TFile) {
+          menu.addItem(item => {
+            item.setTitle('Ford: Apply template to file');
+            item.setIcon('layout-template');
+            item.onClick(async () => {
+              new FordTemplateSuggestModal(
+                this.arcana.app,
+                this.settings.folder,
+                async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
+                  new Notice('Asking Ford...');
+                  this.askFord(tfile, templateFile)
+                    .catch((error: Error) => {
+                      new Notice(error.message);
+                    })
+                    .then(() => {
+                      new Notice(`Done updating ${tfile.basename} with ${templateFile.basename}`);
+                    });
+                }
+              ).open();
             });
-          } else if (tfile instanceof TFolder) {
-            menu.addItem(item => {
-              item.setTitle('Ford: Apply template to folder');
-              item.setIcon('layout-template');
-              item.onClick(async () => {
-                new FordTemplateSuggestModal(
-                  this.arcana.app,
-                  this.settings.folder,
-                  async (
-                    templateFile: TFile,
-                    evt: MouseEvent | KeyboardEvent
-                  ) => {
-                    new Notice('Asking Ford...');
-                    for (const file of this.arcana.app.vault.getMarkdownFiles()) {
-                      if (file.parent && file.parent.path == tfile.path) {
-                        // Need to these synchronously to avoid rate limit
-                        // Do a 1 second pause between each
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        await this.askFord(file, templateFile)
-                          .catch((error: Error) => {
-                            new Notice(error.message);
-                          })
-                          .then(() => {
-                            new Notice(
-                              `Done updating ${file.basename} with ${templateFile.basename}`
-                            );
-                          });
-                      }
+          });
+        } else if (tfile instanceof TFolder) {
+          menu.addItem(item => {
+            item.setTitle('Ford: Apply template to folder');
+            item.setIcon('layout-template');
+            item.onClick(async () => {
+              new FordTemplateSuggestModal(
+                this.arcana.app,
+                this.settings.folder,
+                async (templateFile: TFile, evt: MouseEvent | KeyboardEvent) => {
+                  new Notice('Asking Ford...');
+                  for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                    if (file.parent && file.parent.path == tfile.path) {
+                      // Need to these synchronously to avoid rate limit
+                      // Do a 1 second pause between each
+                      await new Promise(resolve => setTimeout(resolve, 100));
+                      await this.askFord(file, templateFile)
+                        .catch((error: Error) => {
+                          new Notice(error.message);
+                        })
+                        .then(() => {
+                          new Notice(`Done updating ${file.basename} with ${templateFile.basename}`);
+                        });
                     }
                   }
-                ).open();
-              });
+                }
+              ).open();
             });
-          }
+          });
         }
-      )
+      })
     );
   }
 
@@ -143,9 +120,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
     // The bodies are the text between the header
     const bodies = text.split(/#+\s*.*\n/gm).slice(1);
     if (headers.length !== bodies.length) {
-      throw new Error(
-        `There are ${headers.length} headers and ${bodies.length} bodies`
-      );
+      throw new Error(`There are ${headers.length} headers and ${bodies.length} bodies`);
     }
     if (bodies.some(body => body.trim().length === 0)) {
       throw new Error('Some of the section bodies are empty');
@@ -153,9 +128,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
     // Zip the headers and bodies together
     const template = headers.map((header, index) => {
       // Parse the header
-      const headerReg = new RegExp(
-        /#+\s*(?<name>[^:\n]*)(:(?<type>(number|string|boolean|string\[\])))?$/gm
-      );
+      const headerReg = new RegExp(/#+\s*(?<name>[^:\n]*)(:(?<type>(number|string|boolean|string\[\])))?$/gm);
       const hmatches = headerReg.exec(header);
       if (!hmatches) {
         throw new Error(`Could not parse header ${header}`);
@@ -165,15 +138,8 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
         throw new Error(`Could not parse header ${header}`);
       }
       const type = 'type' in groups ? groups.type : 'string';
-      if (
-        type !== 'string' &&
-        type !== 'number' &&
-        type !== 'boolean' &&
-        type !== 'string[]'
-      ) {
-        throw new Error(
-          `Could not parse header ${header} as type was not string, number, boolean, or string[]`
-        );
+      if (type !== 'string' && type !== 'number' && type !== 'boolean' && type !== 'string[]') {
+        throw new Error(`Could not parse header ${header} as type was not string, number, boolean, or string[]`);
       }
       const name = groups.name.trim();
 
@@ -222,20 +188,16 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
     const template = await this.loadTemplate(templateFile);
     const fileContent = await this.arcana.app.vault.read(file);
     // Form query for each fields in template
-    const getPropertyResult = async (
-      propertyName: string,
-      propertyType: MetadataType,
-      query: string
-    ) => {
+    const getPropertyResult = async (propertyName: string, propertyType: MetadataType, query: string) => {
       const context = `You are an AI that is helping to update metadata in a file. The file is titled '${file.basename}'. The metadata field you are updating is '${propertyName}'. The user wants you to do the following: '${query}'.`;
       const returnType =
         propertyType === 'string[]'
           ? `You need to return a list of strings. This list must be comma seperated and each string must be quoted.`
           : propertyType == 'string'
-          ? `You need to return a string. It must not be quoted`
-          : propertyType == 'number'
-          ? `You need to return a number. It must not be quoted`
-          : `You need to return a boolean. So return either 'true' or 'false'.`;
+            ? `You need to return a string. It must not be quoted`
+            : propertyType == 'number'
+              ? `You need to return a number. It must not be quoted`
+              : `You need to return a boolean. So return either 'true' or 'false'.`;
 
       const fileText = `The file is:\n${fileContent}\n`;
       const question = `${context}\n${returnType}\n${fileText}\n`;
@@ -245,11 +207,7 @@ export default class FordPlugin extends ArcanaPluginBase<FordSettings> {
 
     const results = (await Promise.all(
       Object.entries(template).map(async ([index, property]) => {
-        const result = await getPropertyResult(
-          property.name,
-          property.type,
-          property.query
-        );
+        const result = await getPropertyResult(property.name, property.type, property.query);
         return {
           name: property.name,
           type: property.type,

@@ -45,10 +45,8 @@ export default class AIFeed {
     // Sadly, Langchain does not cope well with streaming and exceptions. If an api error happens, it will not return a text/event-stream but instead an application/json with the error message.
     // This will throw that the stream was not returned instead of the error message.
     let errorMessage = `${e.message}`;
-    if (errorMessage.includes('401'))
-      errorMessage = 'Invalid API Key in Settings';
-    else if (errorMessage.contains('key not found'))
-      errorMessage = 'Invalid API Key in Settings';
+    if (errorMessage.includes('401')) errorMessage = 'Invalid API Key in Settings';
+    else if (errorMessage.contains('key not found')) errorMessage = 'Invalid API Key in Settings';
 
     new Notice(errorMessage);
     console.error(errorMessage);
@@ -128,9 +126,7 @@ export default class AIFeed {
   }
 
   private async sendTestMessage() {
-    this.getLLM(false).call([
-      new HumanMessage('This is a test of the API. Does it work?'),
-    ]);
+    this.getLLM(false).call([new HumanMessage('This is a test of the API. Does it work?')]);
   }
 
   public setContext(context: string) {
@@ -153,9 +149,7 @@ export default class AIFeed {
     if (!memory) {
       throw new Error('No memory');
     }
-    const history = await memory
-      .loadMemoryVariables(['history'])
-      .then(vars => vars['history']);
+    const history = await memory.loadMemoryVariables(['history']).then(vars => vars['history']);
 
     return (
       this.conversationContext +
@@ -178,10 +172,8 @@ export default class AIFeed {
 
   public async logCost(input: string, output: string) {
     // TODO log the cost correctly for anthropic
-    const inputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
-    const outputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
+    const inputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
+    const outputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
 
     const inputTokens = await this.tokenize(input);
     const outputTokens = await this.tokenize(output);
@@ -271,10 +263,7 @@ export class AIFeedRegistery {
   // AgentName to Conversation
   private static feeds: Map<string, AIFeed> = new Map<string, AIFeed>();
 
-  public static createFeedIfDoesNotExist(
-    arcana: ArcanaPlugin,
-    name: string
-  ): AIFeed {
+  public static createFeedIfDoesNotExist(arcana: ArcanaPlugin, name: string): AIFeed {
     let conv = this.getFeed(name);
     if (conv) return conv;
     conv = arcana.startFeed(name);

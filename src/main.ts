@@ -15,11 +15,7 @@ import { OpenAITextToSpeech } from './include/TextToSpeech';
 import FordPlugin from './plugins/Ford/Ford';
 import PoloPlugin from './plugins/Polo/Polo';
 import AgentSettingsSection from './components/AgentSettingsSection';
-import {
-  AvailablePlugins,
-  AvailablePluginTypes,
-  defaultPluginSettings,
-} from './plugins/AllPlugins';
+import { AvailablePlugins, AvailablePluginTypes, defaultPluginSettings } from './plugins/AllPlugins';
 
 export default class ArcanaPlugin extends Plugin {
   private agent: ArcanaAgent;
@@ -32,10 +28,7 @@ export default class ArcanaPlugin extends Plugin {
     aborter?: () => boolean
   ) => Promise<string>;
   public transcribe: (file: File) => Promise<string>;
-  public speak: (
-    text: string,
-    settings: OpenAITextToSpeech
-  ) => Promise<HTMLAudioElement>;
+  public speak: (text: string, settings: OpenAITextToSpeech) => Promise<HTMLAudioElement>;
 
   settings: ArcanaSettings;
   // TODO: Type this more narrowly
@@ -75,12 +68,7 @@ export default class ArcanaPlugin extends Plugin {
     const sections: AnyArcanaSettingSections[] = [];
 
     // Agent goes on top
-    sections.push(
-      new AgentSettingsSection(
-        this.settings.agentSettings,
-        this.getSettingSaver
-      )
-    );
+    sections.push(new AgentSettingsSection(this.settings.agentSettings, this.getSettingSaver));
 
     // Plugins get added in order they are declared
     for (const plugin of Object.values(this.plugins)) {

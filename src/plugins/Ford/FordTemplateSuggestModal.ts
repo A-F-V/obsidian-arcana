@@ -2,10 +2,7 @@ import { App, SuggestModal, TFile, TFolder } from 'obsidian';
 
 export default class FordTemplateSuggestModal extends SuggestModal<TFile> {
   private folderToSearch: string;
-  private onSelect: (
-    item: TFile,
-    evt: MouseEvent | KeyboardEvent
-  ) => Promise<void>;
+  private onSelect: (item: TFile, evt: MouseEvent | KeyboardEvent) => Promise<void>;
 
   constructor(
     app: App,

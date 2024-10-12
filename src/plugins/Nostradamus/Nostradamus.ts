@@ -25,13 +25,9 @@ export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSetti
         const newPath = normalizePath(`${parentName}/${betterName}`);
 
         // Rename the file
-        await this.arcana.app.fileManager
-          .renameFile(file, newPath)
-          .catch(error => {
-            new Notice(
-              `Failed to rename file from ${file.basename} to ${betterName}: ${error}`
-            );
-          });
+        await this.arcana.app.fileManager.renameFile(file, newPath).catch(error => {
+          new Notice(`Failed to rename file from ${file.basename} to ${betterName}: ${error}`);
+        });
       },
     });
   }

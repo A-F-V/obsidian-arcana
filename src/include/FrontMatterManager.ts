@@ -8,11 +8,7 @@ export default class FrontMatterManager {
     this.arcana = arcana;
   }
 
-  async set(
-    file: TFile,
-    key: string,
-    value: number | string | boolean | string[]
-  ): Promise<void> {
+  async set(file: TFile, key: string, value: number | string | boolean | string[]): Promise<void> {
     await this.arcana.app.fileManager.processFrontMatter(file, frontMatter => {
       console.log(key, frontMatter);
       frontMatter[key] = value;
@@ -36,9 +32,7 @@ export default class FrontMatterManager {
 
     await this.arcana.app.fileManager
       .processFrontMatter(file, frontmatter => {
-        tags =
-          parseFrontMatterTags(frontmatter)?.map(tag => tag.replace('#', '')) ??
-          null;
+        tags = parseFrontMatterTags(frontmatter)?.map(tag => tag.replace('#', '')) ?? null;
       })
       .catch(e => {});
 

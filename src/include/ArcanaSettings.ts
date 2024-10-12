@@ -1,17 +1,10 @@
 import { AvailablePluginSettings } from '@/plugins/AllPlugins';
 
-export type AvailableModels =
-  | 'gpt-3.5-turbo'
-  | 'gpt-4-turbo'
-  | 'gpt-4o'
-  | 'claude-3-5-sonnet-20240620';
+export type AvailableModels = 'gpt-3.5-turbo' | 'gpt-4-turbo' | 'gpt-4o' | 'claude-3-5-sonnet-20240620';
 
 export function isAvailableModel(model: string): model is AvailableModels {
   return (
-    model == 'gpt-3.5-turbo' ||
-    model == 'gpt-4-turbo' ||
-    model == 'gpt-4o' ||
-    model == 'claude-3-5-sonnet-20240620'
+    model == 'gpt-3.5-turbo' || model == 'gpt-4-turbo' || model == 'gpt-4o' || model == 'claude-3-5-sonnet-20240620'
   );
 }
 

@@ -46,9 +46,7 @@ export class ObsidianView extends ItemView {
 
     this.root.render(
       <React.StrictMode>
-        <ArcanaContext.Provider value={this.arcana}>
-          {React.createElement(this.view)}
-        </ArcanaContext.Provider>
+        <ArcanaContext.Provider value={this.arcana}>{React.createElement(this.view)}</ArcanaContext.Provider>
       </React.StrictMode>
     );
   }

@@ -161,11 +161,7 @@ function ChatAgentReducer(state = initialState, action: ChatAgentAction) {
           ...state.agents,
           [agentName]: {
             agent,
-            messages: [
-              ...messages.slice(0, index),
-              message,
-              ...messages.slice(index + 1),
-            ],
+            messages: [...messages.slice(0, index), message, ...messages.slice(index + 1)],
           },
         },
       };

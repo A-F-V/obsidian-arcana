@@ -1,28 +1,14 @@
-import {
-  Editor,
-  MarkdownView,
-  Notice,
-  TAbstractFile,
-  TFile,
-  TFolder,
-} from 'obsidian';
+import { Editor, MarkdownView, Notice, TAbstractFile, TFile, TFolder } from 'obsidian';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import SettingsSection from '@/components/SettingsSection';
-import {
-  DarwinSettings,
-  DarwinSettingsSection,
-  TagStyle,
-} from './DarwinSettings';
+import { DarwinSettings, DarwinSettingsSection, TagStyle } from './DarwinSettings';
 
 export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   public createSettingsSection(): SettingsSection<DarwinSettings> {
-    return new DarwinSettingsSection(
-      this.settings,
-      this.arcana.getSettingSaver
-    );
+    return new DarwinSettingsSection(this.settings, this.arcana.getSettingSaver);
   }
 
   private tagCountCache: [string, number][] | null = null;
@@ -32,15 +18,13 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     // Get the tags from the front matter
     const tagsFromFrontMatter = await fmm.getTags(file);
     // Get the tags from the contents of the file
-    const tagsFromContents = await this.arcana.app.vault
-      .read(file)
-      .then(contents => {
-        // Split on white space
-        return contents
-          .split(/\s+/)
-          .filter(tag => tag[0] === '#' && this.isValidTag(tag.slice(1)))
-          .map(tag => tag.slice(1));
-      });
+    const tagsFromContents = await this.arcana.app.vault.read(file).then(contents => {
+      // Split on white space
+      return contents
+        .split(/\s+/)
+        .filter(tag => tag[0] === '#' && this.isValidTag(tag.slice(1)))
+        .map(tag => tag.slice(1));
+    });
     return [...tagsFromFrontMatter, ...tagsFromContents];
   }
 
@@ -106,9 +90,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
         return tag
           .split(/[-_/]/)
           .map((word, index) =>
-            index === 0
-              ? word[0].toLowerCase() + word.slice(1)
-              : word[0].toUpperCase() + word.slice(1)
+            index === 0 ? word[0].toLowerCase() + word.slice(1) : word[0].toUpperCase() + word.slice(1)
           )
           .join('');
       case TagStyle.SnakeCase:
@@ -122,9 +104,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     return (
       this.tagCountCache
         // Filter out tags that don't meet the minimum count
-        ?.filter(
-          ([tag, count]) => count >= this.settings.minimum_tag_count_to_present
-        )
+        ?.filter(([tag, count]) => count >= this.settings.minimum_tag_count_to_present)
         .map(t => t[0])
         // Ignore all vault tags that match exclude_tags
         .filter(vaultTag => {
@@ -143,10 +123,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
   }
 
   // Robust function to get tags from response
-  private getAdditionalTagsFromResponse(
-    response: string,
-    tagsFromFile: string[]
-  ): string[] {
+  private getAdditionalTagsFromResponse(response: string, tagsFromFile: string[]): string[] {
     // If the response has a colon in it, split and take the second half
     if (response.includes(':')) {
       response = response.split(':')[1];
@@ -209,35 +186,32 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
       });
 
       this.arcana.registerEvent(
-        this.arcana.app.workspace.on(
-          'file-menu',
-          async (menu, tfile: TAbstractFile) => {
-            if (tfile instanceof TFile) {
-              menu.addItem(item => {
-                item.setTitle('Darwin: Tag File');
-                item.setIcon('tag');
-                item.onClick(async () => {
-                  await this.autoTagFile(tfile);
-                });
+        this.arcana.app.workspace.on('file-menu', async (menu, tfile: TAbstractFile) => {
+          if (tfile instanceof TFile) {
+            menu.addItem(item => {
+              item.setTitle('Darwin: Tag File');
+              item.setIcon('tag');
+              item.onClick(async () => {
+                await this.autoTagFile(tfile);
               });
-            } else if (tfile instanceof TFolder) {
-              menu.addItem(item => {
-                item.setTitle('Darwin: Tag all untagged files in folder');
-                item.setIcon('tag');
-                item.onClick(async () => {
-                  const folderToTag = tfile;
-                  for (const file of this.arcana.app.vault.getMarkdownFiles()) {
-                    if (file.parent && file.parent.path == folderToTag.path) {
-                      // Need to these synchronously to avoid rate limit
-                      if (await this.fileHasTags(file)) continue;
-                      await this.autoTagFile(file);
-                    }
+            });
+          } else if (tfile instanceof TFolder) {
+            menu.addItem(item => {
+              item.setTitle('Darwin: Tag all untagged files in folder');
+              item.setIcon('tag');
+              item.onClick(async () => {
+                const folderToTag = tfile;
+                for (const file of this.arcana.app.vault.getMarkdownFiles()) {
+                  if (file.parent && file.parent.path == folderToTag.path) {
+                    // Need to these synchronously to avoid rate limit
+                    if (await this.fileHasTags(file)) continue;
+                    await this.autoTagFile(file);
                   }
-                });
+                }
               });
-            }
+            });
           }
-        )
+        })
       );
     });
   }
@@ -249,15 +223,10 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     const tagsInFrontMatter = await fmm.getTags(file);
 
     const complexResponse = await this.askDarwin(file);
-    const tagsToAdd = this.getAdditionalTagsFromResponse(
-      complexResponse,
-      tagsInFrontMatter
-    );
+    const tagsToAdd = this.getAdditionalTagsFromResponse(complexResponse, tagsInFrontMatter);
 
     if (tagsToAdd.length == 0) {
-      new Notice(
-        `Darwin: Failed to get a good list of tags added: Got ${tagsToAdd}`
-      );
+      new Notice(`Darwin: Failed to get a good list of tags added: Got ${tagsToAdd}`);
       return;
     }
     console.log(`Darwin: Adding tags ${tagsToAdd} to file ${file.path}`);
@@ -277,8 +246,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     - The list of additional tags must not contain any tags that are already present in the file.
     - Tags must be be valid according to the tag format.`;
 
-    if (this.settings.only_suggest_existing_tags)
-      rules += `\n- Only suggest tags that are in the EXISTING TAGS list.`;
+    if (this.settings.only_suggest_existing_tags) rules += `\n- Only suggest tags that are in the EXISTING TAGS list.`;
 
     let context = `
     [Purpose]
@@ -290,9 +258,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
     `;
 
     if (this.settings.only_suggest_existing_tags) {
-      context += `\n[EXISTING TAGS]\n${this.getAllSuggestableVaultTags().join(
-        ' '
-      )}`;
+      context += `\n[EXISTING TAGS]\n${this.getAllSuggestableVaultTags().join(' ')}`;
     }
     return context;
   }
