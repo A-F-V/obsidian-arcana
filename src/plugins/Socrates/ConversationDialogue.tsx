@@ -5,10 +5,10 @@ import { useArcana } from 'src/hooks/hooks';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
-import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
+import AIFeed, { AIFeedRegistery } from '@/include/ai/Conversation';
 import { RecordingError, TranslationError, WhisperButton } from '../../components/MicrophoneButton';
 
-import { OpenAITextToSpeechParams } from '../../include/TextToSpeech';
+import { OpenAITextToSpeechParams } from '../../include/ai/TextToSpeech';
 
 export const ConversationDialogue = React.forwardRef(
   (

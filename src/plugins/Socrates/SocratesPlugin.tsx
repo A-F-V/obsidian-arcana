@@ -3,11 +3,11 @@ import ViewPluginBase from 'src/components/ViewPluginBase';
 import { SocratesView } from 'src/plugins/Socrates/SocratesView';
 import store from './AgentState';
 import { AgentData } from './ConversationAgent';
-import { OpenAITextToSpeechParams } from 'src/include/TextToSpeech';
+import { OpenAITextToSpeechParams } from '@/include/ai/TextToSpeech';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
 import SettingsSection from '@/components/SettingsSection';
 import { defaultSocratesSettings, SocratesSettings, SocratesSettingsSection } from './SocratesSettings';
-import { ArcanaAgent } from '@/include/ArcanaAgent';
+import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
 import { Plugin } from 'obsidian';
 
 export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {

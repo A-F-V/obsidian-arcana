@@ -1,4 +1,4 @@
-import { OpenAITextToSpeechParams, OpenAIVoice } from '@/include/TextToSpeech';
+import { OpenAITextToSpeechParams, OpenAIVoice } from '@/include/ai/TextToSpeech';
 import SettingsSection from '@/components/SettingsSection';
 import { Setting } from 'obsidian';
 

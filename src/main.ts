@@ -4,7 +4,7 @@ import ArcanaSettings, { defaultAgentSettings } from './include/ArcanaSettings';
 import ArcanaSettingsTab, {
   AnyArcanaSettingSections as AnyArcanaSettingSections,
 } from './components/ArcanaSettingsTab';
-import { ArcanaAgent } from './include/ArcanaAgent';
+import { ArcanaAgent } from './include/ai/ArcanaAgent';
 
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';

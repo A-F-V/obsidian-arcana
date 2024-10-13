@@ -1,4 +1,4 @@
-import { ArcanaAgent } from '@/include/ArcanaAgent';
+import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
 import { App, Plugin } from 'obsidian';
 import * as React from 'react';
 

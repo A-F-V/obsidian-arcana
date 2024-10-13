@@ -7,7 +7,7 @@ import store from './AgentState';
 import { AgentData, AgentDataLoader } from './ConversationAgent';
 import AgentSelector from './AgentSelector';
 import { getBaseName } from 'src/include/TextPostProcesssing';
-import { AIFeedRegistery } from 'src/AIFeed';
+import { AIFeedRegistery } from '@/include/ai/Conversation';
 import { MicrophoneContext } from 'src/hooks/context';
 
 function SocratesInnerView() {

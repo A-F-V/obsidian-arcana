@@ -1,7 +1,7 @@
 import { App, TFile } from 'obsidian';
 import FrontMatterManager from 'src/include/FrontMatterManager';
 import { isEmoji } from 'src/include/TextPostProcesssing';
-import { OpenAITextToSpeechParams, OpenAIVoice } from 'src/include/TextToSpeech';
+import { OpenAITextToSpeechParams, OpenAIVoice } from '@/include/ai/TextToSpeech';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 
 // A type representing all the agent data

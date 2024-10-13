@@ -1,7 +1,7 @@
-import Conversation from 'src/AIFeed';
+import Conversation from '@/include/ai/Conversation';
 import OpenAI from 'openai';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
-import { AgentSettings } from './ArcanaSettings';
+import { AgentSettings } from '../ArcanaSettings';
 
 export class ArcanaAgent {
   private settings: AgentSettings;

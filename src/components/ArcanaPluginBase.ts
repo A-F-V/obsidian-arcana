@@ -1,4 +1,4 @@
-import { ArcanaAgent } from '@/include/ArcanaAgent';
+import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
 import SettingsSection from './SettingsSection';
 import { App, Plugin } from 'obsidian';
 

@@ -13,7 +13,7 @@ import { Notice } from 'obsidian';
 import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
 import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
-import { ArcanaAgent } from './include/ArcanaAgent';
+import { ArcanaAgent } from './ArcanaAgent';
 
 class ConvState {
   connected = false;
