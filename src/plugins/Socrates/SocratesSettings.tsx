@@ -46,7 +46,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
           });
       });
 
-    new Setting(containerEl).setName('Socrates agent settings').setHeading();
+    new Setting(containerEl).setName('Socrates agent').setHeading();
 
     const saveSocratesAgent = async () => {
       await this.saveSettings();
