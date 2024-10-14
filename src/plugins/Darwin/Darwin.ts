@@ -171,7 +171,7 @@ export default class DarwinPlugin extends ArcanaPluginBase<DarwinSettings> {
       }, 1000 * 60)
     );
 
-    await this.getAllTagsInVault().then(() => {
+    this.getAllTagsInVault().then(() => {
       this.plugin.addCommand({
         id: 'darwin',
         name: 'Darwin Tag',

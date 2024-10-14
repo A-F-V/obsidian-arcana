@@ -35,12 +35,17 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async onload() {
+    console.time('loadSetting');
     // Load the settings
     await this.loadSettings();
+    console.timeEnd('loadSetting');
 
+    console.time('loadAgent');
     // Load the agent
     this.agent = new ArcanaAgent(this.settings.agentSettings);
+    console.timeEnd('loadAgent');
 
+    console.time('createPlugins');
     // Create the plugins:
     const ps = this.settings.pluginSettings;
     this.plugins = {
@@ -52,12 +57,25 @@ export default class ArcanaPlugin extends Plugin {
       polo: this.makePlugin(PoloPlugin, ps['polo']),
       nostradamus: this.makePlugin(NostradamusPlugin, ps['nostradamus']),
     };
+    console.timeEnd('createPlugins');
+
+    console.time('setupSettingsTab');
     // Setup the settings tab
     this.setupSettingsTab();
+    console.timeEnd('setupSettingsTab');
+
+    console.time('loadPlugins');
     // Add plugins
-    for (const plugin of Object.values(this.plugins)) {
-      await plugin.onload();
+
+    for (const [name, plugin] of Object.entries(this.plugins)) {
+      console.time(`loadPlugin: ${name}`);
+      this.app.workspace.onLayoutReady(() => {
+        plugin.onload();
+      });
+      console.timeEnd(`loadPlugin: ${name}`);
     }
+
+    console.timeEnd('loadPlugins');
   }
 
   private setupSettingsTab() {

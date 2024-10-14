@@ -4,8 +4,8 @@
   "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
-    "dev": "node esbuild.config.mjs --platform=node",
-    "build": "tsc -skipLibCheck && node esbuild.config.mjs production --platform=node && sass src/scss/main.scss styles.css --no-source-map --style=compressed",
+    "build:dev": "tsc -skipLibCheck && node esbuild.config.mjs --platform=node",
+    "build:prod": "tsc -skipLibCheck && node esbuild.config.mjs production --platform=node && sass src/scss/main.scss styles.css --no-source-map --style=compressed",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "keywords": [],
