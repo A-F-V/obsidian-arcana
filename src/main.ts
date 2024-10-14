@@ -98,7 +98,6 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async saveSettings() {
-    // Currently only settings are saved.
     await this.saveData(this.settings);
   }
 }
