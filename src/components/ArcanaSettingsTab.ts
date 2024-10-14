@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import SettingsSection from './SettingsSection';
 import { AvailablePlugins, AvailablePluginSettings } from '@/plugins/AllPlugins';
 import { AgentSettings } from '@/include/ArcanaSettings';
@@ -18,10 +18,10 @@ export default class ArcanaSettingsTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl('h1', { text: 'Arcana' });
+    new Setting(containerEl).setName('Arcana AI').setHeading();
 
     for (const section of this.sections) {
-      containerEl.createEl('h2', { text: section.sectionTitle });
+      new Setting(containerEl).setName(section.sectionTitle).setHeading();
       section.display(containerEl);
     }
   }

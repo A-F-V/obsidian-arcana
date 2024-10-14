@@ -26,8 +26,6 @@ export const defaultDarwinSettings: DarwinSettings = {
 export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
   public sectionTitle = 'Darwin';
   public display(containerEl: HTMLElement): void {
-    containerEl.createEl('h1', { text: 'Darwin' });
-
     new Setting(containerEl)
       .setName('Max tags to add')
       .setDesc('The max tags Darwin should recommend')
@@ -47,7 +45,7 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
       });
 
     new Setting(containerEl)
-      .setName('Only Existing Tags')
+      .setName('Only existing tags')
       .setDesc('If enabled, Darwin will only suggest tags that already exist in the vault')
       .addToggle(toggle => {
         toggle
@@ -59,7 +57,7 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
       });
 
     new Setting(containerEl)
-      .setName('Exclude Tags')
+      .setName('Exclude tags')
       .setDesc(
         "If 'Only Existing Tags' is enabled, Darwin will not choose from vault tags that match these tag families. Wild cards are supported. Otherwise tags match exactly to be excluded."
       )
@@ -95,7 +93,7 @@ export class DarwinSettingsSection extends SettingsSection<DarwinSettings> {
       });
 
     new Setting(containerEl)
-      .setName('New Tag Style')
+      .setName('New tag style')
       .setDesc('The style of new tags that Darwin will suggest')
       .addDropdown(dropdown => {
         dropdown

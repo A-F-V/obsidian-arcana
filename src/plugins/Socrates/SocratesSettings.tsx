@@ -34,7 +34,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
 
   display(containerEl: HTMLElement): void {
     new Setting(containerEl)
-      .setName('Conversation Agent Folder')
+      .setName('Conversation agent folder')
       .setDesc('The folder from which to load conversation agent templates.')
       .addText(text => {
         text
@@ -46,14 +46,14 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
           });
       });
 
-    containerEl.createEl('h3', { text: 'Socrates Agent Settings' });
+    new Setting(containerEl).setName('Socrates agent settings').setHeading();
 
     const saveSocratesAgent = async () => {
       await this.saveSettings();
       this.onSocratesChange();
     };
     new Setting(containerEl)
-      .setName("Socrates's System Message")
+      .setName("Socrates's system message")
       .setDesc('The prior instruction given to Socrates')
       .addTextArea(text => {
         text
@@ -66,7 +66,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
       });
 
     new Setting(containerEl)
-      .setName("Socrates's Memory Size")
+      .setName("Socrates's memory size")
       .setDesc('The most recent number of messages to remember. Fewer is faster and cheaper but less accurate.')
       .addSlider(slider => {
         slider
@@ -80,10 +80,10 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
           .showTooltip();
       });
     // Speech to Text
-    containerEl.createEl('h4', { text: 'Speech to Text' });
+    new Setting(containerEl).setName('Speech to text').setHeading();
 
     new Setting(containerEl)
-      .setName("Automatically Send Socrates' transcription")
+      .setName('Automatically send transcription')
       .setDesc("Whether to automatically send Socrates' transcription after recording")
       .addToggle(toggle => {
         toggle
@@ -94,10 +94,10 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
           });
       });
     // Text to Speech
-    containerEl.createEl('h4', { text: 'Text to Speech (TTS)' });
+    new Setting(containerEl).setName('Text to speech (TTS)').setHeading();
 
     new Setting(containerEl)
-      .setName('TTS Voice')
+      .setName('TTS voice')
       .setDesc('The voice to use for text to speech')
       .addDropdown(dropdown => {
         dropdown
@@ -115,7 +115,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
       });
 
     new Setting(containerEl)
-      .setName('TTS Speed Modifier')
+      .setName('TTS speed modifier')
       .setDesc('The speed modifier to use for text to speech relative to normal')
       .addDropdown(dropdown => {
         dropdown
@@ -144,7 +144,7 @@ export class SocratesSettingsSection extends SettingsSection<SocratesSettings> {
           });
       });
     new Setting(containerEl)
-      .setName('TTS Auto Speak Reply')
+      .setName('TTS auto speak reply')
       .setDesc('Whether to automatically speak the reply once Socrates has finished replying')
       .addToggle(toggle => {
         toggle.setValue(this.settings.autoSpeakReply).onChange(async (value: boolean) => {
