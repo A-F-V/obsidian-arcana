@@ -9,6 +9,7 @@ import AIFeed, { AIFeedRegistery } from '@/include/ai/Conversation';
 import { RecordingError, TranslationError, WhisperButton } from '../../components/MicrophoneButton';
 
 import { OpenAITextToSpeechParams } from '../../include/ai/TextToSpeech';
+import Button from '@/components/Button';
 
 export const ConversationDialogue = React.forwardRef(
   (
@@ -177,12 +178,8 @@ export const ConversationDialogue = React.forwardRef(
             alignItems: 'center',
           }}
         >
-          <button className="beautiful-button" onClick={() => sendFileMessage()}>
-            Send Note
-          </button>
-          <button className="beautiful-button" onClick={() => resetConversation()}>
-            Reset
-          </button>
+          <Button onClick={() => sendFileMessage()}>Send Note</Button>
+          <Button onClick={() => resetConversation()}>Reset</Button>
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <div className="dialogue">

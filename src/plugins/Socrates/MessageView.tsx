@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Author, Message } from './Message';
 import { AgentData } from './ConversationAgent';
 import MarkdownViewer from 'src/components/MarkdownViewer';
+import Button from '@/components/Button';
 
 export default function MessageView({
   message,
@@ -30,16 +31,10 @@ export default function MessageView({
             <b>{!isAI ? `${agent.userEmoji} You` : `${agent.agentEmoji} ${agent.name}`}</b>
           </div>
           {isAI && (
-            <div>
-              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onCancel()}>
-                ❌
-              </button>
-              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onCopy()}>
-                ✍️
-              </button>
-              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onSpeak(message.text)}>
-                🗣️
-              </button>
+            <div style={{ gap: 10 }}>
+              <Button onClick={e => onCancel()}>❌</Button>
+              <Button onClick={e => onCopy()}>✍️</Button>
+              <Button onClick={e => onSpeak(message.text)}>🗣️</Button>
             </div>
           )}
         </div>
