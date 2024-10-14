@@ -1,11 +1,11 @@
-import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
+import { AIAgent } from '@/include/ai/AI';
 import { App, Plugin } from 'obsidian';
 import * as React from 'react';
 
 export interface ArcanaContextInfo {
   app: App;
   plugin: Plugin;
-  agent: ArcanaAgent;
+  agent: AIAgent;
 }
 export const ArcanaContext = React.createContext<ArcanaContextInfo | null>(null);
 

@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
 import { AgentSettings } from '../ArcanaSettings';
 
-export class ArcanaAgent {
+export class AIAgent {
   private settings: AgentSettings;
 
   constructor(settings: AgentSettings) {

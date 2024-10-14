@@ -2,11 +2,11 @@ import { ItemView, Plugin, WorkspaceLeaf } from 'obsidian';
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ArcanaContext } from '@/hooks/context';
-import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
+import { AIAgent } from '@/include/ai/AI';
 
 // The general boiler plate for creating an obsidian view
 export class ObsidianView extends ItemView {
-  private agent: ArcanaAgent;
+  private agent: AIAgent;
   private plugin: Plugin;
   private view: () => JSX.Element;
   private viewType: string;
@@ -16,7 +16,7 @@ export class ObsidianView extends ItemView {
 
   constructor(
     leaf: WorkspaceLeaf,
-    agent: ArcanaAgent,
+    agent: AIAgent,
     plugin: Plugin,
     viewType: string,
     icon: string,

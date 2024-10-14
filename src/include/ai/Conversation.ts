@@ -13,7 +13,7 @@ import { Notice } from 'obsidian';
 import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
 import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
-import { ArcanaAgent } from './ArcanaAgent';
+import { AIAgent } from './AI';
 
 class ConvState {
   connected = false;
@@ -263,7 +263,7 @@ export class AIFeedRegistery {
   // AgentName to Conversation
   private static feeds: Map<string, AIFeed> = new Map<string, AIFeed>();
 
-  public static createFeedIfDoesNotExist(agent: ArcanaAgent, name: string): AIFeed {
+  public static createFeedIfDoesNotExist(agent: AIAgent, name: string): AIFeed {
     let conv = this.getFeed(name);
     if (conv) return conv;
     conv = agent.startFeed(name);

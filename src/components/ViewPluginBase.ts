@@ -1,14 +1,14 @@
 import { Plugin, View, WorkspaceLeaf } from 'obsidian';
 import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
-import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
+import { AIAgent } from '@/include/ai/AI';
 
 export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginBase<SettingsType> {
   private viewType: string;
   private viewFactory: (leaf: WorkspaceLeaf) => View;
 
   constructor(
-    agent: ArcanaAgent,
+    agent: AIAgent,
     plugin: Plugin,
     settings: SettingsType,
     saveSettings: () => Promise<void>,

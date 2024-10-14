@@ -7,7 +7,7 @@ import { OpenAITextToSpeechParams } from '@/include/ai/TextToSpeech';
 import { MicrophoneContext, MicrophoneContextInfo } from 'src/hooks/context';
 import SettingsSection from '@/components/SettingsSection';
 import { defaultSocratesSettings, SocratesSettings, SocratesSettingsSection } from './SocratesSettings';
-import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
+import { AIAgent } from '@/include/ai/AI';
 import { Plugin } from 'obsidian';
 
 export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
@@ -76,7 +76,7 @@ export default class SocratesPlugin extends ViewPluginBase<SocratesSettings> {
     };
   }
 
-  constructor(agent: ArcanaAgent, plugin: Plugin, settings: SocratesSettings, saveSettings: () => Promise<void>) {
+  constructor(agent: AIAgent, plugin: Plugin, settings: SocratesSettings, saveSettings: () => Promise<void>) {
     super(agent, plugin, settings, saveSettings, 'socrates-view', 'brain-cog', 'Socrates', () => {
       return (
         <React.StrictMode>

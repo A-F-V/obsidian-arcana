@@ -4,7 +4,7 @@ import ArcanaSettings, { defaultAgentSettings } from './include/ArcanaSettings';
 import ArcanaSettingsTab, {
   AnyArcanaSettingSections as AnyArcanaSettingSections,
 } from './components/ArcanaSettingsTab';
-import { ArcanaAgent } from './include/ai/ArcanaAgent';
+import { AIAgent } from './include/ai/AI';
 
 import NostradamusPlugin from './plugins/Nostradamus/Nostradamus';
 import ChristiePlugin from './plugins/Christie/Christie';
@@ -23,12 +23,12 @@ import {
 } from './plugins/AllPlugins';
 
 export default class ArcanaPlugin extends Plugin {
-  private agent: ArcanaAgent;
+  private agent: AIAgent;
   private settings: ArcanaSettings;
   private plugins: Record<AvailablePlugins, AvailablePluginTypes>;
 
   private makePlugin<T extends AvailablePluginTypes, S extends AvailablePluginSettingsTypes>(
-    constructor: new (agent: ArcanaAgent, plugin: Plugin, settings: S, saveSettings: () => Promise<void>) => T,
+    constructor: new (agent: AIAgent, plugin: Plugin, settings: S, saveSettings: () => Promise<void>) => T,
     settings: S
   ): T {
     return new constructor(this.agent, this, settings, this.saveSettings.bind(this));
@@ -42,7 +42,7 @@ export default class ArcanaPlugin extends Plugin {
 
     console.time('loadAgent');
     // Load the agent
-    this.agent = new ArcanaAgent(this.settings.agentSettings);
+    this.agent = new AIAgent(this.settings.agentSettings);
     console.timeEnd('loadAgent');
 
     console.time('createPlugins');
