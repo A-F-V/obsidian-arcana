@@ -1,6 +1,6 @@
 {
   "name": "arcana",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
