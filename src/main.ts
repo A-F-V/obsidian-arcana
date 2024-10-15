@@ -21,6 +21,7 @@ import {
   AvailablePluginTypes,
   defaultPluginSettings,
 } from './plugins/AllPlugins';
+import migrateSettings from './utilities/MigrateSettings';
 
 export default class ArcanaPlugin extends Plugin {
   private agent: AIAgent;
@@ -110,9 +111,14 @@ export default class ArcanaPlugin extends Plugin {
       pluginSettings: defaultPluginSettings,
     };
 
-    this.settings = Object.assign({}, defaultSettings, await this.loadData());
+    const settings = Object.assign({}, defaultSettings, await this.loadData());
 
-    // TODO: Validate the settings
+    // Migrate settings
+    const newSettings = migrateSettings(settings);
+    console.log('old settings', settings);
+    console.log('new settings', newSettings);
+    this.settings = newSettings;
+    await this.saveSettings();
   }
 
   async saveSettings() {

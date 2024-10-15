@@ -6,6 +6,7 @@
   "scripts": {
     "build:dev": "tsc -skipLibCheck && node esbuild.config.mjs --platform=node",
     "build:prod": "tsc -skipLibCheck && node esbuild.config.mjs production --platform=node && sass src/scss/main.scss styles.css --no-source-map --style=compressed",
+    "compile": "tsc -skipLibCheck",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "test": "jest"
   },

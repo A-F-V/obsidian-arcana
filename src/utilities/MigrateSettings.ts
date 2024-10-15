@@ -26,7 +26,7 @@ export default function migrateSettings(oldSettings: any): ArcanaSettings {
   const oldPluginSettings = ['Christie', 'Darwin', 'Feynman', 'Ford', 'Nostradamus', 'Polo', 'Socrates'];
   settings.pluginSettings = Object.assign({}, settings.pluginSettings);
   for (const plugin of oldPluginSettings) {
-    if (settings.PluginSettings[plugin]) {
+    if (settings.PluginSettings && settings.PluginSettings[plugin]) {
       const newName = plugin.toLowerCase();
       settings.pluginSettings[newName] = Object.assign({}, settings.pluginSettings[newName]);
       settings.pluginSettings[newName] = settings.PluginSettings[plugin];
