@@ -28,7 +28,7 @@ jobs:
         id: build
         run: |
           yarn
-          yarn run build
+          yarn run build:prod
 
       # Package the required files into a zip
       - name: Package
