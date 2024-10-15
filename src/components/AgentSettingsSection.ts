@@ -24,7 +24,7 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
       .setDesc('Your Anthropic API key')
       .addText(text =>
         text
-          .setPlaceholder('Anthropic API Key')
+          .setPlaceholder('Anthropic API key')
           .setValue(this.settings.ANTHROPIC_API_KEY)
           .onChange(async value => {
             this.settings.ANTHROPIC_API_KEY = value;
@@ -49,7 +49,7 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
       });
 
     new Setting(containerEl)
-      .setName('Text to Speech Language')
+      .setName('Text to speech language')
       .setDesc("The language used in AI's speech recognition")
       .addDropdown(dropdown => {
         dropdown

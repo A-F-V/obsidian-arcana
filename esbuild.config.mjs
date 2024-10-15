@@ -95,19 +95,17 @@ const context = await esbuild.context({
   treeShaking: true,
   minify: prod,
   drop: prod ? ['console', 'debugger'] : [],
-  //mangleProps: /^_/,
   plugins: [wasmPlugin],
   metafile: true,
 });
 
-if (prod) {
-  await context.rebuild();
+await context.rebuild();
 
-  //Print size of the output file 'main.js'
-  const fileSize = fs.statSync('main.js').size;
-  console.log(`Output size: ${fileSize} bytes`);
+//Print size of the output file 'main.js'
+const fileSize = fs.statSync('main.js').size;
+console.log(`Output size: ${fileSize} bytes`);
 
-  process.exit(0);
-} else {
-  await context.watch();
-}
+process.exit(0);
+
+// Not watching anymore for dev
+// await context.watch();

@@ -1,14 +1,14 @@
 import { Plugin, View, WorkspaceLeaf } from 'obsidian';
 import { ObsidianView } from './ObsidianView';
 import ArcanaPluginBase from './ArcanaPluginBase';
-import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
+import { AIAgent } from '@/include/ai/AI';
 
 export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginBase<SettingsType> {
   private viewType: string;
   private viewFactory: (leaf: WorkspaceLeaf) => View;
 
   constructor(
-    agent: ArcanaAgent,
+    agent: AIAgent,
     plugin: Plugin,
     settings: SettingsType,
     saveSettings: () => Promise<void>,
@@ -25,7 +25,8 @@ export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginB
   }
   async onload() {
     // Register the view if it's not already registered
-    if (!this.app.workspace.getLeavesOfType(this.viewType).length) {
+    const leaves = this.app.workspace.getLeavesOfType(this.viewType);
+    if (leaves.length === 0) {
       this.plugin.registerView(this.viewType, leaf => this.viewFactory(leaf));
     }
 
@@ -44,7 +45,8 @@ export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginB
     // First close the view
     await this.closeView();
     // If there are already views of this type, don't open a new one
-    if (this.app.workspace.getLeavesOfType(this.viewType).length > 0) return;
+    const leaves = this.app.workspace.getLeavesOfType(this.viewType);
+    if (leaves.length > 0) return;
     // Associate the view with a fresh left leaf
     this.app.workspace.getLeftLeaf(false)?.setViewState({
       type: this.viewType,

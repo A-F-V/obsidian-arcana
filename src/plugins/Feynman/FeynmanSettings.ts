@@ -10,7 +10,6 @@ export const defaultFeynmanSettings: FeynmanSettings = {
 export class FeynmanSettingsSection extends SettingsSection<FeynmanSettings> {
   public sectionTitle = 'Feynman';
   public display(containerEl: HTMLElement): void {
-    containerEl.createEl('h1', { text: 'Feynman' });
     new Setting(containerEl)
       .setName('Feynman flashcard folder')
       .setDesc('The folder where the flashcards will be stored')
