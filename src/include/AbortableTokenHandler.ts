@@ -1,6 +1,5 @@
-import ArcanaPlugin from 'src/main';
 import SerializableAborter from './Aborter';
-import { Editor, EditorPosition } from 'obsidian';
+import { Editor, EditorPosition, Plugin } from 'obsidian';
 
 abstract class TokenAbortRule {
   protected aborter: SerializableAborter;
@@ -42,7 +41,7 @@ export class AbortableTokenHandler {
 
 export class EscAbortRule extends TokenAbortRule {
   private cleanUp: () => void;
-  constructor(aborter: SerializableAborter, arcana: ArcanaPlugin) {
+  constructor(aborter: SerializableAborter, plugin: Plugin) {
     super(aborter);
 
     const escapeHandler = (event: KeyboardEvent) => {
@@ -50,13 +49,8 @@ export class EscAbortRule extends TokenAbortRule {
         this.aborter.abort();
       }
     };
-    window.addEventListener('keydown', escapeHandler);
 
-    this.cleanUp = () => {
-      window.removeEventListener('keydown', escapeHandler);
-      this.aborter.abort();
-    };
-    arcana.registerResource(this.cleanUp);
+    plugin.registerDomEvent(window, 'keydown', escapeHandler);
   }
 
   preToken(token: string): void {
@@ -84,8 +78,7 @@ export class CursorMoveAbortRule extends TokenAbortRule {
     const currentPosition = this.editor.getCursor();
     if (this.lastEditorPosition == null) return;
     const moved =
-      currentPosition.line != this.lastEditorPosition.line ||
-      currentPosition.ch != this.lastEditorPosition.ch;
+      currentPosition.line != this.lastEditorPosition.line || currentPosition.ch != this.lastEditorPosition.ch;
     if (moved) this.aborter.abort();
   }
   postToken(token: string): void {
@@ -94,14 +87,9 @@ export class CursorMoveAbortRule extends TokenAbortRule {
 }
 
 export class EditorAbortableTokenHandler extends AbortableTokenHandler {
-  constructor(
-    aborter: SerializableAborter,
-    handler: (token: string) => void,
-    editor: Editor,
-    arcana: ArcanaPlugin
-  ) {
+  constructor(aborter: SerializableAborter, handler: (token: string) => void, editor: Editor, plugin: Plugin) {
     super(aborter, handler);
     this.addAbortRule(new CursorMoveAbortRule(aborter, editor));
-    this.addAbortRule(new EscAbortRule(aborter, arcana));
+    this.addAbortRule(new EscAbortRule(aborter, plugin));
   }
 }

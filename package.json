@@ -1,7 +1,7 @@
 {
   "name": "arcana",
   "version": "1.6.6",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs --platform=node",
@@ -11,18 +11,22 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^16.11.6",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
     "@types/react-syntax-highlighter": "^15.5.7",
     "@typescript-eslint/eslint-plugin": "5.29.0",
-    "@typescript-eslint/parser": "5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
     "builtin-modules": "3.3.0",
     "esbuild": "0.17.3",
     "esbuild-plugin-wasm": "^1.0.0",
+    "eslint": "^8.57.1",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
     "obsidian": "latest",
+    "prettier": "^3.3.3",
     "sass": "^1.62.1",
     "tslib": "2.4.0",
     "typescript": "^4.7.4"

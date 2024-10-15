@@ -10,24 +10,14 @@ export interface EdenTextToSpeechParams {
   language: string;
 }
 
-export type OpenAIVoice =
-  | 'alloy'
-  | 'echo'
-  | 'fable'
-  | 'onyx'
-  | 'nova'
-  | 'shimmer';
+export type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 
 export interface OpenAITextToSpeechParams {
   voice: OpenAIVoice;
   rate: number;
 }
 export class OpenAITextToSpeech {
-  static async speak(
-    text: string,
-    api_key: string,
-    settings: OpenAITextToSpeechParams
-  ) {
+  static async speak(text: string, api_key: string, settings: OpenAITextToSpeechParams) {
     // Make a Rest Request body
     const body = JSON.stringify({
       model: 'tts-1',
@@ -52,11 +42,7 @@ export class OpenAITextToSpeech {
         // A OpenAI error
         if (response.status != 200) {
           console.log(response);
-          return Promise.reject(
-            new Error(
-              `Request failed with status ${response.status}: ${response.text}`
-            )
-          );
+          return Promise.reject(new Error(`Request failed with status ${response.status}: ${response.text}`));
         }
         // Everything is good
         // Construct an audio object from an mp3 arrayBuffer
@@ -73,11 +59,7 @@ export class OpenAITextToSpeech {
 }
 
 export class EdenTextToSpeech {
-  static async speak(
-    text: string,
-    api_key: string,
-    settings: EdenTextToSpeechParams
-  ): Promise<HTMLAudioElement> {
+  static async speak(text: string, api_key: string, settings: EdenTextToSpeechParams): Promise<HTMLAudioElement> {
     const body = JSON.stringify({
       providers: settings.provider,
       language: settings.language,
@@ -100,16 +82,11 @@ export class EdenTextToSpeech {
     }).then((response: RequestUrlResponse) => {
       // A EdenAI error
       if (response.status != 200) {
-        return Promise.reject(
-          new Error(
-            `Request failed with status ${response.status}: ${response.text}`
-          )
-        );
+        return Promise.reject(new Error(`Request failed with status ${response.status}: ${response.text}`));
       }
       // A provider error
       if (response.json[settings.provider]['status'] == 'fail') {
-        const errorMessage =
-          response.json[settings.provider]['error']['message'];
+        const errorMessage = response.json[settings.provider]['error']['message'];
         console.log(errorMessage);
         return Promise.reject(new Error(errorMessage));
       }

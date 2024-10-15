@@ -10,10 +10,10 @@ import {
 } from '@langchain/core/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
-import ArcanaPlugin from './main';
-import ArcanaSettings, { modelProvider } from './include/ArcanaSettings';
-import { escapeCurlyBraces } from './include/TextPostProcesssing';
+import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
+import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
 import { TokenTextSplitter } from 'langchain/text_splitter';
+import { ArcanaAgent } from './ArcanaAgent';
 
 class ConvState {
   connected = false;
@@ -25,17 +25,17 @@ class QuestionState {
 }
 
 export default class AIFeed {
-  private settings: ArcanaSettings;
+  private settings: AgentSettings;
 
   private convState: ConvState = new ConvState();
   private currentQuestionState: QuestionState | null = null;
   private conversationContext: string;
-  private memorySize: number = 6;
+  private memorySize = 6;
 
   private chain: ConversationChain | null = null;
 
   // Never fires exception
-  constructor(aiSettings: ArcanaSettings, conversationContext: string) {
+  constructor(aiSettings: AgentSettings, conversationContext: string) {
     this.settings = aiSettings;
     // Clean
     this.conversationContext = escapeCurlyBraces(conversationContext);
@@ -45,10 +45,8 @@ export default class AIFeed {
     // Sadly, Langchain does not cope well with streaming and exceptions. If an api error happens, it will not return a text/event-stream but instead an application/json with the error message.
     // This will throw that the stream was not returned instead of the error message.
     let errorMessage = `${e.message}`;
-    if (errorMessage.includes('401'))
-      errorMessage = 'Invalid API Key in Settings';
-    else if (errorMessage.contains('key not found'))
-      errorMessage = 'Invalid API Key in Settings';
+    if (errorMessage.includes('401')) errorMessage = 'Invalid API Key in Settings';
+    else if (errorMessage.contains('key not found')) errorMessage = 'Invalid API Key in Settings';
 
     new Notice(errorMessage);
     console.error(errorMessage);
@@ -128,9 +126,7 @@ export default class AIFeed {
   }
 
   private async sendTestMessage() {
-    this.getLLM(false).call([
-      new HumanMessage('This is a test of the API. Does it work?'),
-    ]);
+    this.getLLM(false).call([new HumanMessage('This is a test of the API. Does it work?')]);
   }
 
   public setContext(context: string) {
@@ -149,13 +145,16 @@ export default class AIFeed {
   }
 
   public async generateRawInputMessage(input: string): Promise<string> {
-    const history = await this.chain!.memory!.loadMemoryVariables([
-      'history',
-    ]).then(vars => vars['history']);
+    const memory = this.chain?.memory;
+    if (!memory) {
+      throw new Error('No memory');
+    }
+    const history = await memory.loadMemoryVariables(['history']).then(vars => vars['history']);
 
     return (
       this.conversationContext +
       '\n' +
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       history.map((msg: any) => msg.text).join('\n') +
       '\n' +
       input
@@ -173,10 +172,8 @@ export default class AIFeed {
 
   public async logCost(input: string, output: string) {
     // TODO log the cost correctly for anthropic
-    const inputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
-    const outputPrice =
-      this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
+    const inputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
+    const outputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
 
     const inputTokens = await this.tokenize(input);
     const outputTokens = await this.tokenize(output);
@@ -220,7 +217,11 @@ export default class AIFeed {
 
     const inputMessage = await this.generateRawInputMessage(question);
 
-    const response = await this.chain!.call(
+    const chain = this.chain;
+    if (!chain) {
+      throw new Error('No chain');
+    }
+    const response = await chain.call(
       {
         input: question,
       },
@@ -262,13 +263,10 @@ export class AIFeedRegistery {
   // AgentName to Conversation
   private static feeds: Map<string, AIFeed> = new Map<string, AIFeed>();
 
-  public static createFeedIfDoesNotExist(
-    arcana: ArcanaPlugin,
-    name: string
-  ): AIFeed {
+  public static createFeedIfDoesNotExist(agent: ArcanaAgent, name: string): AIFeed {
     let conv = this.getFeed(name);
     if (conv) return conv;
-    conv = arcana.startFeed(name);
+    conv = agent.startFeed(name);
     this.feeds.set(name, conv);
     return conv;
   }

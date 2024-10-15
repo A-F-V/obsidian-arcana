@@ -9,19 +9,14 @@ export class FSTraversalNode {
     this.children = [];
   }
 
-  public applyAtParentOf(
-    child: TAbstractFile,
-    f: (parent: FSTraversalNode, child: TAbstractFile) => void
-  ): void {
+  public applyAtParentOf(child: TAbstractFile, f: (parent: FSTraversalNode, child: TAbstractFile) => void): void {
     // if the child is the node, do nothing
     if (this.value === child) {
       return;
     }
     // Ensure that the child is a descendant of the node
     if (!FSTraversalNode.isDescendant(this.value, child)) {
-      throw new Error(
-        `Child ${child.path} is not a descendant of ${this.value.path}`
-      );
+      throw new Error(`Child ${child.path} is not a descendant of ${this.value.path}`);
     }
     for (const node of this.children) {
       if (FSTraversalNode.isDescendant(node.value, child)) {
@@ -33,21 +28,15 @@ export class FSTraversalNode {
   }
 
   public add(child: TAbstractFile) {
-    this.applyAtParentOf(
-      child,
-      (parent: FSTraversalNode, child: TAbstractFile) => {
-        parent.addNewChild(child);
-      }
-    );
+    this.applyAtParentOf(child, (parent: FSTraversalNode, child: TAbstractFile) => {
+      parent.addNewChild(child);
+    });
   }
 
   public remove(child: TAbstractFile) {
-    this.applyAtParentOf(
-      child,
-      (parent: FSTraversalNode, child: TAbstractFile) => {
-        parent.removeChild(child);
-      }
-    );
+    this.applyAtParentOf(child, (parent: FSTraversalNode, child: TAbstractFile) => {
+      parent.removeChild(child);
+    });
   }
 
   public removeIf(pred: (node: TAbstractFile) => boolean) {
@@ -61,10 +50,7 @@ export class FSTraversalNode {
     );
   }
 
-  public applyAll(
-    pred: (node: TAbstractFile) => boolean,
-    f: (node: FSTraversalNode) => void
-  ) {
+  public applyAll(pred: (node: TAbstractFile) => boolean, f: (node: FSTraversalNode) => void) {
     if (pred(this.value)) {
       f(this);
     }
@@ -82,9 +68,7 @@ export class FSTraversalNode {
 
   private removeChild(child: TAbstractFile): void {
     if (child.parent !== this.value) {
-      throw new Error(
-        `Child ${child.path} is not a child of ${this.value.path}`
-      );
+      throw new Error(`Child ${child.path} is not a child of ${this.value.path}`);
     }
     // Remove the child
     this.children = this.children.filter((node: FSTraversalNode) => {
@@ -102,16 +86,11 @@ export class FSTraversalNode {
     nextGenNode.add(child);
   }
 
-  private static getNextGeneration(
-    ancestor: TAbstractFile,
-    child: TAbstractFile
-  ): TAbstractFile {
+  private static getNextGeneration(ancestor: TAbstractFile, child: TAbstractFile): TAbstractFile {
     if (ancestor === child) {
       throw new Error(`Ancestor and child are the same: ${ancestor.path}`);
     } else if (!FSTraversalNode.isDescendant(ancestor, child)) {
-      throw new Error(
-        `Child ${child.path} is not a descendant of ${ancestor.path}`
-      );
+      throw new Error(`Child ${child.path} is not a descendant of ${ancestor.path}`);
     }
     if (child.parent === ancestor) {
       return child;
@@ -123,10 +102,7 @@ export class FSTraversalNode {
       }
     }
   }
-  private static isDescendant(
-    ancestor: TAbstractFile,
-    child: TAbstractFile
-  ): boolean {
+  private static isDescendant(ancestor: TAbstractFile, child: TAbstractFile): boolean {
     // If the ancestor is root, then the child is a descendant
     if (ancestor.path === '/') {
       return true;
@@ -166,10 +142,7 @@ export class FSTraversalOperators {
     return node;
   }
 
-  public static filter(
-    node: FSTraversalNode,
-    pred: (node: TAbstractFile) => boolean
-  ): FSTraversalNode {
+  public static filter(node: FSTraversalNode, pred: (node: TAbstractFile) => boolean): FSTraversalNode {
     node.removeIf((node: TAbstractFile) => !pred(node));
     return node;
   }
@@ -198,10 +171,7 @@ export class FSTraversalOperators {
     return output;
   }
 
-  public static prettyPrintCustom(
-    node: FSTraversalNode,
-    f: (node: TAbstractFile) => string
-  ): string {
+  public static prettyPrintCustom(node: FSTraversalNode, f: (node: TAbstractFile) => string): string {
     let output = '';
     node.prefixTraverse((node: TAbstractFile) => {
       output += f(node);

@@ -1,15 +1,8 @@
-import { App, Modal, Setting, debounce } from 'obsidian';
+import { App, Modal, debounce } from 'obsidian';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Root, createRoot } from 'react-dom/client';
 
-function QuestionModalView({
-  question,
-  onSubmit,
-}: {
-  question: string;
-  onSubmit: (result: string) => void;
-}) {
+function QuestionModalView({ question, onSubmit }: { question: string; onSubmit: (result: string) => void }) {
   const [result, setResult] = React.useState<string>('');
   return (
     <div>

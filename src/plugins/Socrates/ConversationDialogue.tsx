@@ -1,20 +1,16 @@
 import { MarkdownView, Notice, TFile } from 'obsidian';
 import MessageView from './MessageView';
-import React, { forwardRef, useImperativeHandle } from 'react';
+import * as React from 'react';
 import { useArcana } from 'src/hooks/hooks';
 import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatActionTypes, ChatAgentState, StoreDispatch } from './AgentState';
-import AIFeed, { AIFeedRegistery } from 'src/AIFeed';
-import {
-  RecordingError,
-  TranslationError,
-  WhisperButton,
-} from '../../components/MicrophoneButton';
+import AIFeed, { AIFeedRegistery } from '@/include/ai/Conversation';
+import { RecordingError, TranslationError, WhisperButton } from '../../components/MicrophoneButton';
 
-import { OpenAITextToSpeechParams } from '../../include/TextToSpeech';
+import { OpenAITextToSpeechParams } from '../../include/ai/TextToSpeech';
 
-export const ConversationDialogue = forwardRef(
+export const ConversationDialogue = React.forwardRef(
   (
     {
       current_file,
@@ -25,18 +21,16 @@ export const ConversationDialogue = forwardRef(
     },
     ref
   ) => {
-    const arcana = useArcana();
+    const { agent: arcanaAgent, app } = useArcana();
     // TODO: Whenever the messages change, even in a tiny way, an effect is triggered by redux, which is wasteful. So avoid retriggering when a message is changed
-    const { agent, messages } = useSelector(
-      (state: ChatAgentState) => state.agents[agentName]
-    );
+    const { agent, messages } = useSelector((state: ChatAgentState) => state.agents[agentName]);
     const [aiFeed, setAIFeed] = React.useState<AIFeed | null>(null);
     const userAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const buttonRef = React.useRef(null);
 
     const dispatch = useDispatch<StoreDispatch>();
 
-    useImperativeHandle(ref, () => ({
+    React.useImperativeHandle(ref, () => ({
       toggleMicrophone: () => {
         // @ts-ignore
         buttonRef.current?.toggleRecording();
@@ -91,12 +85,12 @@ export const ConversationDialogue = forwardRef(
     const getAgentToSpeak = React.useCallback(
       (text: string) => {
         const settings: OpenAITextToSpeechParams = agent.ttsParams;
-        arcana
+        arcanaAgent
           .speak(text, settings)
           .then((audio: HTMLAudioElement) => {
             audio.play();
           })
-          .catch((error: any) => {
+          .catch((error: Error) => {
             new Notice(`Error with Text to Speech:\n${error}`);
           });
       },
@@ -138,7 +132,7 @@ export const ConversationDialogue = forwardRef(
       [agentName, aiFeed, agent, askQuestion, createUserMessage]
     );
 
-    const onSubmitMessage = (e: any) => {
+    const onSubmitMessage = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter') sendMessage(e.currentTarget);
     };
 
@@ -150,7 +144,7 @@ export const ConversationDialogue = forwardRef(
           return;
         }
 
-        arcana.app.vault.read(current_file).then(fileContents => {
+        app.vault.read(current_file).then(fileContents => {
           const message = `Below is a document the user wants you to read. Once you have read, reply with "All read 👍." .\nTitle:${
             current_file.basename
           }\n${removeFrontMatter(fileContents)}`;
@@ -183,16 +177,10 @@ export const ConversationDialogue = forwardRef(
             alignItems: 'center',
           }}
         >
-          <button
-            className="beautiful-button"
-            onClick={() => sendFileMessage()}
-          >
+          <button className="beautiful-button" onClick={() => sendFileMessage()}>
             Send Note
           </button>
-          <button
-            className="beautiful-button"
-            onClick={() => resetConversation()}
-          >
+          <button className="beautiful-button" onClick={() => resetConversation()}>
             Reset
           </button>
         </div>
@@ -208,15 +196,11 @@ export const ConversationDialogue = forwardRef(
                     // TODO: Clean up
                     // Write the message to the current_file
                     // Get the editor for the active current_file
-                    const mdView = arcana.app.workspace.getMostRecentLeaf()
-                      ?.view as MarkdownView;
+                    const mdView = app.workspace.getMostRecentLeaf()?.view as MarkdownView;
                     if (mdView) {
                       // Get current selection
                       const selection = mdView.editor.getSelection();
-                      if (selection.length > 0)
-                        mdView.editor.replaceSelection(
-                          selection + ' ' + message.text
-                        );
+                      if (selection.length > 0) mdView.editor.replaceSelection(selection + ' ' + message.text);
                       else mdView.editor.replaceSelection(message.text);
                     }
                   }}
@@ -247,9 +231,7 @@ export const ConversationDialogue = forwardRef(
               <WhisperButton
                 ref={buttonRef}
                 onTranscription={onTranscription}
-                onFailedTranscription={(
-                  error: TranslationError | RecordingError
-                ) => {
+                onFailedTranscription={(error: TranslationError | RecordingError) => {
                   console.log(error);
                 }}
               />

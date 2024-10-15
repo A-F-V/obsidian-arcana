@@ -1,4 +1,4 @@
-import { App, Modal, Notice, Setting, TFolder } from 'obsidian';
+import { App, Modal, Setting, TFolder } from 'obsidian';
 
 export default class PoloApprovalModal extends Modal {
   private suggestions: Record<string, string>;

@@ -2,14 +2,8 @@
 A voice record button that uses OpenAI's Whispher model
 */
 import { useArcana } from '../hooks/hooks';
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-} from 'react';
+import * as React from 'react';
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 
 // An enum of recording errors
 export enum RecordingError {
@@ -26,10 +20,7 @@ class Recorder {
   onFinish: (blob: Blob) => void;
   onError: (e: RecordingError) => void;
 
-  constructor(
-    onFinish: (blob: Blob) => void,
-    onError: (e: RecordingError) => void
-  ) {
+  constructor(onFinish: (blob: Blob) => void, onError: (e: RecordingError) => void) {
     this.gumStream = null;
     this.recorder = null;
     this.chunks = [];
@@ -103,7 +94,7 @@ class Recorder {
       .getUserMedia(constraints)
       .then(callback)
       .catch(
-        function (err: any) {
+        function (err: Error) {
           // I think this is correct
           console.log(err);
           this.onError(RecordingError.NO_MICROPHONE_FOUND);
@@ -165,10 +156,7 @@ export const MicrophoneButton = forwardRef(
 
     return (
       <div>
-        <button
-          onClick={toggleRecording}
-          className={`recording-button ${recording ? 'active' : ''}`}
-        >
+        <button onClick={toggleRecording} className={`recording-button ${recording ? 'active' : ''}`}>
           {recording ? '🎙️' : '🎤'}
         </button>
       </div>
@@ -191,12 +179,12 @@ export const WhisperButton = forwardRef(
     },
     ref
   ) => {
-    const arcana = useArcana();
+    const { agent } = useArcana();
     const microphoneRef = useRef(null);
 
     const onRecordingEnd = useCallback(
       (blob: Blob) => {
-        arcana
+        agent
           .transcribe(new File([blob], 'recording.webm'))
           .then(text => {
             onTranscription(text);
@@ -218,11 +206,7 @@ export const WhisperButton = forwardRef(
     }));
 
     return (
-      <MicrophoneButton
-        ref={microphoneRef}
-        onRecordingEnd={onRecordingEnd}
-        onRecordingError={onFailedTranscription}
-      />
+      <MicrophoneButton ref={microphoneRef} onRecordingEnd={onRecordingEnd} onRecordingError={onFailedTranscription} />
     );
   }
 );

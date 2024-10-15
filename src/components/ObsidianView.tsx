@@ -1,13 +1,13 @@
-import ArcanaPlugin from 'src/main';
-import { ItemView } from 'obsidian';
+import { ItemView, Plugin, WorkspaceLeaf } from 'obsidian';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Root, createRoot } from 'react-dom/client';
-import { ArcanaContext } from 'src/hooks/context';
+import { ArcanaContext } from '@/hooks/context';
+import { ArcanaAgent } from '@/include/ai/ArcanaAgent';
 
 // The general boiler plate for creating an obsidian view
 export class ObsidianView extends ItemView {
-  private arcana: ArcanaPlugin;
+  private agent: ArcanaAgent;
+  private plugin: Plugin;
   private view: () => JSX.Element;
   private viewType: string;
   private iconName: string;
@@ -15,15 +15,17 @@ export class ObsidianView extends ItemView {
   private root: Root | null = null;
 
   constructor(
-    leaf: any,
-    arcana: ArcanaPlugin,
+    leaf: WorkspaceLeaf,
+    agent: ArcanaAgent,
+    plugin: Plugin,
     viewType: string,
     icon: string,
     displayText: string,
     view: () => JSX.Element
   ) {
     super(leaf);
-    this.arcana = arcana;
+    this.agent = agent;
+    this.plugin = plugin;
     this.view = view;
     this.viewType = viewType;
     this.iconName = icon;
@@ -47,7 +49,7 @@ export class ObsidianView extends ItemView {
 
     this.root.render(
       <React.StrictMode>
-        <ArcanaContext.Provider value={this.arcana}>
+        <ArcanaContext.Provider value={{ agent: this.agent, plugin: this.plugin, app: this.plugin.app }}>
           {React.createElement(this.view)}
         </ArcanaContext.Provider>
       </React.StrictMode>

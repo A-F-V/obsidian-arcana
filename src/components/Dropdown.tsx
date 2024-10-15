@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 
 const Dropdown = ({ options }: { options: string[] }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,16 +14,9 @@ const Dropdown = ({ options }: { options: string[] }) => {
 
   return (
     <div className="dd-wrapper">
-      <div
-        tabIndex={0}
-        className="dd-header"
-        role="button"
-        onClick={() => toggling()}
-      >
+      <div tabIndex={0} className="dd-header" role="button" onClick={() => toggling()}>
         <div className="dd-header__title">
-          <p className="dd-header__title--bold">
-            {selectedOption || 'Select an option'}
-          </p>
+          <p className="dd-header__title--bold">{selectedOption || 'Select an option'}</p>
         </div>
         <div className="dd-header__action">
           <p>{isOpen ? 'Close' : 'Open'}</p>
@@ -31,11 +25,7 @@ const Dropdown = ({ options }: { options: string[] }) => {
       {isOpen && (
         <ul className="dd-list">
           {options.map((option, i) => (
-            <li
-              className="dd-list-item"
-              key={i}
-              onClick={onOptionClicked(option)}
-            >
+            <li className="dd-list-item" key={i} onClick={onOptionClicked(option)}>
               {option}
             </li>
           ))}

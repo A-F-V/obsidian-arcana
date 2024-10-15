@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Author, Message } from './Message';
 import { AgentData } from './ConversationAgent';
 import MarkdownViewer from 'src/components/MarkdownViewer';
@@ -27,33 +27,17 @@ export default function MessageView({
       <div style={{ fontSize: '1.25em' }}>
         <div style={{ display: 'flex' }}>
           <div style={{ flex: 1 }}>
-            <b>
-              {!isAI
-                ? `${agent.userEmoji} You`
-                : `${agent.agentEmoji} ${agent.name}`}
-            </b>
+            <b>{!isAI ? `${agent.userEmoji} You` : `${agent.agentEmoji} ${agent.name}`}</b>
           </div>
           {isAI && (
             <div>
-              <button
-                className="beautiful-button"
-                style={{ marginInline: 10 }}
-                onClick={e => onCancel()}
-              >
+              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onCancel()}>
                 ❌
               </button>
-              <button
-                className="beautiful-button"
-                style={{ marginInline: 10 }}
-                onClick={e => onCopy()}
-              >
+              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onCopy()}>
                 ✍️
               </button>
-              <button
-                className="beautiful-button"
-                style={{ marginInline: 10 }}
-                onClick={e => onSpeak(message.text)}
-              >
+              <button className="beautiful-button" style={{ marginInline: 10 }} onClick={e => onSpeak(message.text)}>
                 🗣️
               </button>
             </div>

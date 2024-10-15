@@ -4,8 +4,7 @@ import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
-import React from 'react';
-
+import * as React from 'react';
 export default function MarkdownViewer({ markdown }: { markdown: string }) {
   return (
     <ReactMarkdown
@@ -28,8 +27,7 @@ export default function MarkdownViewer({ markdown }: { markdown: string }) {
                 customStyle={{
                   borderRadius: '0.5rem',
                   padding: '1rem',
-                  fontFamily:
-                    'Fira Code, Consolas, Menlo, Monaco, source-code-pro, Courier New, monospace',
+                  fontFamily: 'Fira Code, Consolas, Menlo, Monaco, source-code-pro, Courier New, monospace',
                 }}
               />
             </div>

@@ -1,17 +1,12 @@
 import { Editor, MarkdownView, Notice, TFile, normalizePath } from 'obsidian';
-import ArcanaPlugin from 'src/main';
-import {
-  removeFrontMatter,
-  surroundWithMarkdown,
-} from 'src/utilities/DocumentCleaner';
-import { PromptTemplate } from '@langchain/core/prompts';
-import { StructuredOutputParser } from 'langchain/output_parsers';
+import { removeFrontMatter } from 'src/utilities/DocumentCleaner';
 import ArcanaPluginBase from 'src/components/ArcanaPluginBase';
+import { NostradamusSettings } from './NostradamusSettings';
 
-export default class NostradamusPlugin extends ArcanaPluginBase {
+export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSettings> {
   public async onload() {
     // Register the nostradamus command
-    this.arcana.addCommand({
+    this.plugin.addCommand({
       id: 'nostradamus',
       name: 'Nostradamus Rename',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
@@ -30,13 +25,9 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
         const newPath = normalizePath(`${parentName}/${betterName}`);
 
         // Rename the file
-        await this.arcana.app.fileManager
-          .renameFile(file, newPath)
-          .catch(error => {
-            new Notice(
-              `Failed to rename file from ${file.basename} to ${betterName}: ${error}`
-            );
-          });
+        await this.app.fileManager.renameFile(file, newPath).catch(error => {
+          new Notice(`Failed to rename file from ${file.basename} to ${betterName}: ${error}`);
+        });
       },
     });
   }
@@ -45,7 +36,7 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
 
   private async getBetterName(file: TFile): Promise<string> {
     // 1) Get the contents of the file
-    let contents = await this.arcana.app.vault.read(file);
+    let contents = await this.app.vault.read(file);
     // 2) Clean the contents
     contents = removeFrontMatter(contents);
 
@@ -54,7 +45,7 @@ export default class NostradamusPlugin extends ArcanaPluginBase {
 
     const question = `Old title - ${file.basename}\nNote contents:\n${contents}\n\nWhat is the new title?`;
 
-    return await this.arcana.complete(question, context);
+    return await this.agent.complete(question, context);
   }
 
   private normalizeTitle(title: string): string {
