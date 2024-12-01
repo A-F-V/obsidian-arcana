@@ -40,7 +40,7 @@ export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginB
 
   private async activateView() {
     // First close the view
-    await this.closeView();
+    //await this.closeView();
 
     // If there are already views of this type, don't open a new one
     const leaves = this.app.workspace.getLeavesOfType(this.viewType);
