@@ -24,11 +24,8 @@ export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginB
     };
   }
   async onload() {
-    // Register the view if it's not already registered
-    const leaves = this.app.workspace.getLeavesOfType(this.viewType);
-    if (leaves.length === 0) {
-      this.plugin.registerView(this.viewType, leaf => this.viewFactory(leaf));
-    }
+    // Register the view
+    this.plugin.registerView(this.viewType, leaf => this.viewFactory(leaf));
 
     // Render when the layout is ready
     this.app.workspace.onLayoutReady(() => {
@@ -44,9 +41,11 @@ export default abstract class ViewPluginBase<SettingsType> extends ArcanaPluginB
   private async activateView() {
     // First close the view
     await this.closeView();
+
     // If there are already views of this type, don't open a new one
     const leaves = this.app.workspace.getLeavesOfType(this.viewType);
     if (leaves.length > 0) return;
+
     // Associate the view with a fresh left leaf
     this.app.workspace.getLeftLeaf(false)?.setViewState({
       type: this.viewType,
