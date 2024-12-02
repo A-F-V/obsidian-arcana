@@ -2,6 +2,7 @@ import Conversation from '@/include/ai/Conversation';
 import OpenAI from 'openai';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
 import { AgentSettings } from '../ArcanaSettings';
+import { requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian';
 
 export class AIAgent {
   private settings: AgentSettings;
@@ -29,16 +30,33 @@ export class AIAgent {
   }
 
   public async transcribe(file: File): Promise<string> {
-    const openai = new OpenAI({
-      apiKey: this.settings.OPEN_AI_API_KEY,
-      dangerouslyAllowBrowser: true,
-    });
-    const transcription = await openai.audio.transcriptions.create({
-      file: file,
-      model: 'whisper-1',
-      language: this.settings.INPUT_LANGUAGE,
-    });
-    return transcription.text;
+    console.log('Transcribing file: ' + file.name + ' (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB)');
+
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    formData.append('model', 'whisper-1');
+    formData.append('language', this.settings.INPUT_LANGUAGE);
+
+    // Make a fetch request
+    return await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.settings.OPEN_AI_API_KEY}`,
+      },
+      body: formData,
+    })
+      .then(async response => {
+        if (!response.ok) {
+          console.log(response);
+          return Promise.reject(new Error(`Request failed with status ${response.status}: ${await response.text()}`));
+        }
+        const result = await response.json();
+        return result.text;
+      })
+      .catch(reason => {
+        console.log(reason);
+        return Promise.reject(reason);
+      });
   }
 
   public async speak(text: string, settings: OpenAITextToSpeechParams): Promise<HTMLAudioElement> {

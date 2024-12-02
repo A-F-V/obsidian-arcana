@@ -1,6 +1,6 @@
 {
   "name": "arcana",
-  "version": "1.6.11",
+  "version": "1.6.12",
   "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
@@ -45,7 +45,7 @@
     "hnswlib-node": "^1.4.2",
     "langchain": "^0.2.16",
     "lowdb": "^4.0.0",
-    "openai": "^4.12.1",
+    "openai": "^4.73.1",
     "prism-themes": "^1.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

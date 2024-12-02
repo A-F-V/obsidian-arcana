@@ -1,6 +1,7 @@
 /*
 A voice record button that uses OpenAI's Whispher model
 */
+import { APIConnectionError } from 'openai';
 import { useArcana } from '../hooks/hooks';
 import * as React from 'react';
 import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
@@ -50,9 +51,6 @@ class Recorder {
       this.gumStream = stream;
 
       const options = {
-        audioBitsPerSecond: 96000, // 96kbps
-        videoBitsPerSecond: 0, // No video
-        bitsPerSecond: 96000,
         mimeType: 'audio/' + this.extension + ';codecs=opus',
       };
 
@@ -81,12 +79,7 @@ class Recorder {
       }).bind(this);
 
       //Chrome and Firefox will record one long chunk if you do not specify the chunck length
-      // Creates one long audio file (single chunck)
-      this.recorder.start();
-
-      //recorder.start();
-      //   recorder = null;
-      //   blob = null;
+      this.recorder.start(1000); // Create a chunk every 1000ms
       this.chunks = [];
     }).bind(this);
 
@@ -191,6 +184,10 @@ export const WhisperButton = forwardRef(
           })
           .catch(error => {
             console.log(error);
+            if (error instanceof APIConnectionError) {
+              console.log('API connection error');
+              console.log((error as APIConnectionError).type);
+            }
             onFailedTranscription(TranslationError.FAILED_TO_TRANSLATE);
           });
       },
