@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 *.js
 
@@ -23,9 +23,6 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
-
-# Exclude Package-lock
-package-lock.json
 
 desktop.ini
 
