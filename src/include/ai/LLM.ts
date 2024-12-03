@@ -3,6 +3,7 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { AgentSettings, AvailableModels } from '../ArcanaSettings';
 import { TokenTextSplitter } from 'langchain/text_splitter';
+import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 
 type Provider = 'openai' | 'anthropic' | 'gemini';
 
@@ -32,7 +33,7 @@ function getAPIKeyForProvider(settings: AgentSettings, provider: Provider): stri
   return null;
 }
 
-export function getLLM(settings: AgentSettings, streaming = true) {
+export function getLLM(settings: AgentSettings, streaming = true): BaseChatModel {
   const model = settings.MODEL_TYPE;
   const temperature = settings.TEMPERATURE;
   const topP = settings.TOP_P;
@@ -51,7 +52,6 @@ export function getLLM(settings: AgentSettings, streaming = true) {
         temperature: temperature,
         topP: topP,
         streaming: streaming,
-        maxRetries: 0,
       });
     case 'openai':
       return new ChatOpenAI({
@@ -60,7 +60,6 @@ export function getLLM(settings: AgentSettings, streaming = true) {
         temperature: temperature,
         topP: topP,
         streaming: streaming,
-        maxRetries: 0,
       });
     case 'gemini':
       return new ChatGoogleGenerativeAI({
@@ -69,7 +68,6 @@ export function getLLM(settings: AgentSettings, streaming = true) {
         temperature: temperature,
         topP: topP,
         streaming: streaming,
-        maxRetries: 0,
       });
   }
 }
