@@ -1,6 +1,6 @@
 import SettingsSection from './SettingsSection';
-import { AgentSettings, AvailableModels } from '../include/ArcanaSettings';
-import { Setting } from 'obsidian';
+import { AgentSettings, isAvailableModel, ModelDisplayNames } from '../include/ArcanaSettings';
+import { DropdownComponent, Setting } from 'obsidian';
 
 export default class AgentSettingsSection extends SettingsSection<AgentSettings> {
   public sectionTitle = 'AI Agent';
@@ -35,18 +35,25 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
     new Setting(containerEl)
       .setName('Model type')
       .setDesc('The model to use for generating text')
-      .addDropdown(dropdown => {
-        dropdown
-          .addOption('gpt-3.5-turbo', 'GPT3.5')
-          .addOption('gpt-4-turbo', 'GPT4')
-          .addOption('gpt-4o', 'GPT4o')
-          .addOption('claude-3-5-sonnet-20240620', 'Claude 3.5 Sonnet')
-          .setValue(this.settings.MODEL_TYPE)
-          .onChange(async value => {
-            this.settings.MODEL_TYPE = value as AvailableModels;
+      .addDropdown(
+        ((dropdown: DropdownComponent) => {
+          // Add all the options
+          Object.entries(ModelDisplayNames).forEach(([key, value]) => {
+            dropdown.addOption(key, value);
+          });
+
+          const loadedModel = isAvailableModel(this.settings.MODEL_TYPE) ? this.settings.MODEL_TYPE : 'gpt-4o-mini';
+
+          dropdown.setValue(loadedModel).onChange(async value => {
+            if (!isAvailableModel(value)) {
+              console.error('Invalid model: ' + value);
+              return;
+            }
+            this.settings.MODEL_TYPE = value;
             await this.saveSettings();
           });
-      });
+        }).bind(this)
+      );
 
     new Setting(containerEl)
       .setName('Text to speech language')
