@@ -33,6 +33,19 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
       );
 
     new Setting(containerEl)
+      .setName('Gemini API key')
+      .setDesc('Your Google Gemini API key')
+      .addText(text =>
+        text
+          .setPlaceholder('Gemini API key')
+          .setValue(this.settings.GEMINI_API_KEY)
+          .onChange(async value => {
+            this.settings.GEMINI_API_KEY = value;
+            await this.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
       .setName('Model type')
       .setDesc('The model to use for generating text')
       .addDropdown(
