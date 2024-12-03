@@ -1,6 +1,5 @@
 import { ConversationChain } from 'langchain/chains';
-import { ChatOpenAI } from '@langchain/openai';
-import { ChatAnthropic } from '@langchain/anthropic';
+
 import { HumanMessage } from '@langchain/core/messages';
 import {
   ChatPromptTemplate,
@@ -10,10 +9,10 @@ import {
 } from '@langchain/core/prompts';
 import { BufferWindowMemory } from 'langchain/memory';
 import { Notice } from 'obsidian';
-import { AgentSettings, modelProvider } from '@/include/ArcanaSettings';
+import { AgentSettings } from '@/include/ArcanaSettings';
 import { escapeCurlyBraces } from '@/include/TextPostProcesssing';
-import { TokenTextSplitter } from 'langchain/text_splitter';
 import { AIAgent } from './AI';
+import { calculateLLMCost, getLLM } from './LLM';
 
 class ConvState {
   connected = false;
@@ -55,42 +54,9 @@ export default class AIFeed {
     throw e;
   }
 
-  private getLLM(streaming = true) {
-    const model = this.settings.MODEL_TYPE;
-    const temperature = this.settings.TEMPERATURE;
-    const topP = this.settings.TOP_P;
-    const provider = modelProvider(model);
-    if (provider == 'anthropic') {
-      const apiKey = this.settings.ANTHROPIC_API_KEY;
-      if (!apiKey) {
-        throw new Error('No API Key in Settings');
-      }
-      return new ChatAnthropic({
-        apiKey: apiKey,
-        model: model,
-        temperature: temperature,
-        topP: topP,
-        streaming: streaming,
-        maxRetries: 0,
-      });
-    } else {
-      const apiKey = this.settings.OPEN_AI_API_KEY;
-      if (!apiKey) {
-        throw new Error('No API Key in Settings');
-      }
-      return new ChatOpenAI({
-        openAIApiKey: apiKey,
-        modelName: model,
-        temperature: temperature,
-        topP: topP,
-        streaming: streaming,
-        maxRetries: 0,
-      });
-    }
-  }
   private async connect() {
     try {
-      const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+      const chatPrompt = ChatPromptTemplate.fromMessages([
         SystemMessagePromptTemplate.fromTemplate(this.conversationContext),
         new MessagesPlaceholder('history'),
         HumanMessagePromptTemplate.fromTemplate('{input}'),
@@ -103,7 +69,7 @@ export default class AIFeed {
           k: this.memorySize,
         }),
         prompt: chatPrompt,
-        llm: this.getLLM(true),
+        llm: getLLM(this.settings, true),
       });
 
       // Test if the AI is working
@@ -126,7 +92,7 @@ export default class AIFeed {
   }
 
   private async sendTestMessage() {
-    this.getLLM(false).call([new HumanMessage('This is a test of the API. Does it work?')]);
+    getLLM(this.settings, false).invoke([new HumanMessage('This is a test of the API. Does it work?')]);
   }
 
   public setContext(context: string) {
@@ -159,35 +125,6 @@ export default class AIFeed {
       '\n' +
       input
     );
-  }
-
-  private async tokenize(input: string): Promise<string[]> {
-    const tokenSplitter = new TokenTextSplitter({
-      encodingName: 'cl100k_base',
-      chunkOverlap: 0,
-      chunkSize: 1,
-    });
-    return await tokenSplitter.splitText(input);
-  }
-
-  public async logCost(input: string, output: string) {
-    // TODO log the cost correctly for anthropic
-    const inputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.01 : 0.0005;
-    const outputPrice = this.settings.MODEL_TYPE == 'gpt-4-turbo' ? 0.03 : 0.0015;
-
-    const inputTokens = await this.tokenize(input);
-    const outputTokens = await this.tokenize(output);
-
-    const inputCost = (inputTokens.length / 1000) * inputPrice;
-    const outputCost = (outputTokens.length / 1000) * outputPrice;
-
-    const totalCost = inputCost + outputCost;
-    const message = `Cost: $${totalCost.toFixed(4)}`;
-    // TODO make this threshold a setting
-    if (totalCost > 0.05) {
-      new Notice(message);
-    }
-    console.log(message);
   }
 
   async askQuestion(
@@ -254,6 +191,15 @@ export default class AIFeed {
     return response.response;
   }
 
+  async logCost(input: string, output: string) {
+    const totalCost = await calculateLLMCost(this.settings.MODEL_TYPE, input, output);
+    const message = `Cost: ~$${totalCost.toFixed(4)}`;
+    // TODO make this threshold a setting
+    if (totalCost > 0.05) {
+      new Notice(message);
+    }
+    console.log(message);
+  }
   public getContext(): string {
     return this.conversationContext;
   }

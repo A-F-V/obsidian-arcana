@@ -1,21 +1,15 @@
 import { AvailablePluginSettings } from '@/plugins/AllPlugins';
 
-export type AvailableModels = 'gpt-3.5-turbo' | 'gpt-4-turbo' | 'gpt-4o' | 'claude-3-5-sonnet-20240620';
+export type AvailableModels = 'gpt-4o-mini' | 'gpt-4o' | 'claude-3-5-sonnet-latest' | 'claude-3-5-haiku-latest';
+export const ModelDisplayNames: Record<AvailableModels, string> = {
+  'gpt-4o-mini': 'GPT4o-mini',
+  'gpt-4o': 'GPT4o',
+  'claude-3-5-sonnet-latest': 'Claude 3.5 Sonnet',
+  'claude-3-5-haiku-latest': 'Claude 3.5 Haiku',
+};
 
 export function isAvailableModel(model: string): model is AvailableModels {
-  return (
-    model == 'gpt-3.5-turbo' || model == 'gpt-4-turbo' || model == 'gpt-4o' || model == 'claude-3-5-sonnet-20240620'
-  );
-}
-
-export type Provider = 'openai' | 'anthropic';
-
-export function modelProvider(model: AvailableModels): Provider {
-  if (model == 'gpt-3.5-turbo' || model == 'gpt-4-turbo' || model == 'gpt-4o') {
-    return 'openai';
-  } else {
-    return 'anthropic';
-  }
+  return Object.keys(ModelDisplayNames).includes(model);
 }
 
 // Plugins should not need to use these settings directly
@@ -36,7 +30,7 @@ export default interface ArcanaSettings {
 export const defaultAgentSettings: AgentSettings = {
   OPEN_AI_API_KEY: '',
   ANTHROPIC_API_KEY: '',
-  MODEL_TYPE: 'gpt-3.5-turbo',
+  MODEL_TYPE: 'gpt-4o-mini',
   INPUT_LANGUAGE: 'en',
   TEMPERATURE: 0.7,
   TOP_P: 1,

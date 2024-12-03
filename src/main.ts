@@ -83,7 +83,7 @@ export default class ArcanaPlugin extends Plugin {
     const sections: AnyArcanaSettingSections[] = [];
 
     // Agent goes on top
-    sections.push(new AgentSettingsSection(this.settings.agentSettings, this.saveSettings));
+    sections.push(new AgentSettingsSection(this.settings.agentSettings, this.saveSettings.bind(this)));
 
     // Plugins get added in order they are declared
     for (const plugin of Object.values(this.plugins)) {

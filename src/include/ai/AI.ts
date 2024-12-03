@@ -1,8 +1,6 @@
 import Conversation from '@/include/ai/Conversation';
-import OpenAI from 'openai';
 import { OpenAITextToSpeech, OpenAITextToSpeechParams } from './TextToSpeech';
 import { AgentSettings } from '../ArcanaSettings';
-import { requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian';
 
 export class AIAgent {
   private settings: AgentSettings;

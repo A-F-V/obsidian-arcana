@@ -37,7 +37,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.2.14",
+    "@langchain/anthropic": "^0.3.8",
     "@langchain/openai": "^0.2.6",
     "@reduxjs/toolkit": "^1.9.5",
     "async-mutex": "^0.4.0",
