@@ -1,9 +1,10 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { AgentSettings, AvailableModels } from '../ArcanaSettings';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
-type Provider = 'openai' | 'anthropic';
+type Provider = 'openai' | 'anthropic' | 'gemini';
 
 function modelProvider(model: AvailableModels): Provider {
   switch (model) {
@@ -13,6 +14,9 @@ function modelProvider(model: AvailableModels): Provider {
     case 'claude-3-5-sonnet-latest':
     case 'claude-3-5-haiku-latest':
       return 'anthropic';
+    case 'gemini-1.5-pro':
+    case 'gemini-1.5-flash':
+      return 'gemini';
   }
 }
 
@@ -22,6 +26,8 @@ function getAPIKeyForProvider(settings: AgentSettings, provider: Provider): stri
       return settings.OPEN_AI_API_KEY;
     case 'anthropic':
       return settings.ANTHROPIC_API_KEY;
+    case 'gemini':
+      return settings.GEMINI_API_KEY;
   }
   return null;
 }
@@ -56,6 +62,15 @@ export function getLLM(settings: AgentSettings, streaming = true) {
         streaming: streaming,
         maxRetries: 0,
       });
+    case 'gemini':
+      return new ChatGoogleGenerativeAI({
+        apiKey: apiKey,
+        modelName: model,
+        temperature: temperature,
+        topP: topP,
+        streaming: streaming,
+        maxRetries: 0,
+      });
   }
 }
 
@@ -74,6 +89,8 @@ const inputCostRate: Record<AvailableModels, number> = {
   'gpt-4o-mini': 0.15,
   'claude-3-5-sonnet-latest': 3.0,
   'claude-3-5-haiku-latest': 0.8,
+  'gemini-1.5-pro': 1.25,
+  'gemini-1.5-flash': 0.075,
 };
 
 const outputCostRate: Record<AvailableModels, number> = {
@@ -81,6 +98,8 @@ const outputCostRate: Record<AvailableModels, number> = {
   'gpt-4o': 10,
   'claude-3-5-sonnet-latest': 15,
   'claude-3-5-haiku-latest': 4,
+  'gemini-1.5-pro': 5,
+  'gemini-1.5-flash': 0.3,
 };
 
 export async function calculateLLMCost(model: AvailableModels, input: string, output: string) {
