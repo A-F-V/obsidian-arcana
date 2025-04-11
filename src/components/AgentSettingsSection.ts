@@ -48,25 +48,23 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
     new Setting(containerEl)
       .setName('Model type')
       .setDesc('The model to use for generating text')
-      .addDropdown(
-        ((dropdown: DropdownComponent) => {
-          // Add all the options
-          Object.entries(ModelDisplayNames).forEach(([key, value]) => {
-            dropdown.addOption(key, value);
-          });
+      .addDropdown((dropdown: DropdownComponent) => {
+        // Add all the options
+        Object.entries(ModelDisplayNames).forEach(([key, value]) => {
+          dropdown.addOption(key, value);
+        });
 
-          const loadedModel = isAvailableModel(this.settings.MODEL_TYPE) ? this.settings.MODEL_TYPE : 'gpt-4o-mini';
+        const loadedModel = isAvailableModel(this.settings.MODEL_TYPE) ? this.settings.MODEL_TYPE : 'gpt-4o-mini';
 
-          dropdown.setValue(loadedModel).onChange(async value => {
-            if (!isAvailableModel(value)) {
-              console.error('Invalid model: ' + value);
-              return;
-            }
-            this.settings.MODEL_TYPE = value;
-            await this.saveSettings();
-          });
-        }).bind(this)
-      );
+        dropdown.setValue(loadedModel).onChange(async value => {
+          if (!isAvailableModel(value)) {
+            console.error('Invalid model: ' + value);
+            return;
+          }
+          this.settings.MODEL_TYPE = value;
+          await this.saveSettings();
+        });
+      });
 
     new Setting(containerEl)
       .setName('Text to speech language')

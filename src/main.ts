@@ -1,6 +1,6 @@
 import { Plugin } from 'obsidian';
 
-import ArcanaSettings, { defaultAgentSettings } from './include/ArcanaSettings';
+import ArcanaSettings, { defaultAgentSettings, loadDynamicModels } from './include/ArcanaSettings';
 import ArcanaSettingsTab, {
   AnyArcanaSettingSections as AnyArcanaSettingSections,
 } from './components/ArcanaSettingsTab';
@@ -36,6 +36,8 @@ export default class ArcanaPlugin extends Plugin {
   }
 
   async onload() {
+    await loadDynamicModels();
+
     console.time('loadSetting');
     // Load the settings
     await this.loadSettings();
