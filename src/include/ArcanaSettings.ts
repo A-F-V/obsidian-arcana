@@ -23,7 +23,9 @@ export async function loadDynamicModels(): Promise<void> {
     return;
   }
 
-  const { data } = await res.json();
+  const { data } = (await res.json()) as { data: Array<{ id: string; name: string }> };
+
+  data.sort((a, b) => a.id.localeCompare(b.id));
 
   for (const model of data) {
     ModelDisplayNames[`openrouter:${model.id}`] = `OpenRouter: ${model.name}`;
