@@ -1,5 +1,4 @@
 import { AvailablePluginSettings } from '@/plugins/AllPlugins';
-import OpenAI from 'openai';
 
 export type AvailableModels =
   | 'gpt-4o-mini'
@@ -18,18 +17,15 @@ export const ModelDisplayNames: Record<AvailableModels, string> = {
   'gemini-1.5-flash': 'Gemini 1.5 Flash',
 };
 
-declare module 'openai/resources/models' {
-  export interface Model {
-    name: string;
-  }
-}
-
 export async function loadDynamicModels(): Promise<void> {
-  const client = new OpenAI({ baseURL: 'https://openrouter.ai/api/v1' });
+  const res = await fetch('https://openrouter.ai/api/v1/models');
+  if (res.status !== 200) {
+    return;
+  }
 
-  const modelIt = client.models.list();
+  const { data } = await res.json();
 
-  for await (const model of modelIt) {
+  for (const model of data) {
     ModelDisplayNames[`openrouter:${model.id}`] = `OpenRouter: ${model.name}`;
   }
 }
