@@ -46,6 +46,19 @@ export default class AgentSettingsSection extends SettingsSection<AgentSettings>
       );
 
     new Setting(containerEl)
+      .setName('OpenRouter API key')
+      .setDesc('Your OpenRouter API key')
+      .addText(text =>
+        text
+          .setPlaceholder('OpenRouter API key')
+          .setValue(this.settings.OPENROUTER_API_KEY)
+          .onChange(async value => {
+            this.settings.OPENROUTER_API_KEY = value;
+            await this.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
       .setName('Model type')
       .setDesc('The model to use for generating text')
       .addDropdown((dropdown: DropdownComponent) => {
