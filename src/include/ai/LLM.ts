@@ -5,7 +5,7 @@ import { AgentSettings, AvailableModels } from '../ArcanaSettings';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 
-type Provider = 'openai' | 'anthropic' | 'gemini';
+type Provider = 'openai' | 'anthropic' | 'gemini' | 'openrouter';
 
 function modelProvider(model: AvailableModels): Provider {
   switch (model) {
@@ -18,6 +18,8 @@ function modelProvider(model: AvailableModels): Provider {
     case 'gemini-1.5-pro':
     case 'gemini-1.5-flash':
       return 'gemini';
+    default:
+      return 'openrouter';
   }
 }
 
@@ -29,8 +31,9 @@ function getAPIKeyForProvider(settings: AgentSettings, provider: Provider): stri
       return settings.ANTHROPIC_API_KEY;
     case 'gemini':
       return settings.GEMINI_API_KEY;
+    case 'openrouter':
+      return settings.OPENROUTER_API_KEY;
   }
-  return null;
 }
 
 export function getLLM(settings: AgentSettings, streaming = true): BaseChatModel {
@@ -61,6 +64,19 @@ export function getLLM(settings: AgentSettings, streaming = true): BaseChatModel
         topP: topP,
         streaming: streaming,
       });
+    case 'openrouter':
+      return new ChatOpenAI(
+        {
+          openAIApiKey: apiKey,
+          modelName: model.replace(/^openrouter:/, ''),
+          temperature: temperature,
+          topP: topP,
+          streaming: streaming,
+        },
+        {
+          baseURL: 'https://openrouter.ai/api/v1',
+        }
+      );
     case 'gemini':
       return new ChatGoogleGenerativeAI({
         apiKey: apiKey,

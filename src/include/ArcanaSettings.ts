@@ -6,7 +6,8 @@ export type AvailableModels =
   | 'claude-3-5-sonnet-latest'
   | 'claude-3-5-haiku-latest'
   | 'gemini-1.5-pro'
-  | 'gemini-1.5-flash';
+  | 'gemini-1.5-flash'
+  | `openrouter:${string}`;
 export const ModelDisplayNames: Record<AvailableModels, string> = {
   'gpt-4o-mini': 'GPT4o-mini',
   'gpt-4o': 'GPT4o',
@@ -15,6 +16,21 @@ export const ModelDisplayNames: Record<AvailableModels, string> = {
   'gemini-1.5-pro': 'Gemini 1.5 Pro',
   'gemini-1.5-flash': 'Gemini 1.5 Flash',
 };
+
+export async function loadDynamicModels(): Promise<void> {
+  const res = await fetch('https://openrouter.ai/api/v1/models');
+  if (res.status !== 200) {
+    return;
+  }
+
+  const { data } = (await res.json()) as { data: Array<{ id: string; name: string }> };
+
+  data.sort((a, b) => a.id.localeCompare(b.id));
+
+  for (const model of data) {
+    ModelDisplayNames[`openrouter:${model.id}`] = `OpenRouter: ${model.name}`;
+  }
+}
 
 export function isAvailableModel(model: string): model is AvailableModels {
   return Object.keys(ModelDisplayNames).includes(model);
@@ -25,6 +41,7 @@ export interface AgentSettings {
   OPEN_AI_API_KEY: string;
   ANTHROPIC_API_KEY: string;
   GEMINI_API_KEY: string;
+  OPENROUTER_API_KEY: string;
   MODEL_TYPE: AvailableModels;
   INPUT_LANGUAGE: string;
   TEMPERATURE: number;
@@ -40,6 +57,7 @@ export const defaultAgentSettings: AgentSettings = {
   OPEN_AI_API_KEY: '',
   ANTHROPIC_API_KEY: '',
   GEMINI_API_KEY: '',
+  OPENROUTER_API_KEY: '',
   MODEL_TYPE: 'gpt-4o-mini',
   INPUT_LANGUAGE: 'en',
   TEMPERATURE: 0.7,
