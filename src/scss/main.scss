@@ -1,8 +1,7 @@
-@import url('https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css');
-
 //import markdown.scss file
-@import 'markdown.scss';
-@import 'recording.scss';
+@use 'markdown';
+@use 'recording';
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css');
 
 // Colours
 // TODO: Colours should be in a separate file
