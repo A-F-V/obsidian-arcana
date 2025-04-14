@@ -16,9 +16,10 @@ export default class NostradamusPlugin extends ArcanaPluginBase<NostradamusSetti
           return;
         }
         // Get the better name
+        console.log('[Nostradamus] Old Name: ', file.basename);
         let betterName = await this.getBetterName(file);
         betterName = this.normalizeTitle(betterName);
-
+        console.log('[Nostradamus] New Name: ', betterName);
         const parentFolder = file.parent;
         const parentName = normalizePath(parentFolder?.path ?? '');
         // Join the parent folder and the better name
