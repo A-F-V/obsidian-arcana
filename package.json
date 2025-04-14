@@ -1,6 +1,6 @@
 {
   "name": "arcana",
-  "version": "1.6.17",
+  "version": "1.7.0",
   "description": "Arcana is a powerful AI assistant for Obsidian.",
   "main": "main.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.13",
     "@types/node": "^16.11.6",
-    "@types/react": "^18.2.0",
+    "@types/react": "^18.3.20",
     "@types/react-dom": "^18.2.1",
     "@types/react-syntax-highlighter": "^15.5.7",
     "@typescript-eslint/eslint-plugin": "5.29.0",
