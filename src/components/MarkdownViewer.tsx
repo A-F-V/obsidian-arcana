@@ -6,8 +6,11 @@ import * as React from 'react';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const LazySyntaxHighlighter = React.lazy(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  () => import('react-syntax-highlighter').then(module => ({ default: module.Prism as React.ComponentType<any> })) // @ts-ignore
+  () =>
+    import('react-syntax-highlighter').then(module => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      default: module.Prism as unknown as React.ComponentType<any>,
+    })) // @ts-ignore
 );
 
 export default function MarkdownViewer({ markdown }: { markdown: string }) {
