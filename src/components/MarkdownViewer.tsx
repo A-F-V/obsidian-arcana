@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import * as React from 'react';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+// @ts-ignore
 const SyntaxHighlighter = React.lazy(() =>
   import('react-syntax-highlighter').then(module => ({ default: module.Prism }))
 );
